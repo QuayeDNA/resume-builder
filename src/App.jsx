@@ -4,6 +4,7 @@ import { useAutoSave } from './hooks/useAutoSave'
 import SideNav, { NAV_ITEMS } from './components/Editor/SideNav'
 import EditorPanel from './components/Editor/EditorPanel'
 import PreviewPanel from './components/Preview/PreviewPanel'
+import SplashScreen from './components/SplashScreen'
 import useResumeStore from './store/useResumeStore'
 import { exportToPdf } from './utils/pdf'
 
@@ -162,11 +163,26 @@ function RadialNavOverlay({ open, onClose }) {
 export default function App() {
   useAutoSave()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
+  const [showSplash, setShowSplash] = useState(true)
   const mobileView = useResumeStore((s) => s.activeView)
   const setMobileView = useResumeStore((s) => s.setActiveView)
 
+  useEffect(() => {
+    // Check if splash screen has been shown before (within this session)
+    // It will show on every fresh page load but only once per session
+    const splashShown = sessionStorage.getItem('resume-builder:splash-shown')
+    if (splashShown) {
+      setShowSplash(false)
+    } else {
+      sessionStorage.setItem('resume-builder:splash-shown', 'true')
+    }
+  }, [])
+
   return (
-    <div className="min-h-dvh bg-void font-sans text-primary lg:grid lg:h-dvh lg:grid-cols-[max-content_minmax(20rem,24rem)_minmax(0,1fr)] lg:overflow-hidden">
+    <>
+      {showSplash && <SplashScreen onDismiss={() => setShowSplash(false)} />}
+
+      <div className="min-h-dvh bg-void font-sans text-primary lg:grid lg:h-dvh lg:grid-cols-[max-content_minmax(20rem,24rem)_minmax(0,1fr)] lg:overflow-hidden">
       <MobileHeader
         onMenuToggle={() => setMobileNavOpen(true)}
         mobileView={mobileView}
@@ -191,5 +207,6 @@ export default function App() {
         <PreviewPanel />
       </div>
     </div>
+    </>
   )
 }
