@@ -3,7 +3,7 @@ import { FileText } from 'lucide-react'
 
 /**
  * SplashScreen / Loader component shown on initial app load
- * Automatically dismisses after 2.5 seconds or when content loads
+ * Automatically dismisses after 2.5 seconds
  */
 export default function SplashScreen({ onDismiss }) {
   const [isClosing, setIsClosing] = useState(false)
@@ -29,24 +29,6 @@ export default function SplashScreen({ onDismiss }) {
       {/* Animated background gradient */}
       <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-brand/10 via-void to-void opacity-30" />
 
-      {/* Animated dots */}
-      <div className="absolute inset-0 flex items-center justify-center">
-        <div className="relative h-40 w-40">
-          {[...Array(3)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute h-3 w-3 rounded-full bg-brand animate-pulse"
-              style={{
-                top: '50%',
-                left: '50%',
-                animation: `orbit 3s linear infinite`,
-                animationDelay: `${i * -1}s`,
-              }}
-            />
-          ))}
-        </div>
-      </div>
-
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-6">
         {/* Icon */}
@@ -56,7 +38,7 @@ export default function SplashScreen({ onDismiss }) {
 
         {/* Title */}
         <div className="text-center">
-          <h1 className="font-display text-3xl font-bold tracking-tight text-brand mb-2 animate-fade-in">
+          <h1 className="font-display text-3xl font-bold tracking-tight text-brand mb-2">
             Resume Builder
           </h1>
           <p className="text-body text-secondary opacity-75">
@@ -64,14 +46,15 @@ export default function SplashScreen({ onDismiss }) {
           </p>
         </div>
 
-        {/* Loading dots */}
-        <div className="flex gap-1.5">
+        {/* Simple dot loader */}
+        <div className="flex gap-2">
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="h-2 w-2 rounded-full bg-brand animate-pulse"
+              className="h-2 w-2 rounded-full bg-brand"
               style={{
-                animationDelay: `${i * 0.15}s`,
+                animation: `bounce 1.4s infinite ease-in-out`,
+                animationDelay: `${i * 0.16}s`,
               }}
             />
           ))}
@@ -79,20 +62,14 @@ export default function SplashScreen({ onDismiss }) {
       </div>
 
       <style>{`
-        @keyframes orbit {
-          0% {
-            transform: rotate(0deg) translateX(60px) rotate(0deg);
+        @keyframes bounce {
+          0%, 80%, 100% {
             opacity: 0.3;
+            transform: scale(1);
           }
-          25% {
-            opacity: 0.8;
-          }
-          50% {
-            opacity: 0.3;
-          }
-          100% {
-            transform: rotate(360deg) translateX(60px) rotate(-360deg);
-            opacity: 0.3;
+          40% {
+            opacity: 1;
+            transform: scale(1.2);
           }
         }
       `}</style>

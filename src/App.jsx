@@ -183,21 +183,21 @@ export default function App() {
       {showSplash && <SplashScreen onDismiss={() => setShowSplash(false)} />}
 
       <div className="min-h-dvh bg-void font-sans text-primary lg:grid lg:h-dvh lg:grid-cols-[max-content_minmax(20rem,24rem)_minmax(0,1fr)] lg:overflow-hidden">
-      <MobileHeader
-        onMenuToggle={() => setMobileNavOpen(true)}
-        mobileView={mobileView}
-        onViewChange={setMobileView}
-      />
+        <MobileHeader
+          onMenuToggle={() => setMobileNavOpen(true)}
+          mobileView={mobileView}
+          onViewChange={setMobileView}
+        />
 
-      <RadialNavOverlay open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
+        <RadialNavOverlay open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
 
-      <div className="hidden border-r border-hairline lg:block">
-        <SideNav />
-      </div>
+        <div className="hidden border-r border-hairline lg:block">
+          <SideNav />
+        </div>
 
-      <div className="min-h-0 pt-28 lg:hidden">
-        {mobileView === 'edit' ? <EditorPanel /> : <PreviewPanel />}
-      </div>
+        <div className="min-h-0 pt-28 lg:hidden">
+          {mobileView === 'edit' ? <EditorPanel /> : <PreviewPanel />}
+        </div>
 
       <div className="hidden min-h-0 lg:block lg:overflow-hidden">
         <EditorPanel />
@@ -206,7 +206,7 @@ export default function App() {
       <div className="hidden min-h-0 lg:block lg:overflow-hidden">
         <PreviewPanel />
       </div>
-    </div>
+      </div>
     </>
   )
 }
