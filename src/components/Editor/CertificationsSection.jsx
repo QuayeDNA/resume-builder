@@ -12,7 +12,7 @@ export default function CertificationsSection() {
       {certifications.map((c) => (
         <EntryCard key={c.id} onDelete={() => removeCertification(c.id)}>
           <Input label="Certification Name" value={c.name}   onChange={(v) => updateCertification(c.id, 'name', v)}   placeholder="AWS Solutions Architect" />
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <Input label="Issuer" value={c.issuer} onChange={(v) => updateCertification(c.id, 'issuer', v)} placeholder="Amazon" />
             <Input label="Year"   value={c.year}   onChange={(v) => updateCertification(c.id, 'year', v)}   placeholder="2023" />
           </div>

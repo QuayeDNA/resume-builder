@@ -1,6 +1,7 @@
 import { Card, AiButton, Badge } from '../UI'
+import { Hint } from '../../design/components'
 import { useAi } from '../../hooks/useAi'
-import { aiSuggestSkills } from '../../api/claude'
+import { aiSuggestSkills } from '../../api/ai'
 import useResumeStore from '../../store/useResumeStore'
 import toast from 'react-hot-toast'
 
@@ -25,7 +26,7 @@ export default function SkillsSection() {
 
   return (
     <Card title="Skills">
-      <p className="text-[9.5px] text-gray-600 mb-2">Comma-separated. Click × to remove.</p>
+      <Hint>Comma-separated. Click × to remove a skill.</Hint>
       <textarea
         value={skills.join(', ')}
         onChange={(e) =>
@@ -33,15 +34,15 @@ export default function SkillsSection() {
         }
         placeholder="React, TypeScript, Node.js, Figma…"
         rows={3}
-        className="w-full bg-[#1c1c2e] border border-[#2a2a44] rounded-md px-3 py-2 text-[#dcdcf0] text-[11.5px] font-sans placeholder-[#3a3a5a] resize-y mb-2 transition-colors"
+        className="w-full bg-elevated-2 border border-subtle rounded-lg px-2.5 py-1.5 text-body text-primary placeholder:text-disabled resize-y transition-all duration-100 focus:border-brand focus:ring-1 focus:ring-brand-subtle focus:outline-none"
       />
       <AiButton onClick={handleSuggest} loading={isLoading('skills')}>
         AI Suggest Skills
       </AiButton>
       {skills.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-3">
+        <div className="flex flex-wrap gap-1.5 mt-2">
           {skills.filter((s) => s.trim()).map((s, i) => (
-            <Badge key={i} onRemove={() => removeSkill(i)}>
+            <Badge key={i} variant="brand" onRemove={() => removeSkill(i)}>
               {s}
             </Badge>
           ))}

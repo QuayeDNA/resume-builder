@@ -4,11 +4,23 @@
 
 @layer base {
   * { box-sizing: border-box; }
-  body { background: #070710; margin: 0; }
+  html, body, #root { min-height: 100%; }
+  body {
+    background: #070710;
+    margin: 0;
+    color: #e8e6f0;
+    overflow-x: hidden;
+  }
   ::-webkit-scrollbar { width: 3px; height: 3px; }
   ::-webkit-scrollbar-track { background: #090912; }
   ::-webkit-scrollbar-thumb { background: #20203a; border-radius: 3px; }
-  input, textarea, select { outline: none; }
+  input, textarea, select {
+    outline: none;
+    background: #161622;
+    color: #e8e6f0;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 0.75rem;
+  }
   input:focus, textarea:focus, select:focus {
     border-color: #6c63ff !important;
     box-shadow: 0 0 0 2px rgba(108,99,255,0.12);

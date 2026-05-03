@@ -12,7 +12,7 @@ export default function LanguagesSection() {
     <Card title="Languages" onAdd={addLanguage} addLabel="Add Language">
       {languages.map((l) => (
         <EntryCard key={l.id} onDelete={() => removeLanguage(l.id)}>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
             <Input
               label="Language"
               value={l.language}

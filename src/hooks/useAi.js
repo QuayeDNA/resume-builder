@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
+import { getProviderLabel } from '../api/ai'
 
 /**
  * Wrapper hook for AI calls with loading state + toast notifications
@@ -12,7 +13,8 @@ export function useAi() {
     try {
       const result = await asyncFn()
       onSuccess(result)
-      toast.success('AI done ✦')
+      const provider = getProviderLabel()
+      toast.success(`${provider} ✦`)
     } catch (err) {
       toast.error(err.message || 'AI request failed')
     } finally {

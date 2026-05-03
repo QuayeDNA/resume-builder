@@ -1,6 +1,6 @@
 import { Card, Input, TextArea, AiButton } from '../UI'
 import { useAi } from '../../hooks/useAi'
-import { aiImproveSummary } from '../../api/claude'
+import { aiImproveSummary } from '../../api/ai'
 import useResumeStore from '../../store/useResumeStore'
 
 export default function PersonalSection() {
@@ -18,12 +18,12 @@ export default function PersonalSection() {
       <Input label="Full Name"  value={personal.name}     onChange={(v) => updatePersonal('name', v)}     placeholder="Jane Doe" />
       <Input label="Job Title"  value={personal.title}    onChange={(v) => updatePersonal('title', v)}    placeholder="Software Engineer" />
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Input label="Email"  value={personal.email} onChange={(v) => updatePersonal('email', v)} placeholder="jane@email.com" />
         <Input label="Phone"  value={personal.phone} onChange={(v) => updatePersonal('phone', v)} placeholder="+1 555 0000" />
       </div>
 
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Input label="Location" value={personal.location} onChange={(v) => updatePersonal('location', v)} placeholder="New York, NY" />
         <Input label="Website"  value={personal.website}  onChange={(v) => updatePersonal('website', v)}  placeholder="yoursite.com" />
       </div>

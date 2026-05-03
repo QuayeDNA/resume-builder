@@ -1,66 +1,67 @@
-import { FileDown } from 'lucide-react'
+import { FileDown, User, Briefcase, GraduationCap, Wrench, FolderOpen, Award, Languages, Mail, Palette, Save } from 'lucide-react'
 import { exportToPdf } from '../../utils/pdf'
 import useResumeStore from '../../store/useResumeStore'
 
-const NAV_ITEMS = [
-  { id: 'personal',       icon: '◈', label: 'Info'     },
-  { id: 'experience',     icon: '◉', label: 'Work'     },
-  { id: 'education',      icon: '◑', label: 'Edu'      },
-  { id: 'skills',         icon: '⬡', label: 'Skills'   },
-  { id: 'projects',       icon: '◆', label: 'Projects' },
-  { id: 'certifications', icon: '◇', label: 'Certs'    },
-  { id: 'languages',      icon: '◎', label: 'Lang'     },
-  { id: 'coverletter',    icon: '✉', label: 'Cover'    },
-  { id: 'design',         icon: '◻', label: 'Design'   },
-  { id: 'saved',          icon: '⊞', label: 'Saved'    },
+export const NAV_ITEMS = [
+  { id: 'personal',       icon: User,           label: 'Info'     },
+  { id: 'experience',     icon: Briefcase,      label: 'Work'     },
+  { id: 'education',      icon: GraduationCap,  label: 'Edu'      },
+  { id: 'skills',         icon: Wrench,         label: 'Skills'   },
+  { id: 'projects',       icon: FolderOpen,     label: 'Projects' },
+  { id: 'certifications', icon: Award,          label: 'Certs'    },
+  { id: 'languages',      icon: Languages,      label: 'Lang'     },
+  { id: 'coverletter',    icon: Mail,           label: 'Cover'    },
+  { id: 'design',         icon: Palette,        label: 'Design'   },
+  { id: 'saved',          icon: Save,           label: 'Saved'    },
 ]
 
 export default function SideNav() {
-  const activeSection   = useResumeStore((s) => s.activeSection)
+  const activeSection    = useResumeStore((s) => s.activeSection)
   const setActiveSection = useResumeStore((s) => s.setActiveSection)
-  const savedAt         = useResumeStore((s) => s.savedAt)
-  const data            = useResumeStore((s) => s.data)
+  const savedAt          = useResumeStore((s) => s.savedAt)
+  const data             = useResumeStore((s) => s.data)
 
   const handleExport = () => exportToPdf('resume-preview', data.personal.name || 'resume')
 
   return (
-    <nav className="w-14 bg-[#040408] flex flex-col items-center py-3 gap-0.5 border-r border-[#0c0c1c] flex-shrink-0">
-      {/* Logo */}
-      <div className="font-display text-brand-500 text-base font-bold mb-3 mt-1">R</div>
+    <nav className="hidden h-full min-h-0 w-max shrink-0 flex-col items-stretch gap-1 overflow-y-auto border-r border-hairline bg-void px-2 py-3 lg:flex">
+      <div className="mb-3 flex h-11 w-max items-center justify-center rounded-xl border border-hairline bg-elevated/60 px-3 font-display text-base font-bold tracking-tight text-brand">
+        R
+      </div>
 
-      {/* Nav items */}
-      {NAV_ITEMS.map((n) => (
-        <button
-          key={n.id}
-          onClick={() => setActiveSection(n.id)}
-          title={n.label}
-          className={`w-11 h-11 rounded-lg flex flex-col items-center justify-center gap-0.5 transition-all ${
-            activeSection === n.id
-              ? 'bg-brand-500/10 text-brand-400'
-              : 'bg-transparent text-[#2e2e4e] hover:text-[#5e5e8e]'
-          }`}
-        >
-          <span className="text-[13px] leading-none">{n.icon}</span>
-          <span className="text-[6px] font-mono tracking-[0.2px]">{n.label}</span>
-        </button>
-      ))}
+      {NAV_ITEMS.map((n) => {
+        const isActive = activeSection === n.id
+        return (
+          <button
+            key={n.id}
+            onClick={() => setActiveSection(n.id)}
+            title={n.label}
+            className={`flex h-11 w-max min-w-[3.5rem] flex-col items-center justify-center gap-0.5 rounded-xl border px-3 transition-all duration-100 ${
+              isActive
+                ? 'border-brand/30 bg-brand-subtle text-brand'
+                : 'border-transparent bg-transparent text-text-muted hover:border-subtle hover:bg-elevated/50 hover:text-primary'
+            }`}
+          >
+            <n.icon size={14} strokeWidth={isActive ? 2 : 1.5} />
+            <span className="text-[7px] font-mono tracking-wide leading-none">{n.label}</span>
+          </button>
+        )
+      })}
 
-      <div className="flex-1" />
+      <div className="min-h-3 flex-1" />
 
-      {/* Auto-save indicator */}
       {savedAt && (
-        <div className="text-[6px] text-[#1a1a30] font-mono mb-1 text-center leading-tight">
-          auto<br/>saved
+        <div className="mb-1 px-1 text-center font-mono text-[7px] leading-tight text-text-muted/40">
+          saved
         </div>
       )}
 
-      {/* Export button */}
       <button
         onClick={handleExport}
         title="Export PDF"
-        className="w-11 h-11 rounded-lg bg-[#0c1e0c] text-[#3a8a3a] flex items-center justify-center hover:bg-[#122012] transition-colors mb-1"
+        className="mb-1 flex h-11 w-max min-w-[3.5rem] items-center justify-center rounded-xl border border-success/20 bg-success-subtle px-3 text-success transition-all duration-100 hover:bg-success/15"
       >
-        <FileDown size={15} />
+        <FileDown size={14} />
       </button>
     </nav>
   )

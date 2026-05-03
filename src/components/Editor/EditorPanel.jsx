@@ -47,17 +47,15 @@ export default function EditorPanel() {
   const activeSection = useResumeStore((s) => s.activeSection)
 
   return (
-    <aside className="w-[300px] bg-[#0a0a18] border-r border-[#0d0d1e] flex flex-col flex-shrink-0 overflow-hidden">
-      {/* Section header */}
-      <div className="px-3.5 pt-3 pb-2 flex-shrink-0">
-        <h2 className="text-[11px] font-semibold text-brand-400 font-display">
+    <aside className="flex min-h-0 w-full min-w-0 flex-col overflow-hidden border-r border-hairline bg-obsidian lg:w-full lg:max-w-[24rem] xl:max-w-[26rem]">
+      <div className="flex-shrink-0 border-b border-hairline px-4 py-3">
+        <h2 className="text-heading text-brand">
           {SECTION_LABELS[activeSection] || ''}
         </h2>
-        <div className="h-px mt-1" style={{ background: 'linear-gradient(to right, rgba(108,99,255,0.2), transparent)' }} />
+        <div className="mt-2 h-px bg-gradient-to-r from-brand/20 to-transparent" />
       </div>
 
-      {/* Scrollable section content */}
-      <div key={activeSection} className="flex-1 overflow-y-auto px-3.5 pb-3 animate-fade-up">
+      <div key={activeSection} className="flex-1 overflow-y-auto px-4 py-4 space-y-3 animate-fade-up">
         <SectionContent section={activeSection} />
         {SHOW_ATS.includes(activeSection) && <AtsChecker />}
       </div>

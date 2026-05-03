@@ -1,16 +1,30 @@
-export default function IconButton({ onClick, children, title, variant = 'ghost', className = '' }) {
-  const variants = {
-    ghost:   'bg-transparent text-[#333] hover:text-[#888]',
-    danger:  'bg-[#251515] text-[#7a3333] hover:bg-[#3a2020] hover:text-[#cc5555]',
-    success: 'bg-[#0c180c] text-[#3a7a3a] hover:bg-[#162016]',
-    primary: 'bg-gradient-to-br from-[#3a2a8a] to-[#5c54e0] text-white hover:opacity-90',
+import { cn } from '../../utils/classNames'
+
+const variants = {
+  ghost:   'bg-transparent text-text-muted hover:text-primary hover:bg-elevated-2',
+  danger:  'bg-error-subtle text-error border border-error/20 hover:bg-error/20',
+  success: 'bg-success-subtle text-success border border-success/20 hover:bg-success/20',
+  primary: 'bg-brand text-white border border-brand-hover hover:bg-brand-hover',
+}
+
+export default function IconButton({ onClick, children, title, variant = 'ghost', className, size = 'md', ...props }) {
+  const sizes = {
+    sm: 'w-5 h-5',
+    md: 'w-7 h-7',
+    lg: 'w-9 h-9',
   }
 
   return (
     <button
       onClick={onClick}
       title={title}
-      className={`flex items-center justify-center rounded transition-colors ${variants[variant]} ${className}`}
+      className={cn(
+        'flex items-center justify-center rounded-lg transition-all duration-100 active:scale-95',
+        variants[variant],
+        sizes[size],
+        className,
+      )}
+      {...props}
     >
       {children}
     </button>

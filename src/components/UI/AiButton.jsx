@@ -1,27 +1,26 @@
-import { Sparkles, Loader2 } from 'lucide-react'
+import { Sparkles } from 'lucide-react'
+import Button from '../../design/components/Button'
+import { getProviderLabel } from '../../api/ai'
 
-export default function AiButton({ onClick, loading, disabled, children, size = 'md' }) {
-  const isDisabled = loading || disabled
-  const pad = size === 'sm' ? 'py-1 px-2 text-[9.5px]' : 'py-1.5 px-3 text-[10.5px]'
+export default function AiButton({ onClick, loading, disabled, children, size = 'md', showProvider = false }) {
+  const providerLabel = showProvider ? getProviderLabel() : null
 
   return (
-    <button
+    <Button
       onClick={onClick}
-      disabled={isDisabled}
-      className={`
-        w-full flex items-center justify-center gap-1.5 font-semibold rounded-md border transition-all
-        ${pad}
-        ${isDisabled
-          ? 'bg-[#111120] border-[#1e1e38] text-[#3a3a5a] cursor-not-allowed'
-          : 'bg-gradient-to-br from-[#16103a] to-[#1e1545] border-[#30205e] text-[#9080e8] hover:text-brand-400 hover:border-brand-500 cursor-pointer'
-        }
-      `}
+      variant="ai"
+      size={size === 'sm' ? 'sm' : 'full'}
+      loading={loading}
+      disabled={disabled}
+      icon={!loading && <Sparkles size={12} />}
+      title={providerLabel ? `Powered by ${providerLabel}` : undefined}
     >
-      {loading
-        ? <Loader2 size={12} className="animate-spin" />
-        : <Sparkles size={12} />
-      }
-      {children}
-    </button>
+      <span className="flex items-center gap-1.5">
+        {children}
+        {providerLabel && (
+          <span className="text-[9px] opacity-50 font-normal">({providerLabel})</span>
+        )}
+      </span>
+    </Button>
   )
 }

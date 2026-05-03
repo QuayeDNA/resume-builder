@@ -1,7 +1,8 @@
 import { Card, Input, TextArea, AiButton } from '../UI'
+import { Hint } from '../../design/components'
 import { COVER_LETTER_TONES } from '../../types'
 import { useAi } from '../../hooks/useAi'
-import { aiGenerateCoverLetter } from '../../api/claude'
+import { aiGenerateCoverLetter } from '../../api/ai'
 import useResumeStore from '../../store/useResumeStore'
 
 export default function CoverLetterSection() {
@@ -33,23 +34,24 @@ export default function CoverLetterSection() {
 
   return (
     <Card title="Cover Letter">
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         <Input label="Recipient"    value={cl.recipientName} onChange={(v) => updateCL('recipientName', v)} placeholder="Hiring Manager" />
         <Input label="Company"      value={cl.company}       onChange={(v) => updateCL('company', v)}       placeholder="Acme Corp" />
       </div>
       <Input label="Role Applying For" value={cl.role} onChange={(v) => updateCL('role', v)} placeholder="Senior Designer" />
 
-      <div className="mb-2">
-        <div className="text-[9px] text-gray-500 mb-1.5 font-semibold uppercase tracking-[0.8px]">Tone</div>
+      {/* Tone selector */}
+      <div className="space-y-1">
+        <label className="block text-label uppercase text-text-muted">Tone</label>
         <div className="flex gap-1">
           {COVER_LETTER_TONES.map((tone) => (
             <button
               key={tone}
               onClick={() => updateCL('tone', tone)}
-              className={`flex-1 py-1 rounded text-[8.5px] font-semibold capitalize transition-colors ${
+              className={`flex-1 py-1.5 rounded-lg text-caption font-medium capitalize transition-all duration-100 ${
                 cl.tone === tone
-                  ? 'bg-[#18103a] border border-brand-500 text-brand-400'
-                  : 'bg-[#141420] border border-transparent text-[#3a3a5a] hover:text-[#6a6a9a]'
+                  ? 'bg-brand-subtle border border-brand text-brand'
+                  : 'bg-elevated-2 border border-transparent text-text-muted hover:text-primary hover:bg-elevated'
               }`}
             >
               {tone}
@@ -72,9 +74,7 @@ export default function CoverLetterSection() {
         />
       </div>
 
-      <p className="text-[9px] text-gray-700 mt-1">
-        Switch to <strong className="text-[#5a5a8a]">Cover Letter</strong> view in the preview panel to see it rendered.
-      </p>
+      <Hint>Switch to <span className="text-primary font-medium">Cover Letter</span> view in the preview panel to see it rendered.</Hint>
     </Card>
   )
 }

@@ -13,12 +13,22 @@ const DEV_KEY = import.meta.env.VITE_ANTHROPIC_API_KEY || ''
 
 /**
  * Call Claude with a prompt and optional system prompt
+ * Falls back to free Groq API if Anthropic is unavailable.
  * @param {string} userPrompt
  * @param {string} [systemPrompt]
  * @param {number} [maxTokens]
  * @returns {Promise<string>}
  */
 export async function callClaude(userPrompt, systemPrompt = '', maxTokens = 1000) {
+  try {
+    return await callAnthropic(userPrompt, systemPrompt, maxTokens)
+  } catch (err) {
+    console.warn('Anthropic failed, falling back to free Groq:', err.message)
+    return callGroqDirect(userPrompt, systemPrompt, maxTokens)
+  }
+}
+
+async function callAnthropic(userPrompt, systemPrompt, maxTokens) {
   const headers = { 'Content-Type': 'application/json' }
   if (IS_DEV && DEV_KEY) {
     headers['x-api-key']         = DEV_KEY
@@ -36,7 +46,44 @@ export async function callClaude(userPrompt, systemPrompt = '', maxTokens = 1000
   const data = await res.json()
 
   if (data.error) throw new Error(data.error.message || 'API error')
+
+  // Handle Groq-fallback response from production proxy
+  if (data.provider === 'groq' && data.content) {
+    return data.content.map((c) => c.text || '').join('').trim()
+  }
+
   return data.content?.map((c) => c.text || '').join('').trim()
+}
+
+/**
+ * Direct call to Groq free tier (used as fallback in dev mode).
+ * In production, the serverless proxy handles the fallback.
+ */
+async function callGroqDirect(userPrompt, systemPrompt, maxTokens) {
+  const messages = []
+  if (systemPrompt) {
+    messages.push({ role: 'system', content: systemPrompt })
+  }
+  messages.push({ role: 'user', content: userPrompt })
+
+  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      model: 'llama-3.1-8b-instant',
+      messages,
+      max_tokens: maxTokens,
+      temperature: 0.7,
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    throw new Error(err.error?.message || `Groq HTTP ${res.status}`)
+  }
+
+  const data = await res.json()
+  return data.choices?.[0]?.message?.content || ''
 }
 
 // ── Prompt helpers ─────────────────────────────────────────────────────────

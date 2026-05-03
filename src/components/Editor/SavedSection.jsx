@@ -1,5 +1,5 @@
 import { Save, FolderOpen, Trash2, Download, Upload, RotateCcw } from 'lucide-react'
-import { Card } from '../UI'
+import { Card, Button, EmptyState, Hint } from '../UI'
 import { exportAsJSON, importFromJSON } from '../../utils/storage'
 import useResumeStore from '../../store/useResumeStore'
 import toast from 'react-hot-toast'
@@ -42,35 +42,39 @@ export default function SavedSection() {
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
       <Card title="Resume Slots">
-        <button
-          onClick={handleSave}
-          className="w-full flex items-center justify-center gap-2 bg-[#0c1a28] border border-[#163050] rounded-lg py-2 text-[#4a8ab8] text-[10.5px] font-semibold hover:bg-[#0e2038] transition-colors mb-2"
-        >
-          <Save size={12} /> Save Current Resume
-        </button>
+        <Button onClick={handleSave} variant="success" size="full" icon={<Save size={12} />}>
+          Save Current Resume
+        </Button>
 
         {slots.length === 0 ? (
-          <p className="text-[10px] text-[#2a2a45] text-center py-4">No saved resumes yet.</p>
+          <EmptyState
+            icon={FolderOpen}
+            title="No saved resumes"
+            description="Save your current resume to a slot for safekeeping."
+          />
         ) : (
           <div className="space-y-1.5">
             {slots.map((slot) => (
-              <div key={slot.id} className="bg-[#141424] border border-[#1e1e35] rounded-lg p-2">
-                <p className="text-[10px] text-[#8080b0] font-medium mb-2 truncate">{slot.name}</p>
+              <div key={slot.id} className="bg-elevated border border-subtle rounded-lg p-2.5 animate-fade-in">
+                <p className="text-caption text-primary font-medium mb-2 truncate">{slot.name}</p>
                 <div className="flex gap-1.5">
-                  <button
+                  <Button
                     onClick={() => { loadFromSlot(slot); toast.success('Loaded!') }}
-                    className="flex-1 flex items-center justify-center gap-1 bg-[#0c180c] border border-[#163016] rounded py-1 text-[#3a7a3a] text-[9.5px] hover:bg-[#122012] transition-colors"
+                    variant="success"
+                    size="sm"
+                    icon={<FolderOpen size={10} />}
+                    className="flex-1"
                   >
-                    <FolderOpen size={10} /> Load
-                  </button>
-                  <button
+                    Load
+                  </Button>
+                  <Button
                     onClick={() => { if (confirm('Delete this slot?')) deleteSlot(slot.id) }}
-                    className="w-7 flex items-center justify-center bg-[#201010] border border-transparent rounded text-[#7a3333] hover:bg-[#2a1818] transition-colors"
-                  >
-                    <Trash2 size={10} />
-                  </button>
+                    variant="danger"
+                    size="sm"
+                    icon={<Trash2 size={10} />}
+                  />
                 </div>
               </div>
             ))}
@@ -79,24 +83,19 @@ export default function SavedSection() {
       </Card>
 
       <Card title="Import / Export">
-        <div className="grid grid-cols-2 gap-2 mb-2">
-          <button
-            onClick={handleExport}
-            className="flex items-center justify-center gap-1.5 bg-[#0c180c] border border-[#163016] rounded-lg py-2 text-[#3a7a3a] text-[10px] font-semibold hover:bg-[#122012] transition-colors"
-          >
-            <Download size={11} /> Save JSON
-          </button>
-          <label className="flex items-center justify-center gap-1.5 bg-[#0c0c1c] border border-[#16162a] rounded-lg py-2 text-[#3a3a7a] text-[10px] font-semibold hover:bg-[#121226] transition-colors cursor-pointer">
+        <div className="grid grid-cols-1 gap-2 mb-2 sm:grid-cols-2">
+          <Button onClick={handleExport} variant="success" size="md" icon={<Download size={11} />}>
+            Save JSON
+          </Button>
+          <label className="flex items-center justify-center gap-1.5 bg-info-subtle border border-info/20 rounded-lg py-2 text-info text-caption font-medium hover:bg-info/15 transition-all duration-100 cursor-pointer">
             <Upload size={11} /> Load JSON
             <input type="file" accept=".json" onChange={handleImport} className="hidden" />
           </label>
         </div>
-        <button
-          onClick={handleReset}
-          className="w-full flex items-center justify-center gap-1.5 border border-[#2a1515] rounded-lg py-1.5 text-[#4a2222] text-[9.5px] hover:border-[#3a2020] transition-colors"
-        >
-          <RotateCcw size={10} /> Reset to Default
-        </button>
+        <Button onClick={handleReset} variant="danger" size="full" icon={<RotateCcw size={10} />}>
+          Reset to Default
+        </Button>
+        <Hint>Resets all fields to the sample resume data.</Hint>
       </Card>
     </div>
   )
