@@ -64,6 +64,7 @@ function RadialNavOverlay({ open, onClose }) {
   const setMobileView = useResumeStore((s) => s.setActiveView)
   const [mounted, setMounted] = useState(open)
   const [closing, setClosing] = useState(false)
+  const [hoveredItem, setHoveredItem] = useState(null)
 
   useEffect(() => {
     if (open) {
@@ -85,12 +86,12 @@ function RadialNavOverlay({ open, onClose }) {
 
   if (!mounted) return null
 
-  const radius = 108
+  const radius = 120
   const startAngle = -90
   const step = 360 / NAV_ITEMS.length
   const ringMask = {
-    WebkitMaskImage: 'radial-gradient(circle, transparent 0 41%, #000 42% 61%, transparent 62% 100%)',
-    maskImage: 'radial-gradient(circle, transparent 0 41%, #000 42% 61%, transparent 62% 100%)',
+    WebkitMaskImage: 'radial-gradient(circle, transparent 0 40%, #000 42% 60%, transparent 62% 100%)',
+    maskImage: 'radial-gradient(circle, transparent 0 40%, #000 42% 60%, transparent 62% 100%)',
   }
 
   return (
@@ -104,10 +105,11 @@ function RadialNavOverlay({ open, onClose }) {
 
       <div className="absolute inset-0 flex items-center justify-center p-4">
         <div
-          className={`relative h-[min(24rem,86vw)] w-[min(24rem,86vw)] max-h-[24rem] max-w-[24rem] overflow-visible transition-all duration-200 ease-out ${
+          className={`relative h-[min(28rem,92vw)] w-[min(28rem,92vw)] max-h-[28rem] max-w-[28rem] overflow-visible transition-all duration-200 ease-out ${
             closing ? 'scale-90 opacity-0' : 'scale-100 opacity-100'
           }`}
         >
+          {/* Animated background donut ring */}
           <div
             className="pointer-events-none absolute inset-0 rounded-full border border-hairline bg-[radial-gradient(circle_at_center,rgba(124,111,255,0.18)_0_38%,rgba(124,111,255,0.12)_39_46%,rgba(124,111,255,0.06)_47_53%,rgba(15,15,24,0.94)_54_100%)] shadow-preview transition-all duration-300 ease-out"
             style={{
@@ -116,42 +118,69 @@ function RadialNavOverlay({ open, onClose }) {
             }}
           />
 
+          {/* Center close button with improved design */}
           <button
             type="button"
             onClick={onClose}
-            className="absolute left-1/2 top-1/2 z-20 flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-hairline bg-surface/95 text-primary shadow-preview transition-all duration-200 hover:scale-105 hover:border-brand/30"
+            className="absolute left-1/2 top-1/2 z-20 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 border-brand/30 bg-surface/98 text-primary shadow-preview transition-all duration-200 hover:scale-110 hover:border-brand/60 hover:bg-brand-subtle hover:text-brand active:scale-95"
             aria-label="Close navigation"
+            title="Close menu"
           >
-            <X size={18} />
+            <X size={20} strokeWidth={2} />
           </button>
 
+          {/* Navigation items */}
           {NAV_ITEMS.map((item, index) => {
             const angle = startAngle + index * step
             const isActive = activeSection === item.id
+            const isHovered = hoveredItem === item.id
 
             return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => {
-                  setActiveSection(item.id)
-                  setMobileView('edit')
-                  onClose()
-                }}
-                title={item.label}
-                aria-label={item.label}
-                className={`group absolute left-1/2 top-1/2 flex h-12 w-12 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border text-[9px] font-medium shadow-preview transition-[transform,opacity,border-color,background-color,box-shadow] duration-200 ease-out hover:[--radial-scale:1.08] ${
-                  isActive
-                    ? 'border-brand/40 bg-brand-subtle text-brand'
-                    : 'border-hairline bg-surface/95 text-secondary hover:border-subtle hover:text-primary'
-                }`}
-                style={{
-                  '--radial-scale': closing ? 0.92 : isActive ? 1.08 : 1,
-                  transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(${-angle}deg) scale(var(--radial-scale))`,
-                }}
-              >
-                <item.icon size={14} strokeWidth={isActive ? 2 : 1.5} className="transition-transform duration-200 group-hover:scale-110" />
-              </button>
+              <div key={item.id}>
+                {/* Navigation button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActiveSection(item.id)
+                    setMobileView('edit')
+                    onClose()
+                  }}
+                  onMouseEnter={() => setHoveredItem(item.id)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  onTouchStart={() => setHoveredItem(item.id)}
+                  onTouchEnd={() => setHoveredItem(null)}
+                  aria-label={item.label}
+                  className={`group absolute left-1/2 top-1/2 flex h-14 w-14 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border-2 shadow-preview transition-[transform,border-color,background-color,box-shadow] duration-200 ease-out hover:[--radial-scale:1.1] active:[--radial-scale:0.95] ${
+                    isActive
+                      ? 'border-brand/60 bg-brand-subtle text-brand shadow-lg shadow-brand/20'
+                      : 'border-hairline bg-surface/95 text-secondary hover:border-brand/40 hover:text-brand active:border-brand/60'
+                  }`}
+                  style={{
+                    '--radial-scale': closing ? 0.92 : isActive ? 1.05 : 1,
+                    transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(${-angle}deg) scale(var(--radial-scale))`,
+                  }}
+                >
+                  <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} className="transition-transform duration-200 group-hover:scale-120" />
+                </button>
+
+                {/* Label - visible on hover or for active item */}
+                {(isHovered || isActive) && (
+                  <div
+                    className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+                    style={{
+                      transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius + 52}px) rotate(${-angle}deg)`,
+                    }}
+                  >
+                    <div className={`whitespace-nowrap rounded-lg px-2 py-1 text-xs font-medium transition-all duration-150 ${
+                      isActive
+                        ? 'bg-brand text-void shadow-lg'
+                        : 'bg-elevated text-primary shadow-md'
+                    }`}>
+                      {item.label}
+                    </div>
+                  </div>
+                )}
+              </div>
             )
           })}
         </div>

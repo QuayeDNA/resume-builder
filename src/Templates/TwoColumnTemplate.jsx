@@ -1,123 +1,149 @@
 import { getTemplate } from './index'
 
-function MainST({ label, accent }) {
+function MainSectionTitle({ label, accent }) {
   return (
-    <div
-      className="font-serif text-[11px] font-bold uppercase tracking-[1.5px] pb-[3px] mb-[8px] mt-[13px]"
-      style={{ color: accent, borderBottom: `1.5px solid ${accent}` }}
+    <h2
+      className="font-sans text-[11px] font-bold uppercase tracking-[1.6px] mt-[16px] mb-[10px] m-0 first:mt-0"
+      style={{ color: accent, borderBottom: `2px solid ${accent}`, paddingBottom: '4px' }}
     >
       {label}
-    </div>
+    </h2>
   )
 }
-function SideST({ label }) {
+
+function SideSectionTitle({ label }) {
   return (
-    <div
-      className="font-serif text-[9.5px] font-bold uppercase tracking-[1.5px] pb-[3px] mb-[7px] mt-[12px]"
-      style={{ color: 'rgba(255,255,255,0.65)', borderBottom: '1px solid rgba(255,255,255,0.15)' }}
+    <h3
+      className="font-sans text-[9px] font-bold uppercase tracking-[1.4px] mt-[12px] mb-[8px] m-0 first:mt-0"
+      style={{ color: 'rgba(255,255,255,0.75)', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '3px' }}
     >
       {label}
-    </div>
+    </h3>
   )
 }
+
 function Bullet({ text, color }) {
   return (
-    <div className="relative my-[3px] pl-[12px] text-[#333] text-[9.5px]">
-      <span className="absolute left-0 top-[5px] w-[4px] h-[4px] rounded-full" style={{ background: color }} />
-      {text}
+    <div className="flex gap-[8px] my-[4px] text-[9.5px] text-[#222] leading-[1.5]">
+      <span
+        className="flex-shrink-0 w-[4px] h-[4px] rounded-full mt-[5px]"
+        style={{ background: color }}
+      />
+      <span>{text}</span>
     </div>
   )
 }
 
 export default function TwoColumnTemplate({ data }) {
   const t = getTemplate(data.template)
-  const { personal:p, experience, education, skills, projects, certifications, languages } = data
+  const { personal: p, experience, education, skills, projects, certifications, languages } = data
 
   return (
     <div
       id="resume-preview"
-      className="font-sans flex min-h-full text-[10px]"
+      className="font-sans flex min-h-full text-[10px] bg-white"
       style={{ fontFamily: "'DM Sans',sans-serif" }}
     >
       {/* Sidebar */}
       <div
-        className="w-[195px] text-[rgba(255,255,255,0.9)] p-[26px_16px] flex-shrink-0"
+        className="w-[200px] text-[rgba(255,255,255,0.92)] p-[44px_20px] flex-shrink-0"
         style={{ background: t.accent }}
       >
-        <h1 className="font-serif text-[18px] font-bold text-white m-0 leading-[1.2]">
+        <h1 className="font-serif text-[20px] font-bold text-white m-0 mb-[4px] leading-[1.2]">
           {p.name || 'Your Name'}
         </h1>
         {p.title && (
-          <div className="text-[8.5px] font-semibold mt-[4px] uppercase tracking-[1px]" style={{ color: t.secondary }}>
+          <div className="text-[9px] font-semibold mb-[12px] uppercase tracking-[1px]" style={{ color: t.secondary }}>
             {p.title}
           </div>
         )}
-        <div className="border-t border-[rgba(255,255,255,0.12)] mt-[10px] pt-[9px]">
-          {p.email    && <div className="text-[8.5px] mb-[4px] break-words">✉ {p.email}</div>}
-          {p.phone    && <div className="text-[8.5px] mb-[4px]">✆ {p.phone}</div>}
-          {p.location && <div className="text-[8.5px] mb-[4px]">⌖ {p.location}</div>}
-          {p.website  && <div className="text-[8.5px] mb-[4px] break-words">⟁ {p.website}</div>}
-          {p.linkedin && <div className="text-[8.5px] break-words">in {p.linkedin}</div>}
+
+        <div className="border-t border-[rgba(255,255,255,0.15)] pt-[10px] text-[8.5px] leading-[1.7] space-y-[3px]">
+          {p.email && <div className="break-words">✉ {p.email}</div>}
+          {p.phone && <div>✆ {p.phone}</div>}
+          {p.location && <div>⌖ {p.location}</div>}
+          {p.website && <div className="break-words">🌐 {p.website}</div>}
+          {p.linkedin && <div className="break-words">in {p.linkedin}</div>}
         </div>
 
         {skills.length > 0 && (
           <>
-            <SideST label="Skills" />
-            {skills.filter(s=>s.trim()).map((s,i)=>(
-              <div key={i} className="bg-[rgba(255,255,255,0.08)] rounded-[3px] px-[7px] py-[3px] text-[8.5px] mb-[3px] text-white">{s}</div>
-            ))}
+            <SideSectionTitle label="Skills" />
+            <div className="flex flex-wrap gap-[4px]">
+              {skills.filter(s => s.trim()).map((s, i) => (
+                <div key={i} className="bg-[rgba(255,255,255,0.12)] text-white rounded-[3px] px-[7px] py-[3px] text-[8.5px] font-medium">
+                  {s}
+                </div>
+              ))}
+            </div>
           </>
         )}
 
         {languages && languages.length > 0 && (
           <>
-            <SideST label="Languages" />
-            {languages.map(l=>(
-              <div key={l.id} className="mb-[4px]">
-                <div className="text-[8.5px] font-semibold text-white">{l.language}</div>
-                <div className="text-[8px]" style={{ color: t.secondary }}>{l.proficiency}</div>
-              </div>
-            ))}
+            <SideSectionTitle label="Languages" />
+            <div className="space-y-[6px]">
+              {languages.map(l => (
+                <div key={l.id}>
+                  <div className="text-[9px] font-semibold text-white">{l.language}</div>
+                  <div className="text-[8px]" style={{ color: t.secondary }}>
+                    {l.proficiency}
+                  </div>
+                </div>
+              ))}
+            </div>
           </>
         )}
 
         {certifications.length > 0 && (
           <>
-            <SideST label="Certifications" />
-            {certifications.map(c=>(
-              <div key={c.id} className="mb-[4px]">
-                <div className="text-[8.5px] font-semibold text-white">{c.name}</div>
-                <div className="text-[8px] text-[rgba(255,255,255,0.45)]">{c.issuer}{c.year?` · ${c.year}`:''}</div>
-              </div>
-            ))}
+            <SideSectionTitle label="Certifications" />
+            <div className="space-y-[6px]">
+              {certifications.map(c => (
+                <div key={c.id}>
+                  <div className="text-[9px] font-semibold text-white">{c.name}</div>
+                  <div className="text-[8px] text-[rgba(255,255,255,0.55)]">
+                    {c.issuer}{c.year ? ` · ${c.year}` : ''}
+                  </div>
+                </div>
+              ))}
+            </div>
           </>
         )}
       </div>
 
       {/* Main content */}
-      <div className="flex-1 p-[26px_22px] bg-white text-[#1a1a1a]">
+      <div className="flex-1 p-[44px_28px] bg-white text-[#1a1a1a]">
         {p.summary && (
-          <p className="text-[10px] text-[#444] leading-[1.65] border-l-[3px] pl-[10px] m-0" style={{ borderColor: t.secondary }}>
-            {p.summary}
-          </p>
+          <div className="mb-[16px] pb-[10px] border-l-[3px] pl-[12px]" style={{ borderColor: t.secondary }}>
+            <p className="text-[10.5px] text-[#333] leading-[1.65] m-0">
+              {p.summary}
+            </p>
+          </div>
         )}
 
         {experience.length > 0 && (
           <>
-            <MainST label="Experience" accent={t.accent} />
-            {experience.map(e=>(
-              <div key={e.id} className="mb-[11px]">
-                <div className="flex justify-between">
+            <MainSectionTitle label="Experience" accent={t.accent} />
+            {experience.map((e, idx) => (
+              <div key={e.id} className={idx > 0 ? 'mt-[12px]' : ''}>
+                <div className="flex justify-between items-start gap-[12px]">
                   <div>
-                    <span className="font-semibold text-[11px]">{e.role}</span>
-                    {e.company && <span className="font-semibold ml-[5px]" style={{ color: t.secondary }}>@ {e.company}</span>}
+                    <span className="font-semibold text-[11px] text-[#1a1a1a]">{e.role}</span>
+                    {e.company && (
+                      <span className="font-semibold ml-[6px]" style={{ color: t.secondary }}>
+                        @ {e.company}
+                      </span>
+                    )}
                   </div>
-                  <div className="text-[9px] text-[#777] text-right">
-                    {e.start}{e.end?` – ${e.end}`:''}
-                    {e.location && <div>{e.location}</div>}
+                  <div className="text-[9px] text-[#777] text-right flex-shrink-0">
+                    <div className="whitespace-nowrap font-semibold">{e.start}{e.end ? ` – ${e.end}` : ''}</div>
+                    {e.location && <div className="whitespace-nowrap text-[8.5px]">{e.location}</div>}
                   </div>
                 </div>
-                {e.bullets.filter(b=>b.trim()).map((b,i)=><Bullet key={i} text={b} color={t.secondary}/>)}
+                {e.bullets.filter(b => b.trim()).map((b, i) => (
+                  <Bullet key={i} text={b} color={t.secondary} />
+                ))}
               </div>
             ))}
           </>
@@ -125,16 +151,16 @@ export default function TwoColumnTemplate({ data }) {
 
         {education.length > 0 && (
           <>
-            <MainST label="Education" accent={t.accent} />
-            {education.map(e=>(
-              <div key={e.id} className="mb-[8px] flex justify-between">
+            <MainSectionTitle label="Education" accent={t.accent} />
+            {education.map((e, idx) => (
+              <div key={e.id} className={`flex justify-between items-start gap-[12px] ${idx > 0 ? 'mt-[10px]' : ''}`}>
                 <div>
-                  <span className="font-semibold text-[11px]">{e.degree}</span>
-                  {e.school && <span className="ml-[5px]" style={{ color: t.secondary }}>· {e.school}</span>}
+                  <span className="font-semibold text-[11px] text-[#1a1a1a]">{e.degree}</span>
+                  {e.school && <span className="ml-[6px]" style={{ color: t.secondary }}>· {e.school}</span>}
                 </div>
-                <div className="text-[9px] text-[#777]">
-                  {e.start}{e.end?` – ${e.end}`:''}
-                  {e.gpa && <div>GPA: {e.gpa}</div>}
+                <div className="text-[9px] text-[#777] text-right flex-shrink-0">
+                  <div className="whitespace-nowrap font-semibold">{e.start}{e.end ? ` – ${e.end}` : ''}</div>
+                  {e.gpa && <div className="whitespace-nowrap text-[8.5px]">GPA: {e.gpa}</div>}
                 </div>
               </div>
             ))}
@@ -143,14 +169,24 @@ export default function TwoColumnTemplate({ data }) {
 
         {projects.length > 0 && (
           <>
-            <MainST label="Projects" accent={t.accent} />
-            {projects.map(pr=>(
-              <div key={pr.id} className="mb-[8px]">
-                <div className="flex justify-between">
-                  <span className="font-semibold text-[11px]">{pr.name}</span>
-                  {pr.url && <span className="text-[9px]" style={{ color: t.secondary }}>{pr.url}</span>}
+            <MainSectionTitle label="Projects" accent={t.accent} />
+            {projects.map((pr, idx) => (
+              <div key={pr.id} className={idx > 0 ? 'mt-[10px]' : ''}>
+                <div className="flex justify-between items-start gap-[12px]">
+                  <span className="font-semibold text-[11px] text-[#1a1a1a]">{pr.name}</span>
+                  {pr.url && (
+                    <a
+                      href={pr.url}
+                      className="text-[9px] underline flex-shrink-0"
+                      style={{ color: t.secondary }}
+                    >
+                      View
+                    </a>
+                  )}
                 </div>
-                {pr.description && <div className="text-[9.5px] text-[#444] mt-[2px]">{pr.description}</div>}
+                {pr.description && (
+                  <p className="text-[10px] text-[#333] my-[4px] m-0">{pr.description}</p>
+                )}
               </div>
             ))}
           </>

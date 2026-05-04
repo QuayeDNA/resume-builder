@@ -24,44 +24,70 @@ export default function SideNav() {
   const handleExport = () => exportToPdf('resume-preview', data.personal.name || 'resume')
 
   return (
-    <nav className="hidden h-full min-h-0 w-max shrink-0 flex-col items-stretch gap-1 overflow-y-auto border-r border-hairline bg-void px-2 py-3 lg:flex">
-      <div className="mb-3 flex h-11 w-max items-center justify-center rounded-xl border border-hairline bg-elevated/60 px-3 font-display text-base font-bold tracking-tight text-brand">
+    <nav className="hidden h-full min-h-0 w-20 shrink-0 flex-col items-center justify-start gap-2 overflow-y-auto border-r border-hairline bg-void px-0 py-4 lg:flex">
+      {/* Logo */}
+      <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-xl border border-brand/40 bg-brand-subtle font-display text-lg font-bold tracking-tight text-brand shadow-sm transition-all duration-200 hover:scale-105 hover:shadow-md hover:shadow-brand/20">
         R
       </div>
 
-      {NAV_ITEMS.map((n) => {
-        const isActive = activeSection === n.id
-        return (
-          <button
-            key={n.id}
-            onClick={() => setActiveSection(n.id)}
-            title={n.label}
-            className={`flex h-11 w-max min-w-[3.5rem] flex-col items-center justify-center gap-0.5 rounded-xl border px-3 transition-all duration-100 ${
-              isActive
-                ? 'border-brand/30 bg-brand-subtle text-brand'
-                : 'border-transparent bg-transparent text-text-muted hover:border-subtle hover:bg-elevated/50 hover:text-primary'
-            }`}
-          >
-            <n.icon size={14} strokeWidth={isActive ? 2 : 1.5} />
-            <span className="text-[7px] font-mono tracking-wide leading-none">{n.label}</span>
-          </button>
-        )
-      })}
+      {/* Divider */}
+      <div className="h-px w-8 bg-gradient-to-r from-transparent via-hairline to-transparent" />
 
-      <div className="min-h-3 flex-1" />
+      {/* Nav Items */}
+      <div className="flex flex-1 flex-col items-center gap-1.5 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+        {NAV_ITEMS.map((n) => {
+          const isActive = activeSection === n.id
 
+          return (
+            <button
+              key={n.id}
+              onClick={() => setActiveSection(n.id)}
+              aria-label={n.label}
+              className={`group relative flex w-16 flex-col items-center justify-center gap-1 rounded-lg border-2 px-2 py-2 transition-all duration-200 ease-out ${
+                isActive
+                  ? 'border-brand/60 bg-brand-subtle text-brand shadow-lg shadow-brand/25'
+                  : 'border-transparent bg-transparent text-secondary hover:border-brand/40 hover:bg-elevated/40 hover:text-brand'
+              }`}
+            >
+              {/* Active state glow effect */}
+              {isActive && (
+                <div className="absolute inset-0 rounded-lg bg-brand/5 blur-md" aria-hidden="true" />
+              )}
+
+              {/* Icon with smooth scale */}
+              <n.icon
+                size={20}
+                strokeWidth={isActive ? 2 : 1.5}
+                className="relative z-10 transition-transform duration-200 group-hover:scale-110"
+              />
+
+              {/* Label text */}
+              <span className="relative z-10 text-[9px] font-medium leading-none tracking-wide text-current">
+                {n.label}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Divider */}
+      <div className="h-px w-8 bg-gradient-to-r from-transparent via-hairline to-transparent" />
+
+      {/* Save indicator */}
       {savedAt && (
-        <div className="mb-1 px-1 text-center font-mono text-[7px] leading-tight text-text-muted/40">
+        <div className="text-center text-[9px] font-mono tracking-wide text-text-muted/50 px-1">
           saved
         </div>
       )}
 
+      {/* Export button */}
       <button
         onClick={handleExport}
-        title="Export PDF"
-        className="mb-1 flex h-11 w-max min-w-[3.5rem] items-center justify-center rounded-xl border border-success/20 bg-success-subtle px-3 text-success transition-all duration-100 hover:bg-success/15"
+        aria-label="Export as PDF"
+        className="group relative flex w-16 flex-col items-center justify-center gap-1 rounded-lg border-2 border-success/40 bg-success-subtle px-2 py-2 text-success transition-all duration-200 hover:scale-105 hover:border-success/60 hover:shadow-lg hover:shadow-success/20 active:scale-95"
       >
-        <FileDown size={14} />
+        <FileDown size={20} strokeWidth={1.5} className="transition-transform duration-200 group-hover:scale-110" />
+        <span className="text-[9px] font-medium leading-none tracking-wide">Export</span>
       </button>
     </nav>
   )
