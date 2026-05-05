@@ -2,29 +2,50 @@ import { getTemplate } from './index'
 
 function SectionTitle({ label, accent }) {
   return (
-    <div className="mt-[16px] mb-[12px] first:mt-0">
+    <div style={{ marginTop: '16px', marginBottom: '10px' }}>
       <h2
-        className="font-sans text-[12px] font-bold uppercase tracking-[1.8px] m-0"
-        style={{ color: accent }}
+        style={{
+          fontFamily: "'DM Sans', Arial, sans-serif",
+          fontSize: '12px',
+          fontWeight: '700',
+          textTransform: 'uppercase',
+          letterSpacing: '1.8px',
+          margin: '0',
+          color: accent,
+        }}
       >
         {label}
       </h2>
-      <div
-        className="h-[1.5px] mt-[4px]"
-        style={{ background: accent }}
-      />
+      <div style={{ height: '1.5px', marginTop: '4px', background: accent }} />
     </div>
   )
 }
 
 function Bullet({ text, color }) {
   return (
-    <div className="grid grid-cols-[10px_minmax(0,1fr)] items-start gap-[6px] my-[4px] text-[10px] text-[#222] leading-[1.5]">
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'flex-start',
+        gap: '6px',
+        margin: '4px 0',
+        fontSize: '10px',
+        color: '#222222',
+        lineHeight: '1.5',
+      }}
+    >
       <span
-        className="mt-[5px] h-[4px] w-[4px] flex-shrink-0 rounded-full"
-        style={{ background: color }}
+        style={{
+          marginTop: '5px',
+          height: '4px',
+          width: '4px',
+          flexShrink: '0',
+          borderRadius: '50%',
+          background: color,
+          display: 'inline-block',
+        }}
       />
-      <span>{text}</span>
+      <span style={{ flex: 1 }}>{text}</span>
     </div>
   )
 }
@@ -35,78 +56,136 @@ export default function SingleColumnTemplate({ data }) {
 
   return (
     <div
-      className="resume-page min-h-full box-border bg-white"
       id="resume-preview"
       style={{
         width: '100%',
-        maxWidth: '640px',
         margin: '0 auto',
         padding: '48px 44px',
-        fontFamily: "'DM Sans', sans-serif",
+        fontFamily: "'DM Sans', Arial, sans-serif",
         fontSize: '10.5px',
         lineHeight: '1.6',
         color: '#1a1a1a',
+        background: '#ffffff',
+        boxSizing: 'border-box',
+        minHeight: '1122px',
       }}
     >
-      {/* Header */}
-      <div className="mb-[18px] pb-[14px]" style={{ borderBottom: `2px solid ${t.accent}` }}>
-        <div className="grid grid-cols-[minmax(0,1fr)_max-content] items-start gap-x-[24px] gap-y-[10px]">
-          <div>
+      {/* ── Header ── */}
+      <div
+        style={{
+          marginBottom: '18px',
+          paddingBottom: '14px',
+          borderBottom: `2px solid ${t.accent}`,
+        }}
+      >
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'flex-start',
+            justifyContent: 'space-between',
+            gap: '24px',
+          }}
+        >
+          {/* Name + Title */}
+          <div style={{ flex: 1, minWidth: 0 }}>
             <h1
-              className="font-serif text-[28px] font-bold m-0 mb-[2px] tracking-[-0.3px]"
-              style={{ color: t.accent }}
+              style={{
+                fontFamily: "'Playfair Display', Georgia, serif",
+                fontSize: '28px',
+                fontWeight: '700',
+                margin: '0 0 2px 0',
+                letterSpacing: '-0.3px',
+                color: t.accent,
+              }}
             >
               {p.name || 'Your Name'}
             </h1>
             {p.title && (
               <div
-                className="text-[11px] font-semibold uppercase tracking-[1.2px]"
-                style={{ color: t.secondary }}
+                style={{
+                  fontSize: '11px',
+                  fontWeight: '600',
+                  textTransform: 'uppercase',
+                  letterSpacing: '1.2px',
+                  color: t.secondary,
+                }}
               >
                 {p.title}
               </div>
             )}
           </div>
 
-          {/* Contact Info */}
-          <div className="flex flex-col items-end gap-[4px] text-right text-[9.5px] text-[#555] leading-[1.4]">
-            {p.email && <div>✉ {p.email}</div>}
-            {p.phone && <div>✆ {p.phone}</div>}
+          {/* Contact block */}
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-end',
+              gap: '4px',
+              textAlign: 'right',
+              fontSize: '9.5px',
+              color: '#555555',
+              lineHeight: '1.4',
+              flexShrink: '0',
+            }}
+          >
+            {p.email    && <div>✉ {p.email}</div>}
+            {p.phone    && <div>✆ {p.phone}</div>}
             {p.location && <div>⌖ {p.location}</div>}
-            {p.website && <div>🌐 {p.website}</div>}
+            {p.website  && <div>🌐 {p.website}</div>}
             {p.linkedin && <div>in {p.linkedin}</div>}
           </div>
-
-          {/* Summary */}
-          {p.summary && (
-            <p className="col-span-2 text-[10.5px] text-[#333] mt-[2px] mb-0 leading-[1.65]">
-              {p.summary}
-            </p>
-          )}
         </div>
+
+        {/* Summary */}
+        {p.summary && (
+          <p
+            style={{
+              fontSize: '10.5px',
+              color: '#333333',
+              marginTop: '10px',
+              marginBottom: '0',
+              lineHeight: '1.65',
+            }}
+          >
+            "{p.summary}"
+          </p>
+        )}
       </div>
 
-      {/* Experience */}
+      {/* ── Experience ── */}
       {experience.length > 0 && (
         <>
           <SectionTitle label="Experience" accent={t.accent} />
           {experience.map((e, idx) => (
-            <div key={e.id} className={idx > 0 ? 'mt-[14px]' : ''}>
-              <div className="flex justify-between items-start gap-[12px]">
-                <div>
-                  <span className="font-semibold text-[11px] text-[#1a1a1a]">{e.role}</span>
+            <div key={e.id} style={{ marginTop: idx > 0 ? '14px' : '0' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
+                    {e.role}
+                  </span>
                   {e.company && (
                     <span
-                      className="font-semibold ml-[6px] text-[10.5px]"
-                      style={{ color: t.secondary }}
+                      style={{ fontWeight: '600', marginLeft: '6px', fontSize: '10.5px', color: t.secondary }}
                     >
                       @ {e.company}
                     </span>
                   )}
                 </div>
-                <div className="text-[9.5px] text-[#777] text-right flex-shrink-0">
-                  <div className="whitespace-nowrap">{e.start}{e.end ? ` – ${e.end}` : ''}</div>
-                  {e.location && <div className="whitespace-nowrap">{e.location}</div>}
+                <div
+                  style={{ fontSize: '9.5px', color: '#777777', textAlign: 'right', flexShrink: '0' }}
+                >
+                  <div style={{ whiteSpace: 'nowrap' }}>
+                    {e.start}{e.end ? ` – ${e.end}` : ''}
+                  </div>
+                  {e.location && <div style={{ whiteSpace: 'nowrap' }}>{e.location}</div>}
                 </div>
               </div>
               {e.bullets.filter((b) => b.trim()).map((b, i) => (
@@ -117,44 +196,57 @@ export default function SingleColumnTemplate({ data }) {
         </>
       )}
 
-      {/* Education */}
+      {/* ── Education ── */}
       {education.length > 0 && (
         <>
           <SectionTitle label="Education" accent={t.accent} />
           {education.map((e, idx) => (
-            <div key={e.id} className={`flex justify-between items-start gap-[12px] ${idx > 0 ? 'mt-[10px]' : ''}`}>
-              <div>
-                <span className="font-semibold text-[11px] text-[#1a1a1a]">{e.degree}</span>
+            <div
+              key={e.id}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                gap: '12px',
+                marginTop: idx > 0 ? '10px' : '0',
+              }}
+            >
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
+                  {e.degree}
+                </span>
                 {e.school && (
-                  <span
-                    className="ml-[6px] text-[10.5px]"
-                    style={{ color: t.secondary }}
-                  >
+                  <span style={{ marginLeft: '6px', fontSize: '10.5px', color: t.secondary }}>
                     · {e.school}
                   </span>
                 )}
               </div>
-              <div className="text-[9.5px] text-[#777] text-right flex-shrink-0">
-                <div className="whitespace-nowrap">{e.start}{e.end ? ` – ${e.end}` : ''}</div>
-                {e.gpa && <div className="whitespace-nowrap">GPA: {e.gpa}</div>}
+              <div style={{ fontSize: '9.5px', color: '#777777', textAlign: 'right', flexShrink: '0' }}>
+                <div style={{ whiteSpace: 'nowrap' }}>
+                  {e.start}{e.end ? ` – ${e.end}` : ''}
+                </div>
+                {e.gpa && <div style={{ whiteSpace: 'nowrap' }}>GPA: {e.gpa}</div>}
               </div>
             </div>
           ))}
         </>
       )}
 
-      {/* Skills */}
+      {/* ── Skills ── */}
       {skills.length > 0 && (
         <>
           <SectionTitle label="Skills" accent={t.accent} />
-          <div className="flex flex-wrap justify-center gap-[8px]">
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
             {skills.filter((s) => s.trim()).map((s, i) => (
               <span
                 key={i}
-                className="rounded-[4px] px-[10px] py-[4px] text-[9.5px] font-medium"
                 style={{
-                  background: `${t.accent}14`,
-                  border: `1px solid ${t.accent}40`,
+                  borderRadius: '4px',
+                  padding: '4px 10px',
+                  fontSize: '9.5px',
+                  fontWeight: '500',
+                  background: `${t.accent}18`,
+                  border: `1px solid ${t.accent}44`,
                   color: t.accent,
                 }}
               >
@@ -165,41 +257,50 @@ export default function SingleColumnTemplate({ data }) {
         </>
       )}
 
-      {/* Projects */}
+      {/* ── Projects ── */}
       {projects.length > 0 && (
         <>
           <SectionTitle label="Projects" accent={t.accent} />
           {projects.map((pr, idx) => (
-            <div key={pr.id} className={idx > 0 ? 'mt-[10px]' : ''}>
-              <div className="flex justify-between items-start gap-[12px]">
-                <span className="font-semibold text-[11px] text-[#1a1a1a]">{pr.name}</span>
+            <div key={pr.id} style={{ marginTop: idx > 0 ? '10px' : '0' }}>
+              <div
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                }}
+              >
+                <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
+                  {pr.name}
+                </span>
                 {pr.url && (
-                  <a
-                    href={pr.url}
-                    className="text-[9.5px] underline flex-shrink-0"
-                    style={{ color: t.secondary }}
+                  <span
+                    style={{ fontSize: '9.5px', textDecoration: 'underline', flexShrink: '0', color: t.secondary }}
                   >
                     View
-                  </a>
+                  </span>
                 )}
               </div>
               {pr.description && (
-                <p className="text-[10px] text-[#333] my-[4px]">{pr.description}</p>
+                <p style={{ fontSize: '10px', color: '#333333', margin: '4px 0 0 0' }}>
+                  {pr.description}
+                </p>
               )}
             </div>
           ))}
         </>
       )}
 
-      {/* Certifications */}
+      {/* ── Certifications ── */}
       {certifications.length > 0 && (
         <>
           <SectionTitle label="Certifications" accent={t.accent} />
           {certifications.map((c, idx) => (
-            <div key={c.id} className={idx > 0 ? 'mt-[8px]' : ''}>
-              <span className="font-semibold text-[11px] text-[#1a1a1a]">{c.name}</span>
+            <div key={c.id} style={{ marginTop: idx > 0 ? '8px' : '0' }}>
+              <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>{c.name}</span>
               {(c.issuer || c.year) && (
-                <div className="text-[9.5px] text-[#777]">
+                <div style={{ fontSize: '9.5px', color: '#777777' }}>
                   {c.issuer}{c.year ? ` · ${c.year}` : ''}
                 </div>
               )}
@@ -208,18 +309,25 @@ export default function SingleColumnTemplate({ data }) {
         </>
       )}
 
-      {/* Languages */}
-      {languages.length > 0 && (
+      {/* ── Languages ── */}
+      {languages && languages.length > 0 && (
         <>
           <SectionTitle label="Languages" accent={t.accent} />
           {languages.map((l, idx) => (
-            <div key={l.id} className={idx > 0 ? 'mt-[8px]' : ''}>
-              <div className="flex justify-between items-start gap-[12px]">
-                <span className="font-semibold text-[11px] text-[#1a1a1a]">{l.language}</span>
-                <span className="text-[9.5px]" style={{ color: t.secondary }}>
-                  {l.proficiency}
-                </span>
-              </div>
+            <div
+              key={l.id}
+              style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                gap: '12px',
+                marginTop: idx > 0 ? '8px' : '0',
+              }}
+            >
+              <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
+                {l.language}
+              </span>
+              <span style={{ fontSize: '9.5px', color: t.secondary }}>{l.proficiency}</span>
             </div>
           ))}
         </>

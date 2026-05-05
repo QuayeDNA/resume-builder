@@ -3,8 +3,18 @@ import { getTemplate } from './index'
 function MainSectionTitle({ label, accent }) {
   return (
     <h2
-      className="font-sans text-[11px] font-bold uppercase tracking-[1.6px] mt-[16px] mb-[10px] m-0 first:mt-0"
-      style={{ color: accent, borderBottom: `2px solid ${accent}`, paddingBottom: '4px' }}
+      style={{
+        fontFamily: "'DM Sans', Arial, sans-serif",
+        fontSize: '11px',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '1.6px',
+        marginTop: '16px',
+        marginBottom: '10px',
+        color: accent,
+        borderBottom: `2px solid ${accent}`,
+        paddingBottom: '4px',
+      }}
     >
       {label}
     </h2>
@@ -14,8 +24,18 @@ function MainSectionTitle({ label, accent }) {
 function SideSectionTitle({ label }) {
   return (
     <h3
-      className="font-sans text-[9px] font-bold uppercase tracking-[1.4px] mt-[12px] mb-[8px] m-0 first:mt-0"
-      style={{ color: 'rgba(255,255,255,0.75)', borderBottom: '1px solid rgba(255,255,255,0.15)', paddingBottom: '3px' }}
+      style={{
+        fontFamily: "'DM Sans', Arial, sans-serif",
+        fontSize: '9px',
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: '1.4px',
+        marginTop: '14px',
+        marginBottom: '8px',
+        color: 'rgba(255,255,255,0.75)',
+        borderBottom: '1px solid rgba(255,255,255,0.15)',
+        paddingBottom: '3px',
+      }}
     >
       {label}
     </h3>
@@ -24,12 +44,29 @@ function SideSectionTitle({ label }) {
 
 function Bullet({ text, color }) {
   return (
-    <div className="flex gap-[8px] my-[4px] text-[9.5px] text-[#222] leading-[1.5]">
+    <div
+      style={{
+        display: 'flex',
+        gap: '8px',
+        margin: '4px 0',
+        fontSize: '9.5px',
+        color: '#222',
+        lineHeight: '1.5',
+        alignItems: 'flex-start',
+      }}
+    >
       <span
-        className="flex-shrink-0 w-[4px] h-[4px] rounded-full mt-[5px]"
-        style={{ background: color }}
+        style={{
+          flexShrink: '0',
+          width: '4px',
+          height: '4px',
+          borderRadius: '50%',
+          marginTop: '5px',
+          background: color,
+          display: 'inline-block',
+        }}
       />
-      <span>{text}</span>
+      <span style={{ flex: 1 }}>{text}</span>
     </div>
   )
 }
@@ -41,37 +78,94 @@ export default function TwoColumnTemplate({ data }) {
   return (
     <div
       id="resume-preview"
-      className="font-sans flex min-h-full text-[10px] bg-white"
-      style={{ fontFamily: "'DM Sans',sans-serif" }}
+      style={{
+        fontFamily: "'DM Sans', Arial, sans-serif",
+        display: 'flex',
+        flexDirection: 'row',
+        alignItems: 'stretch',
+        /* 297mm ≈ 1122px at 96dpi — ensures sidebar fills full A4 height */
+        minHeight: '1122px',
+        fontSize: '10px',
+        background: '#ffffff',
+        width: '100%',
+      }}
     >
-      {/* Sidebar */}
+      {/* ── Sidebar ── */}
       <div
-        className="w-[200px] text-[rgba(255,255,255,0.92)] p-[44px_20px] flex-shrink-0"
-        style={{ background: t.accent }}
+        style={{
+          width: '200px',
+          flexShrink: '0',
+          background: t.accent,
+          color: 'rgba(255,255,255,0.92)',
+          padding: '44px 20px',
+          /* Stretch to fill the full column height */
+          alignSelf: 'stretch',
+        }}
       >
-        <h1 className="font-serif text-[20px] font-bold text-white m-0 mb-[4px] leading-[1.2]">
+        <h1
+          style={{
+            fontFamily: "'Playfair Display', Georgia, serif",
+            fontSize: '20px',
+            fontWeight: '700',
+            color: '#ffffff',
+            margin: '0 0 4px 0',
+            lineHeight: '1.2',
+          }}
+        >
           {p.name || 'Your Name'}
         </h1>
         {p.title && (
-          <div className="text-[9px] font-semibold mb-[12px] uppercase tracking-[1px]" style={{ color: t.secondary }}>
+          <div
+            style={{
+              fontSize: '9px',
+              fontWeight: '600',
+              marginBottom: '12px',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              color: t.secondary,
+            }}
+          >
             {p.title}
           </div>
         )}
 
-        <div className="border-t border-[rgba(255,255,255,0.15)] pt-[10px] text-[8.5px] leading-[1.7] space-y-[3px]">
-          {p.email && <div className="break-words">✉ {p.email}</div>}
-          {p.phone && <div>✆ {p.phone}</div>}
-          {p.location && <div>⌖ {p.location}</div>}
-          {p.website && <div className="break-words">🌐 {p.website}</div>}
-          {p.linkedin && <div className="break-words">in {p.linkedin}</div>}
+        <div
+          style={{
+            borderTop: '1px solid rgba(255,255,255,0.15)',
+            paddingTop: '10px',
+            fontSize: '8.5px',
+            lineHeight: '1.7',
+          }}
+        >
+          {p.email && (
+            <div style={{ wordBreak: 'break-word', marginBottom: '3px' }}>✉ {p.email}</div>
+          )}
+          {p.phone && <div style={{ marginBottom: '3px' }}>✆ {p.phone}</div>}
+          {p.location && <div style={{ marginBottom: '3px' }}>⌖ {p.location}</div>}
+          {p.website && (
+            <div style={{ wordBreak: 'break-word', marginBottom: '3px' }}>🌐 {p.website}</div>
+          )}
+          {p.linkedin && (
+            <div style={{ wordBreak: 'break-word', marginBottom: '3px' }}>in {p.linkedin}</div>
+          )}
         </div>
 
         {skills.length > 0 && (
           <>
             <SideSectionTitle label="Skills" />
-            <div className="flex flex-wrap gap-[4px]">
-              {skills.filter(s => s.trim()).map((s, i) => (
-                <div key={i} className="bg-[rgba(255,255,255,0.12)] text-white rounded-[3px] px-[7px] py-[3px] text-[8.5px] font-medium">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+              {skills.filter((s) => s.trim()).map((s, i) => (
+                <div
+                  key={i}
+                  style={{
+                    background: 'rgba(255,255,255,0.12)',
+                    color: '#ffffff',
+                    borderRadius: '3px',
+                    padding: '3px 7px',
+                    fontSize: '8.5px',
+                    fontWeight: '500',
+                  }}
+                >
                   {s}
                 </div>
               ))}
@@ -82,13 +176,13 @@ export default function TwoColumnTemplate({ data }) {
         {languages && languages.length > 0 && (
           <>
             <SideSectionTitle label="Languages" />
-            <div className="space-y-[6px]">
-              {languages.map(l => (
-                <div key={l.id}>
-                  <div className="text-[9px] font-semibold text-white">{l.language}</div>
-                  <div className="text-[8px]" style={{ color: t.secondary }}>
-                    {l.proficiency}
+            <div>
+              {languages.map((l) => (
+                <div key={l.id} style={{ marginBottom: '6px' }}>
+                  <div style={{ fontSize: '9px', fontWeight: '600', color: '#ffffff' }}>
+                    {l.language}
                   </div>
+                  <div style={{ fontSize: '8px', color: t.secondary }}>{l.proficiency}</div>
                 </div>
               ))}
             </div>
@@ -98,11 +192,13 @@ export default function TwoColumnTemplate({ data }) {
         {certifications.length > 0 && (
           <>
             <SideSectionTitle label="Certifications" />
-            <div className="space-y-[6px]">
-              {certifications.map(c => (
-                <div key={c.id}>
-                  <div className="text-[9px] font-semibold text-white">{c.name}</div>
-                  <div className="text-[8px] text-[rgba(255,255,255,0.55)]">
+            <div>
+              {certifications.map((c) => (
+                <div key={c.id} style={{ marginBottom: '6px' }}>
+                  <div style={{ fontSize: '9px', fontWeight: '600', color: '#ffffff' }}>
+                    {c.name}
+                  </div>
+                  <div style={{ fontSize: '8px', color: 'rgba(255,255,255,0.55)' }}>
                     {c.issuer}{c.year ? ` · ${c.year}` : ''}
                   </div>
                 </div>
@@ -112,12 +208,36 @@ export default function TwoColumnTemplate({ data }) {
         )}
       </div>
 
-      {/* Main content */}
-      <div className="flex-1 p-[44px_28px] bg-white text-[#1a1a1a]">
+      {/* ── Main content ── */}
+      <div
+        style={{
+          flex: '1',
+          padding: '44px 28px',
+          background: '#ffffff',
+          color: '#1a1a1a',
+          overflowX: 'hidden',
+          minWidth: '0',
+        }}
+      >
         {p.summary && (
-          <div className="mb-[16px] pb-[10px] border-l-[3px] pl-[12px]" style={{ borderColor: t.secondary }}>
-            <p className="text-[10.5px] text-[#333] leading-[1.65] m-0">
-              {p.summary}
+          <div
+            style={{
+              marginBottom: '16px',
+              paddingBottom: '10px',
+              paddingLeft: '12px',
+              borderLeft: `3px solid ${t.secondary}`,
+            }}
+          >
+            <p
+              style={{
+                fontSize: '10.5px',
+                color: '#333',
+                lineHeight: '1.65',
+                margin: '0',
+                fontStyle: 'italic',
+              }}
+            >
+              "{p.summary}"
             </p>
           </div>
         )}
@@ -126,22 +246,44 @@ export default function TwoColumnTemplate({ data }) {
           <>
             <MainSectionTitle label="Experience" accent={t.accent} />
             {experience.map((e, idx) => (
-              <div key={e.id} className={idx > 0 ? 'mt-[12px]' : ''}>
-                <div className="flex justify-between items-start gap-[12px]">
-                  <div>
-                    <span className="font-semibold text-[11px] text-[#1a1a1a]">{e.role}</span>
+              <div key={e.id} style={{ marginTop: idx > 0 ? '12px' : '0' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                  }}
+                >
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
+                      {e.role}
+                    </span>
                     {e.company && (
-                      <span className="font-semibold ml-[6px]" style={{ color: t.secondary }}>
+                      <span
+                        style={{ fontWeight: '600', marginLeft: '6px', fontSize: '10px', color: t.secondary }}
+                      >
                         @ {e.company}
                       </span>
                     )}
                   </div>
-                  <div className="text-[9px] text-[#777] text-right flex-shrink-0">
-                    <div className="whitespace-nowrap font-semibold">{e.start}{e.end ? ` – ${e.end}` : ''}</div>
-                    {e.location && <div className="whitespace-nowrap text-[8.5px]">{e.location}</div>}
+                  <div
+                    style={{
+                      fontSize: '9px',
+                      color: '#777',
+                      textAlign: 'right',
+                      flexShrink: '0',
+                    }}
+                  >
+                    <div style={{ whiteSpace: 'nowrap', fontWeight: '600' }}>
+                      {e.start}{e.end ? ` – ${e.end}` : ''}
+                    </div>
+                    {e.location && (
+                      <div style={{ whiteSpace: 'nowrap', fontSize: '8.5px' }}>{e.location}</div>
+                    )}
                   </div>
                 </div>
-                {e.bullets.filter(b => b.trim()).map((b, i) => (
+                {e.bullets.filter((b) => b.trim()).map((b, i) => (
                   <Bullet key={i} text={b} color={t.secondary} />
                 ))}
               </div>
@@ -153,14 +295,40 @@ export default function TwoColumnTemplate({ data }) {
           <>
             <MainSectionTitle label="Education" accent={t.accent} />
             {education.map((e, idx) => (
-              <div key={e.id} className={`flex justify-between items-start gap-[12px] ${idx > 0 ? 'mt-[10px]' : ''}`}>
-                <div>
-                  <span className="font-semibold text-[11px] text-[#1a1a1a]">{e.degree}</span>
-                  {e.school && <span className="ml-[6px]" style={{ color: t.secondary }}>· {e.school}</span>}
+              <div
+                key={e.id}
+                style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  gap: '12px',
+                  marginTop: idx > 0 ? '10px' : '0',
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
+                    {e.degree}
+                  </span>
+                  {e.school && (
+                    <span style={{ marginLeft: '6px', fontSize: '10px', color: t.secondary }}>
+                      · {e.school}
+                    </span>
+                  )}
                 </div>
-                <div className="text-[9px] text-[#777] text-right flex-shrink-0">
-                  <div className="whitespace-nowrap font-semibold">{e.start}{e.end ? ` – ${e.end}` : ''}</div>
-                  {e.gpa && <div className="whitespace-nowrap text-[8.5px]">GPA: {e.gpa}</div>}
+                <div
+                  style={{
+                    fontSize: '9px',
+                    color: '#777',
+                    textAlign: 'right',
+                    flexShrink: '0',
+                  }}
+                >
+                  <div style={{ whiteSpace: 'nowrap', fontWeight: '600' }}>
+                    {e.start}{e.end ? ` – ${e.end}` : ''}
+                  </div>
+                  {e.gpa && (
+                    <div style={{ whiteSpace: 'nowrap', fontSize: '8.5px' }}>GPA: {e.gpa}</div>
+                  )}
                 </div>
               </div>
             ))}
@@ -171,21 +339,35 @@ export default function TwoColumnTemplate({ data }) {
           <>
             <MainSectionTitle label="Projects" accent={t.accent} />
             {projects.map((pr, idx) => (
-              <div key={pr.id} className={idx > 0 ? 'mt-[10px]' : ''}>
-                <div className="flex justify-between items-start gap-[12px]">
-                  <span className="font-semibold text-[11px] text-[#1a1a1a]">{pr.name}</span>
+              <div key={pr.id} style={{ marginTop: idx > 0 ? '10px' : '0' }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    gap: '12px',
+                  }}
+                >
+                  <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
+                    {pr.name}
+                  </span>
                   {pr.url && (
-                    <a
-                      href={pr.url}
-                      className="text-[9px] underline flex-shrink-0"
-                      style={{ color: t.secondary }}
+                    <span
+                      style={{
+                        fontSize: '9px',
+                        textDecoration: 'underline',
+                        flexShrink: '0',
+                        color: t.secondary,
+                      }}
                     >
                       View
-                    </a>
+                    </span>
                   )}
                 </div>
                 {pr.description && (
-                  <p className="text-[10px] text-[#333] my-[4px] m-0">{pr.description}</p>
+                  <p style={{ fontSize: '10px', color: '#333', margin: '4px 0 0 0' }}>
+                    {pr.description}
+                  </p>
                 )}
               </div>
             ))}
