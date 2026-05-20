@@ -47,7 +47,7 @@ export default function EditorPanel() {
   const activeSection = useResumeStore((s) => s.activeSection)
 
   return (
-    <aside className="flex min-h-0 w-full min-w-0 max-h-[calc(100dvh-7rem)] flex-col overflow-hidden border-r border-hairline bg-obsidian lg:h-full lg:max-h-none lg:w-full lg:max-w-[24rem] xl:max-w-[26rem]">
+    <aside className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden border-r border-hairline bg-obsidian lg:h-full lg:max-h-none lg:w-full lg:max-w-[24rem] xl:max-w-[26rem]">
       <div className="flex-shrink-0 border-b border-hairline px-4 py-3">
         <h2 className="text-heading text-brand">
           {SECTION_LABELS[activeSection] || ''}

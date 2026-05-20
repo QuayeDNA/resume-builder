@@ -224,15 +224,15 @@ export default function App() {
           <SideNav />
         </div>
 
-        <div className="min-h-0 h-[calc(100dvh-7rem)] overflow-hidden pt-28 lg:hidden">
+        <div className="flex min-h-0 h-[calc(100dvh)] flex-col overflow-hidden pt-28 lg:hidden">
           {mobileView === 'edit' ? <EditorPanel /> : <PreviewPanel />}
         </div>
 
-      <div className="hidden min-h-0 lg:block lg:overflow-hidden">
+      <div className="hidden min-h-0 lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
         <EditorPanel />
       </div>
 
-      <div className="hidden min-h-0 lg:block lg:overflow-hidden">
+      <div className="hidden min-h-0 lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
         <PreviewPanel />
       </div>
       </div>
