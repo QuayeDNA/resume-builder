@@ -1,5 +1,5 @@
 import { getTemplate } from './index'
-import type { ResumeData, ExperienceEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry } from '../types'
+import type { ResumeData, ExperienceEntry, EducationEntry, ProjectEntry, CertificationEntry, LanguageEntry, CustomSectionEntry } from '../types'
 
 function SectionHeader({ label, accent }: { label: string; accent: string }) {
   return (
@@ -19,7 +19,7 @@ function DateRange({ start, end }: { start: string; end: string }) {
 
 export default function ATSTemplate({ data }: { data: ResumeData }) {
   const t = getTemplate(data.template)
-  const { personal: p, experience, education, skills, projects, certifications, languages } = data
+  const { personal: p, experience, education, skills, projects, certifications, languages, customSections } = data
 
   return (
     <div
@@ -138,6 +138,20 @@ export default function ATSTemplate({ data }: { data: ResumeData }) {
             </div>
           ))}
         </section>
+      )}
+
+      {customSections && customSections.length > 0 && (
+        <>{customSections.map((cs: CustomSectionEntry) => (
+          <section key={cs.id}>
+            <SectionHeader label={cs.name} accent={t.accent} />
+            {cs.description && <p style={{ fontSize: '10.5px', color: '#333333', margin: '6px 0 0 0', lineHeight: '1.65' }}>{cs.description}</p>}
+            {cs.bullets.filter((b: string) => b.trim()).map((b: string, i: number) => (
+              <div key={i} style={{ marginTop: '6px', paddingLeft: '12px' }}>
+                <span>- {b}</span>
+              </div>
+            ))}
+          </section>
+        ))}</>
       )}
     </div>
   )

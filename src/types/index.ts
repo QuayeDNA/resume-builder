@@ -48,6 +48,13 @@ export interface LanguageEntry {
   proficiency: string
 }
 
+export interface CustomSectionEntry {
+  id: number
+  name: string
+  description: string
+  bullets: string[]
+}
+
 export interface ResumeData {
   personal: PersonalInfo
   experience: ExperienceEntry[]
@@ -56,6 +63,8 @@ export interface ResumeData {
   projects: ProjectEntry[]
   certifications: CertificationEntry[]
   languages: LanguageEntry[]
+  customSections: CustomSectionEntry[]
+  sectionOrder: string[]
   template: string
 }
 
@@ -82,16 +91,12 @@ export interface AtsResult {
 }
 
 export type ActiveView = 'resume' | 'cover'
-export type ActiveSection = typeof SECTION_IDS[number]
 export type ProficiencyLevel = typeof PROFICIENCY_OPTIONS[number]
 export type CoverLetterTone = typeof COVER_LETTER_TONES[number]
 
 export const PROFICIENCY_OPTIONS = ['Native', 'Fluent', 'Advanced', 'Intermediate', 'Basic'] as const
 export const COVER_LETTER_TONES  = ['professional', 'enthusiastic', 'concise', 'creative'] as const
-export const SECTION_IDS = ['personal','experience','education','skills','projects','certifications','languages','coverletter','design','saved'] as const
 
-export type NavItem = {
-  id: ActiveSection
-  label: string
-  icon: string
-}
+export const BUILTIN_SECTION_IDS = ['personal','experience','education','skills','projects','certifications','languages'] as const
+export const TOOL_SECTION_IDS = ['coverletter','design','saved'] as const
+export const ALL_SECTION_IDS = [...BUILTIN_SECTION_IDS, ...TOOL_SECTION_IDS] as const

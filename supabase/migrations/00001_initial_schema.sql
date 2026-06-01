@@ -1,7 +1,5 @@
 -- ============================================================
 -- ResumeForge — Initial Schema
--- Run this in your Supabase project's SQL editor or via
--- `supabase migration up` if using the Supabase CLI.
 -- ============================================================
 
 -- 0. Extensions
@@ -23,14 +21,17 @@ create table if not exists public.profiles (
 
 alter table public.profiles enable row level security;
 
+drop policy if exists "Users can view own profile" on public.profiles;
 create policy "Users can view own profile"
   on public.profiles for select
   using (auth.uid() = id);
 
+drop policy if exists "Users can insert own profile" on public.profiles;
 create policy "Users can insert own profile"
   on public.profiles for insert
   with check (auth.uid() = id);
 
+drop policy if exists "Users can update own profile" on public.profiles;
 create policy "Users can update own profile"
   on public.profiles for update
   using (auth.uid() = id);
@@ -49,22 +50,26 @@ create table if not exists public.resumes (
   updated_at  timestamptz not null default now()
 );
 
-create index idx_resumes_user_id on public.resumes(user_id);
+create index if not exists idx_resumes_user_id on public.resumes(user_id);
 
 alter table public.resumes enable row level security;
 
+drop policy if exists "Users can view own resumes" on public.resumes;
 create policy "Users can view own resumes"
   on public.resumes for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert own resumes" on public.resumes;
 create policy "Users can insert own resumes"
   on public.resumes for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update own resumes" on public.resumes;
 create policy "Users can update own resumes"
   on public.resumes for update
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can delete own resumes" on public.resumes;
 create policy "Users can delete own resumes"
   on public.resumes for delete
   using (auth.uid() = user_id);
@@ -82,22 +87,26 @@ create table if not exists public.resume_slots (
   updated_at  timestamptz not null default now()
 );
 
-create index idx_resume_slots_user_id on public.resume_slots(user_id);
+create index if not exists idx_resume_slots_user_id on public.resume_slots(user_id);
 
 alter table public.resume_slots enable row level security;
 
+drop policy if exists "Users can view own slots" on public.resume_slots;
 create policy "Users can view own slots"
   on public.resume_slots for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert own slots" on public.resume_slots;
 create policy "Users can insert own slots"
   on public.resume_slots for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update own slots" on public.resume_slots;
 create policy "Users can update own slots"
   on public.resume_slots for update
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can delete own slots" on public.resume_slots;
 create policy "Users can delete own slots"
   on public.resume_slots for delete
   using (auth.uid() = user_id);
@@ -114,22 +123,26 @@ create table if not exists public.cover_letters (
   updated_at  timestamptz not null default now()
 );
 
-create index idx_cover_letters_user_id on public.cover_letters(user_id);
+create index if not exists idx_cover_letters_user_id on public.cover_letters(user_id);
 
 alter table public.cover_letters enable row level security;
 
+drop policy if exists "Users can view own cover letters" on public.cover_letters;
 create policy "Users can view own cover letters"
   on public.cover_letters for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert own cover letters" on public.cover_letters;
 create policy "Users can insert own cover letters"
   on public.cover_letters for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update own cover letters" on public.cover_letters;
 create policy "Users can update own cover letters"
   on public.cover_letters for update
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can delete own cover letters" on public.cover_letters;
 create policy "Users can delete own cover letters"
   on public.cover_letters for delete
   using (auth.uid() = user_id);
@@ -151,14 +164,17 @@ create table if not exists public.subscriptions (
 
 alter table public.subscriptions enable row level security;
 
+drop policy if exists "Users can view own subscription" on public.subscriptions;
 create policy "Users can view own subscription"
   on public.subscriptions for select
   using (auth.uid() = user_id);
 
+drop policy if exists "Users can insert own subscription" on public.subscriptions;
 create policy "Users can insert own subscription"
   on public.subscriptions for insert
   with check (auth.uid() = user_id);
 
+drop policy if exists "Users can update own subscription" on public.subscriptions;
 create policy "Users can update own subscription"
   on public.subscriptions for update
   using (auth.uid() = user_id);
@@ -182,7 +198,8 @@ begin
 end;
 $$;
 
-create or replace trigger on_auth_user_created
+drop trigger if exists on_auth_user_created on auth.users;
+create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
@@ -200,16 +217,22 @@ begin
 end;
 $$;
 
-do $$
-declare
-  t text;
-begin
-  foreach t in array array['profiles', 'resumes', 'resume_slots', 'cover_letters', 'subscriptions']
-  loop
-    execute format(
-      'create trigger if not exists set_updated_at before update on public.%I
-       for each row execute function public.update_updated_at_column()', t
-    );
-  end loop;
-end;
-$$;
+drop trigger if exists set_updated_at on public.profiles;
+create trigger set_updated_at before update on public.profiles
+  for each row execute function public.update_updated_at_column();
+
+drop trigger if exists set_updated_at on public.resumes;
+create trigger set_updated_at before update on public.resumes
+  for each row execute function public.update_updated_at_column();
+
+drop trigger if exists set_updated_at on public.resume_slots;
+create trigger set_updated_at before update on public.resume_slots
+  for each row execute function public.update_updated_at_column();
+
+drop trigger if exists set_updated_at on public.cover_letters;
+create trigger set_updated_at before update on public.cover_letters
+  for each row execute function public.update_updated_at_column();
+
+drop trigger if exists set_updated_at on public.subscriptions;
+create trigger set_updated_at before update on public.subscriptions
+  for each row execute function public.update_updated_at_column();

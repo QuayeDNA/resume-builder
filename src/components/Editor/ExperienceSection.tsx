@@ -1,5 +1,6 @@
-import { Plus, Sparkles, Loader2, X } from 'lucide-react'
-import { Card, EntryCard, Input, AiButton, Button, IconButton } from '../UI'
+import { Sparkles, Loader2, X } from 'lucide-react'
+import { Card, EntryCard, Input, Button, IconButton } from '../UI'
+import SortableList from '../SortableList'
 import { useAi } from '../../hooks/useAi'
 import { aiImproveBullet, aiSuggestBullets } from '../../api/ai'
 import useResumeStore from '../../store/useResumeStore'
@@ -52,6 +53,7 @@ function ExperienceEntry({ exp }: { exp: ExperienceEntry }) {
   const removeExperience = useResumeStore((s) => s.removeExperience)
   const addBullet = useResumeStore((s) => s.addBullet)
   const appendBullets = useResumeStore((s) => s.appendBullets)
+  const reorderBullets = useResumeStore((s) => s.reorderBullets)
   const { run, isLoading } = useAi()
 
   const suggestKey = `suggest_${exp.id}`
@@ -67,9 +69,13 @@ function ExperienceEntry({ exp }: { exp: ExperienceEntry }) {
       <Input label="Location" value={exp.location} onChange={(v) => updateExperience(exp.id, 'location', v as string)} placeholder="City, State" />
 
       <p className="text-label uppercase text-text-muted mt-1">Bullet Points</p>
-      {exp.bullets.map((b: string, i: number) => (
-        <BulletRow key={i} bullet={b} expId={exp.id} idx={i} />
-      ))}
+      <SortableList
+        items={exp.bullets}
+        getId={(_, i) => `bullet-${exp.id}-${i}`}
+        onReorder={(from, to) => reorderBullets(exp.id, from, to)}
+      >
+        {(b, i) => <BulletRow bullet={b} expId={exp.id} idx={i} />}
+      </SortableList>
 
       <div className="grid grid-cols-1 gap-2 mt-1 sm:grid-cols-2">
         <Button
@@ -101,12 +107,17 @@ function ExperienceEntry({ exp }: { exp: ExperienceEntry }) {
 export default function ExperienceSection() {
   const experience = useResumeStore((s) => s.data.experience)
   const addExperience = useResumeStore((s) => s.addExperience)
+  const reorderExperience = useResumeStore((s) => s.reorderExperience)
 
   return (
     <Card title="Work Experience" onAdd={addExperience} addLabel="Add Position">
-      {experience.map((exp: ExperienceEntry) => (
-        <ExperienceEntry key={exp.id} exp={exp} />
-      ))}
+      <SortableList
+        items={experience}
+        getId={(exp) => exp.id}
+        onReorder={reorderExperience}
+      >
+        {(exp) => <ExperienceEntry exp={exp} />}
+      </SortableList>
     </Card>
   )
 }

@@ -1,4 +1,5 @@
 import type { ResumeData, CoverLetterData } from '../types'
+import { BUILTIN_SECTION_IDS } from '../types'
 
 export const DEFAULT_RESUME: ResumeData = {
   personal: {
@@ -63,6 +64,8 @@ export const DEFAULT_RESUME: ResumeData = {
     { id: 1, language: 'English', proficiency: 'Native' },
     { id: 2, language: 'Mandarin', proficiency: 'Fluent' },
   ],
+  customSections: [],
+  sectionOrder: [...BUILTIN_SECTION_IDS],
   template: 'modern',
 }
 

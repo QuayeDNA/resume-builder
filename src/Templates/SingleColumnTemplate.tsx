@@ -1,5 +1,5 @@
 import { getTemplate } from './index'
-import type { ResumeData, CertificationEntry, LanguageEntry, ProjectEntry, EducationEntry, ExperienceEntry } from '../types'
+import type { ResumeData, CertificationEntry, LanguageEntry, ProjectEntry, EducationEntry, ExperienceEntry, CustomSectionEntry } from '../types'
 
 function SectionTitle({ label, accent }: { label: string; accent: string }) {
   return (
@@ -53,7 +53,7 @@ function Bullet({ text, color }: { text: string; color: string }) {
 
 export default function SingleColumnTemplate({ data }: { data: ResumeData }) {
   const t = getTemplate(data.template)
-  const { personal: p, experience, education, skills, projects, certifications, languages } = data
+  const { personal: p, experience, education, skills, projects, certifications, languages, customSections } = data
 
   return (
     <div
@@ -258,6 +258,22 @@ export default function SingleColumnTemplate({ data }: { data: ResumeData }) {
             </div>
           ))}
         </>
+      )}
+
+      {customSections && customSections.length > 0 && (
+        <>{customSections.map((cs: CustomSectionEntry) => (
+          <div key={cs.id}>
+            <SectionTitle label={cs.name} accent={t.accent} />
+            {cs.description && (
+              <p style={{ fontSize: '10.5px', color: '#333333', margin: '6px 0 0 0', lineHeight: '1.65' }}>
+                {cs.description}
+              </p>
+            )}
+            {cs.bullets.filter((b: string) => b.trim()).map((b: string, i: number) => (
+              <Bullet key={i} text={b} color={t.secondary} />
+            ))}
+          </div>
+        ))}</>
       )}
     </div>
   )
