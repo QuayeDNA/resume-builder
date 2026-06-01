@@ -57,8 +57,8 @@ export default function SavedSection() {
         ) : (
           <div className="space-y-1.5">
             {slots.map((slot) => (
-              <div key={slot.id} className="bg-elevated border border-subtle rounded-lg p-2.5 animate-fade-in">
-                <p className="text-caption text-primary font-medium mb-2 truncate">{slot.name}</p>
+              <div key={slot.id} className="bg-paper-deep border border-warm-border-strong rounded-lg p-2.5 animate-fade-in">
+                <p className="text-caption text-ink font-medium mb-2 truncate">{slot.name}</p>
                 <div className="flex gap-1.5">
                   <Button
                     onClick={() => { loadFromSlot(slot); toast.success('Loaded!') }}

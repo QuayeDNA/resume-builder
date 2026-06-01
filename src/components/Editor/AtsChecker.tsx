@@ -27,7 +27,7 @@ export default function AtsChecker() {
         <div className="mt-2 bg-success-subtle border border-success/20 rounded-xl p-3 relative animate-slide-up">
           <button
             onClick={() => setVisible(false)}
-            className="absolute top-2 right-2 text-text-muted hover:text-primary transition-colors"
+            className="absolute top-2 right-2 text-ink-muted hover:text-ink transition-colors"
           >
             <X size={12} />
           </button>
@@ -37,14 +37,14 @@ export default function AtsChecker() {
               <span className="text-body font-bold" style={{ color }}>
                 {getScoreLabel(result.score)}
               </span>
-              <span className="text-caption text-text-muted ml-1.5">ATS Score</span>
+              <span className="text-caption text-ink-muted ml-1.5">ATS Score</span>
             </div>
             <span className="text-display font-mono" style={{ color, fontSize: '20px' }}>
               {result.score}%
             </span>
           </div>
 
-          <div className="h-1.5 bg-elevated-2 rounded-full overflow-hidden mb-3">
+          <div className="h-1.5 bg-warm-border-strong rounded-full overflow-hidden mb-3">
             <div
               className="h-full rounded-full transition-all duration-500 ease-out"
               style={{ width: `${result.score}%`, background: color }}
@@ -61,9 +61,9 @@ export default function AtsChecker() {
             </div>
           )}
 
-          <div className="flex gap-3 mt-3 pt-2 border-t border-hairline text-caption text-text-muted">
-            <span>Action verbs: <span className="text-primary">{result.verbCount}</span></span>
-            <span>Metrics: <span className="text-primary">{result.metricCount}</span></span>
+          <div className="flex gap-3 mt-3 pt-2 border-t border-warm-border text-caption text-ink-muted">
+            <span>Action verbs: <span className="text-ink">{result.verbCount}</span></span>
+            <span>Metrics: <span className="text-ink">{result.metricCount}</span></span>
           </div>
         </div>
       )}

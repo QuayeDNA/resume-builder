@@ -12,14 +12,14 @@ export function Field({ label, children, hint, error, className }: FieldProps) {
   return (
     <div className={cn('space-y-1', className)}>
       {label && (
-        <label className="block text-ui uppercase tracking-[0.12em] text-text-muted">{label}</label>
+        <label className="block text-label text-ink-muted">{label}</label>
       )}
       {children}
       {error && (
         <p className="text-caption text-error">{error}</p>
       )}
       {hint && !error && (
-        <p className="text-caption text-text-muted">{hint}</p>
+        <p className="text-caption text-ink-muted">{hint}</p>
       )}
     </div>
   )
@@ -43,9 +43,9 @@ export function Input({ value, onChange, placeholder, type = 'text', className, 
       onChange={(e) => onChange?.(e.target.value)}
       placeholder={placeholder}
       className={cn(
-        'w-full min-w-0 appearance-none rounded-xl border border-subtle bg-elevated-2 px-3 py-2 text-body text-primary shadow-sm',
-        'placeholder:text-disabled transition-all duration-100',
-        'focus:border-brand focus:ring-1 focus:ring-brand-subtle focus:outline-none',
+        'w-full min-w-0 appearance-none rounded-xl border border-warm-border-strong bg-white px-3 py-2.5 text-body text-ink shadow-soft',
+        'placeholder:text-ink-muted transition-all duration-200',
+        'focus:border-terracotta focus:ring-2 focus:ring-terracotta-dim focus:outline-none',
         error && 'border-error focus:border-error focus:ring-error-subtle',
         className,
       )}
@@ -72,9 +72,9 @@ export function TextArea({ value, onChange, placeholder, rows = 3, className, er
       placeholder={placeholder}
       rows={rows}
       className={cn(
-        'w-full min-w-0 appearance-none rounded-xl border border-subtle bg-elevated-2 px-3 py-2 text-body text-primary shadow-sm',
-        'placeholder:text-disabled resize-y transition-all duration-100',
-        'focus:border-brand focus:ring-1 focus:ring-brand-subtle focus:outline-none',
+        'w-full min-w-0 appearance-none rounded-xl border border-warm-border-strong bg-white px-3 py-2.5 text-body text-ink shadow-soft',
+        'placeholder:text-ink-muted resize-y transition-all duration-200',
+        'focus:border-terracotta focus:ring-2 focus:ring-terracotta-dim focus:outline-none',
         error && 'border-error focus:border-error focus:ring-error-subtle',
         className,
       )}
@@ -103,9 +103,9 @@ export function Select({ value, onChange, options, className, error, ...rest }: 
       value={value}
       onChange={(e) => onChange?.(e.target.value)}
       className={cn(
-        'w-full min-w-0 appearance-none rounded-xl border border-subtle bg-elevated-2 px-3 py-2 text-body text-primary shadow-sm cursor-pointer',
-        'transition-all duration-100',
-        'focus:border-brand focus:ring-1 focus:ring-brand-subtle focus:outline-none',
+        'w-full min-w-0 appearance-none rounded-xl border border-warm-border-strong bg-white px-3 py-2.5 text-body text-ink shadow-soft cursor-pointer',
+        'transition-all duration-200',
+        'focus:border-terracotta focus:ring-2 focus:ring-terracotta-dim focus:outline-none',
         error && 'border-error focus:border-error focus:ring-error-subtle',
         className,
       )}

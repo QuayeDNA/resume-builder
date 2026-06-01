@@ -11,7 +11,7 @@ export default function Skeleton({ lines = 3, className }: SkeletonProps) {
       {Array.from({ length: lines }).map((_, i) => (
         <div
           key={i}
-          className="h-3 rounded bg-elevated-2"
+          className="h-3 rounded bg-warm-border-strong/60"
           style={{ width: i === lines - 1 ? '60%' : '100%' }}
         />
       ))}

@@ -1,0 +1,42 @@
+:root {
+  /* Paper — warm, off-white foundation */
+  --color-paper:       #f8f4f0;
+  --color-paper-warm:  #f0ebe4;
+  --color-paper-deep:  #e8e0d6;
+
+  /* Ink — warm dark browns */
+  --color-ink:         #2a2520;
+  --color-ink-soft:    #6b6258;
+  --color-ink-muted:   #9c9287;
+
+  /* Accents — terracotta + sage */
+  --color-terracotta:  #c76b4a;
+  --color-terracotta-dim:  rgba(199, 107, 74, 0.12);
+  --color-sage:        #8ca98c;
+  --color-sage-dim:    rgba(140, 169, 140, 0.12);
+
+  /* Borders */
+  --color-warm-border: rgba(42, 37, 32, 0.08);
+  --color-warm-border-strong: rgba(42, 37, 32, 0.15);
+
+  /* Shadows */
+  --shadow-soft: 0 2px 8px rgba(42, 37, 32, 0.06), 0 1px 2px rgba(42, 37, 32, 0.04);
+  --shadow-card: 0 4px 16px rgba(42, 37, 32, 0.08), 0 2px 4px rgba(42, 37, 32, 0.04);
+  --shadow-elevated: 0 8px 32px rgba(42, 37, 32, 0.10), 0 4px 8px rgba(42, 37, 32, 0.06);
+
+  /* Typography */
+  --font-body: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-display: 'Fraunces', Georgia, serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+
+  /* Motion */
+  --ease-out-expo: cubic-bezier(0.19, 1, 0.22, 1);
+  --duration-snap: 200ms;
+  --duration-smooth: 350ms;
+  --duration-slow: 500ms;
+
+  /* Radii */
+  --radius-pill: 9999px;
+  --radius-card: 1rem;
+  --radius-field: 0.75rem;
+}

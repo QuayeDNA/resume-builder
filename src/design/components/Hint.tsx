@@ -2,12 +2,12 @@ import type { ReactNode } from 'react'
 import { cn } from '../../utils/classNames'
 
 const colors = {
-  default: 'text-text-muted',
+  default: 'text-ink-muted',
   success: 'text-success',
   warning: 'text-warning',
   error: 'text-error',
   info: 'text-info',
-  ai: 'text-ai',
+  ai: 'text-sage',
 } as const
 
 type HintProps = {

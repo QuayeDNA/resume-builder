@@ -17,7 +17,7 @@ import type { ReactNode } from 'react'
 
 function DragHandle() {
   return (
-    <div className="flex cursor-grab touch-none items-center text-text-muted hover:text-primary active:cursor-grabbing">
+    <div className="flex cursor-grab touch-none items-center text-ink-muted hover:text-ink active:cursor-grabbing">
       <GripVertical size={12} />
     </div>
   )

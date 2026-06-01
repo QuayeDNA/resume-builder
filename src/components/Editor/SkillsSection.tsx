@@ -35,7 +35,7 @@ export default function SkillsSection() {
         }
         placeholder="React, TypeScript, Node.js, Figma…"
         rows={3}
-        className="w-full bg-elevated-2 border border-subtle rounded-lg px-2.5 py-1.5 text-body text-primary placeholder:text-disabled resize-y transition-all duration-100 focus:border-brand focus:ring-1 focus:ring-brand-subtle focus:outline-none"
+        className="w-full bg-white border border-warm-border-strong rounded-lg px-2.5 py-1.5 text-body text-ink placeholder:text-ink-muted/60 resize-y transition-all duration-200 focus:border-terracotta focus:ring-2 focus:ring-terracotta-dim focus:outline-none"
       />
       <AiButton onClick={handleSuggest} loading={isLoading('skills')}>
         AI Suggest Skills

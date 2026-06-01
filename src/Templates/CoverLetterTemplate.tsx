@@ -12,7 +12,6 @@ export default function CoverLetterTemplate({ resume, cl }: { resume: ResumeData
 
   return (
     <div
-      id="resume-preview"
       style={{
         fontFamily: "'DM Sans', Arial, sans-serif",
         background: '#ffffff',
@@ -22,7 +21,6 @@ export default function CoverLetterTemplate({ resume, cl }: { resume: ResumeData
         padding: '50px 54px',
         boxSizing: 'border-box',
         width: '100%',
-        minHeight: '1122px',
       }}
     >
       <div style={{ borderBottom: `3px solid ${t.accent}`, paddingBottom: '12px', marginBottom: '28px' }}>

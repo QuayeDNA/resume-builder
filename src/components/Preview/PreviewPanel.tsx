@@ -1,5 +1,5 @@
-import { FileDown } from 'lucide-react'
-import { useMemo } from 'react'
+import { FileDown, FileText, FileSignature } from 'lucide-react'
+import { useMemo, useRef, useState } from 'react'
 import { getTemplate } from '../../Templates'
 import SingleColumnTemplate  from '../../Templates/SingleColumnTemplate'
 import TwoColumnTemplate     from '../../Templates/TwoColumnTemplate'
@@ -7,16 +7,26 @@ import ATSTemplate           from '../../Templates/ATSTemplate'
 import CoverLetterTemplate   from '../../Templates/CoverLetterTemplate'
 import { exportToPdf }       from '../../utils/pdf'
 import useResumeStore        from '../../store/useResumeStore'
+import PageComposer          from './PageComposer'
+import { PAGE_WIDTH }        from './PageContainer'
+import '../../design/textures/desk.css'
+
+const ZOOM_MIN = 0.5
+const ZOOM_MAX = 2
+const ZOOM_STEP = 0.25
+const ZOOM_FIT = -1
 
 export default function PreviewPanel() {
   const data          = useResumeStore((s) => s.data)
   const cl            = useResumeStore((s) => s.cl)
   const activeView    = useResumeStore((s) => s.activeView)
   const setActiveView = useResumeStore((s) => s.setActiveView)
+  const [zoom, setZoom] = useState<number>(ZOOM_FIT)
+  const scrollRef = useRef<HTMLDivElement>(null)
 
   const t = getTemplate(data.template)
 
-  const handleExport = () => exportToPdf('resume-preview', data.personal.name || 'resume')
+  const handleExport = () => exportToPdf(data.personal.name || 'resume')
 
   const resumeContent = useMemo(() => {
     if (activeView === 'cover') return <CoverLetterTemplate resume={data} cl={cl} />
@@ -25,57 +35,97 @@ export default function PreviewPanel() {
     return <SingleColumnTemplate data={data} />
   }, [activeView, data, cl, t.layout])
 
-  return (
-    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-void">
+  const zoomPercent = zoom === ZOOM_FIT ? 100 : Math.round(zoom * 100)
 
-      {/* ── Toolbar ── */}
-      <div className="flex min-h-12 flex-wrap items-center gap-2 border-b border-hairline bg-surface px-3 py-2 sm:flex-nowrap">
-        <div className="flex gap-0.5 rounded-lg bg-elevated p-0.5">
-          {([['resume', 'Resume'], ['cover', 'Cover Letter']] as const).map(([m, l]) => (
-            <button
-              key={m}
-              onClick={() => setActiveView(m)}
-              className={`rounded-md px-2.5 py-1 text-caption font-medium transition-all duration-100 ${
-                activeView === m
-                  ? 'bg-elevated-2 text-brand shadow-sm'
-                  : 'text-text-muted hover:text-primary'
-              }`}
-            >
-              {l}
-            </button>
-          ))}
+  const handleSliderChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = parseFloat(e.target.value)
+    setZoom(val === 1 ? ZOOM_FIT : val)
+  }
+
+  return (
+    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-paper">
+      {/* Toolbar */}
+      <div className="flex min-h-12 flex-wrap items-center gap-2 border-b border-warm-border bg-paper-warm px-3 py-2 sm:flex-nowrap">
+        {/* View switcher */}
+        <div className="flex gap-0.5 rounded-lg border border-warm-border bg-paper p-0.5 shadow-soft">
+          <button
+            onClick={() => setActiveView('resume')}
+            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-caption font-medium transition-all duration-150 ${
+              activeView === 'resume'
+                ? 'bg-terracotta text-white shadow-sm'
+                : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            <FileText size={12} />
+            Resume
+          </button>
+          <button
+            onClick={() => setActiveView('cover')}
+            className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-caption font-medium transition-all duration-150 ${
+              activeView === 'cover'
+                ? 'bg-terracotta text-white shadow-sm'
+                : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            <FileSignature size={12} />
+            Cover
+          </button>
+        </div>
+
+        {/* Zoom controls */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setZoom(ZOOM_FIT)}
+            className={`rounded-md px-2 py-1 text-caption font-medium transition-all duration-150 ${
+              zoom === ZOOM_FIT
+                ? 'bg-white text-terracotta shadow-soft border border-warm-border'
+                : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            Fit
+          </button>
+          <input
+            type="range"
+            min={ZOOM_MIN}
+            max={ZOOM_MAX}
+            step={ZOOM_STEP}
+            value={zoom === ZOOM_FIT ? 1 : zoom}
+            onChange={handleSliderChange}
+            className="w-20 h-1.5 appearance-none cursor-pointer rounded-full bg-paper-deep accent-terracotta [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-terracotta [&::-webkit-slider-thumb]:shadow-soft [&::-webkit-slider-thumb]:transition-transform [&::-webkit-slider-thumb]:hover:scale-125"
+            aria-label="Zoom level"
+          />
+          <span className="font-mono text-ui text-ink-muted w-8 text-right tabular-nums">
+            {zoomPercent}%
+          </span>
         </div>
 
         <div className="flex-1" />
-        <span className="hidden font-mono text-ui uppercase tracking-widest text-text-muted/40 sm:block">
-          A4 Preview
-        </span>
 
         <button
           onClick={handleExport}
-          className="inline-flex items-center gap-1.5 rounded-lg border border-success/20 bg-success-subtle px-3 py-1.5 text-caption font-medium text-success transition-all duration-100 hover:bg-success/15"
+          className="inline-flex items-center gap-1.5 rounded-full border border-sage/30 bg-sage-dim px-3 py-1.5 text-caption font-medium text-sage transition-all duration-200 hover:bg-sage/20"
         >
           <FileDown size={12} /> Export PDF
         </button>
       </div>
 
-      {/* ── Preview ──
-          794px = A4 width at 96dpi (210mm × 96/25.4 ≈ 794px).
-          The preview renders at exactly the same width as the print output,
-          so "what you see" matches "what you get" 1-to-1.
-      ── */}
-      <div className="flex-1 overflow-y-auto bg-[#c8c8c8] p-4 sm:p-6">
+      {/* Preview with desk texture */}
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-auto desk-surface p-4 sm:p-6"
+      >
         <div
+          className="transition-transform duration-300 ease-out-expo origin-top"
           style={{
-            width: '794px',
-            maxWidth: '100%',
+            transform: zoom === ZOOM_FIT ? 'none' : `scale(${zoom})`,
+            transformOrigin: 'top center',
             margin: '0 auto',
-            background: '#ffffff',
-            boxShadow: '0 4px 32px rgba(0,0,0,0.35)',
-            overflow: 'hidden',
+            width: zoom === ZOOM_FIT ? 'fit-content' : undefined,
           }}
         >
-          {resumeContent}
+          <PageComposer key={`${activeView}-${data.template}`}>
+            {resumeContent}
+          </PageComposer>
         </div>
       </div>
     </div>

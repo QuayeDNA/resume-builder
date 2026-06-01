@@ -2,18 +2,18 @@ import type { ReactNode, ButtonHTMLAttributes } from 'react'
 import { cn } from '../../utils/classNames'
 
 const variants = {
-  primary: 'bg-brand text-white border border-brand-hover hover:bg-brand-hover active:scale-[0.98]',
-  ghost: 'bg-transparent text-secondary border border-subtle hover:bg-elevated-2 hover:text-primary',
-  danger: 'bg-transparent text-error border border-error/30 hover:bg-error-subtle hover:border-error/50',
-  success: 'bg-transparent text-success border border-success/30 hover:bg-success-subtle hover:border-success/50',
-  ai: 'bg-ai-subtle text-ai border border-ai/20 hover:bg-ai-hover hover:border-ai/30',
+  primary: 'bg-terracotta text-white border border-terracotta/80 hover:bg-terracotta/90 active:scale-[0.97] rounded-full',
+  ghost: 'bg-transparent text-ink-soft border border-warm-border-strong hover:bg-paper-deep hover:text-ink rounded-full',
+  danger: 'bg-transparent text-error border border-error/30 hover:bg-error-subtle hover:border-error/50 rounded-full',
+  success: 'bg-transparent text-success border border-success/30 hover:bg-success-subtle hover:border-success/50 rounded-full',
+  ai: 'bg-sage-dim text-sage border border-sage/20 hover:bg-sage/20 hover:border-sage/30 rounded-full',
 } as const
 
 const sizes = {
-  sm: 'px-2 py-1 text-[10px]',
-  md: 'px-3 py-1.5 text-[11px]',
-  lg: 'px-4 py-2 text-body',
-  full: 'w-full px-3 py-2 text-body',
+  sm: 'px-3 py-1.5 text-[11px]',
+  md: 'px-4 py-2 text-[12px]',
+  lg: 'px-5 py-2.5 text-body',
+  full: 'w-full px-4 py-2.5 text-body',
 } as const
 
 type ButtonProps = {
@@ -45,8 +45,8 @@ export default function Button({
       onClick={onClick}
       disabled={isDisabled}
       className={cn(
-        'inline-flex items-center justify-center gap-1.5 font-medium rounded-lg',
-        'transition-all duration-100 active:scale-[0.98]',
+        'inline-flex items-center justify-center gap-1.5 font-medium',
+        'transition-all duration-200 ease-out-expo active:scale-[0.97]',
         'disabled:opacity-40 disabled:cursor-not-allowed disabled:active:scale-100',
         variants[variant],
         sizes[size],

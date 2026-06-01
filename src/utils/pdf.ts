@@ -1,7 +1,7 @@
-export async function exportToPdf(elementId = 'resume-preview', filename = 'resume') {
-  const element = document.getElementById(elementId)
-  if (!element) {
-    console.error('Export target element not found:', elementId)
+export async function exportToPdf(filename = 'resume') {
+  const pageContainers = document.querySelectorAll<HTMLElement>('[data-page-container]')
+  if (!pageContainers.length) {
+    console.error('No page containers found for export')
     return
   }
 
@@ -36,15 +36,15 @@ export async function exportToPdf(elementId = 'resume-preview', filename = 'resu
 `
   }
 
-  const clone = element.cloneNode(true) as HTMLElement
-  clone.removeAttribute('class')
-  clone.style.boxShadow = 'none'
-  clone.style.borderRadius = '0'
-  clone.style.overflow = 'visible'
-  clone.style.maxWidth = '100%'
-  clone.style.width = '100%'
-
-  const resumeHTML = clone.outerHTML
+  let pagesHTML = ''
+  pageContainers.forEach((pc) => {
+    const clone = pc.cloneNode(true) as HTMLElement
+    const overlay = clone.querySelector('[data-page-number-overlay]')
+    if (overlay) overlay.remove()
+    clone.style.boxShadow = 'none'
+    clone.style.borderRadius = '0'
+    pagesHTML += clone.outerHTML
+  })
 
   const printDoc = `<!DOCTYPE html>
 <html lang="en">
@@ -67,29 +67,20 @@ export async function exportToPdf(elementId = 'resume-preview', filename = 'resu
       margin: 0;
       padding: 0;
       background: #ffffff !important;
-      width: 210mm;
     }
-    body > .resume-wrapper {
-      width: 210mm;
-      min-height: 297mm;
-      margin: 0;
-      padding: 0;
-      background: #ffffff !important;
-      overflow: visible;
+    [data-page-container] {
+      box-shadow: none !important;
     }
     @media print {
       html, body { background: #ffffff !important; }
     }
     @media screen {
-      html, body { background: #e0e0e0 !important; display: flex; justify-content: center; padding: 20px; box-sizing: border-box; }
-      body > .resume-wrapper { box-shadow: 0 4px 32px rgba(0,0,0,0.18); }
+      html, body { background: #e0e0e0 !important; display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 20px; box-sizing: border-box; }
     }
   </style>
 </head>
 <body>
-  <div class="resume-wrapper">
-    ${resumeHTML}
-  </div>
+  ${pagesHTML}
   <script>
     document.fonts.ready.then(function () {
       setTimeout(function () {

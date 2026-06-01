@@ -3,12 +3,12 @@ import { X } from 'lucide-react'
 import { cn } from '../../utils/classNames'
 
 const variants = {
-  default: 'bg-elevated border border-subtle text-secondary',
-  brand: 'bg-brand-subtle border border-brand/30 text-brand',
+  default: 'bg-paper-deep border border-warm-border-strong text-ink-soft',
+  brand: 'bg-terracotta-dim border border-terracotta/30 text-terracotta',
   success: 'bg-success-subtle border border-success/30 text-success',
   warning: 'bg-warning-subtle border border-warning/30 text-warning',
   error: 'bg-error-subtle border border-error/30 text-error',
-  ai: 'bg-ai-subtle border border-ai/20 text-ai',
+  ai: 'bg-sage-dim border border-sage/20 text-sage',
 } as const
 
 type BadgeProps = {
@@ -21,7 +21,7 @@ type BadgeProps = {
 export default function Badge({ children, variant = 'default', onRemove, className }: BadgeProps) {
   return (
     <span className={cn(
-      'inline-flex items-center gap-1 px-2 py-0.5 rounded text-label transition-all duration-100',
+      'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label transition-all duration-150',
       variants[variant],
       className,
     )}>

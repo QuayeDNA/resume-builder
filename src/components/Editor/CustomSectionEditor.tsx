@@ -20,7 +20,7 @@ function BulletRow({ bullet, sectionId, idx }: { bullet: string; sectionId: numb
         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => updateBullet(sectionId, idx, e.target.value)}
         placeholder="Enter a bullet point…"
         rows={2}
-        className="flex-1 bg-elevated-2 border border-subtle rounded-lg px-2.5 py-1.5 text-body text-primary resize-y placeholder:text-disabled transition-all duration-100 focus:border-brand focus:ring-1 focus:ring-brand-subtle focus:outline-none"
+        className="flex-1 bg-white border border-warm-border-strong rounded-lg px-2.5 py-1.5 text-body text-ink resize-y placeholder:text-ink-muted/60 transition-all duration-200 focus:border-terracotta focus:ring-2 focus:ring-terracotta-dim focus:outline-none"
       />
       {section && (
         <div className="flex flex-col gap-1 flex-shrink-0">
@@ -69,7 +69,7 @@ export default function CustomSectionEditor({ section }: { section: CustomSectio
       <Input label="Section Name" value={section.name} onChange={(v) => updateSection(section.id, 'name', v as string)} placeholder="e.g. Publications, Volunteer Work" />
       <TextArea label="Description" value={section.description} onChange={(v) => updateSection(section.id, 'description', v as string)} placeholder="Brief overview of this section…" rows={3} />
 
-      <p className="text-label uppercase text-text-muted">Bullet Points</p>
+      <p className="text-label uppercase text-ink-muted">Bullet Points</p>
       <SortableList
         items={section.bullets}
         getId={(_, i) => `cs-${section.id}-bullet-${i}`}

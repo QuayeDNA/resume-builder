@@ -2,10 +2,10 @@ import type { ReactNode, ElementType, HTMLAttributes } from 'react'
 import { cn } from '../../utils/classNames'
 
 const variants = {
-  default: 'border border-subtle bg-surface',
-  elevated: 'border border-hairline bg-elevated',
+  default: 'border border-warm-border bg-paper-warm',
+  elevated: 'border border-warm-border bg-paper-deep',
   ghost: 'border border-transparent bg-transparent',
-  ai: 'border border-ai/20 bg-ai-subtle',
+  ai: 'border border-sage/20 bg-sage-dim',
   success: 'border border-success/20 bg-success-subtle',
   warning: 'border border-warning/20 bg-warning-subtle',
 } as const

@@ -1,19 +1,12 @@
 import { useEffect, useState } from 'react'
-import { FileText } from 'lucide-react'
 
-/**
- * SplashScreen / Loader component shown on initial app load
- * Automatically dismisses after 2.5 seconds
- */
 export default function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
   const [isClosing, setIsClosing] = useState(false)
 
   useEffect(() => {
-    // Auto-dismiss after 2.5 seconds
     const timer = window.setTimeout(() => {
       setIsClosing(true)
-      // Wait for fade-out animation to complete
-      const dismissTimer = window.setTimeout(onDismiss, 400)
+      const dismissTimer = window.setTimeout(onDismiss, 500)
       return () => clearTimeout(dismissTimer)
     }, 2500)
 
@@ -22,26 +15,44 @@ export default function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
 
   return (
     <div
-      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-void transition-opacity duration-400 ${
+      className={`fixed inset-0 z-50 flex flex-col items-center justify-center bg-paper transition-opacity duration-500 ${
         isClosing ? 'opacity-0' : 'opacity-100'
       }`}
     >
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 overflow-hidden bg-gradient-to-br from-brand/10 via-void to-void opacity-30" />
+      {/* Grain overlay */}
+      <div className="grain-overlay" />
 
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center gap-6">
-        {/* Icon */}
-        <div className="flex h-16 w-16 items-center justify-center rounded-2xl border border-brand/30 bg-brand-subtle">
-          <FileText size={32} className="text-brand" strokeWidth={1.5} />
-        </div>
+        {/* Hand-drawn R logo */}
+        <svg
+          width="80"
+          height="80"
+          viewBox="0 0 80 80"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="drop-shadow-sm"
+        >
+          <rect x="2" y="2" width="76" height="76" rx="20" stroke="#c76b4a" strokeWidth="3" fill="#f0ebe4" />
+          <text
+            x="40"
+            y="52"
+            textAnchor="middle"
+            fill="#c76b4a"
+            fontFamily="Fraunces, Georgia, serif"
+            fontSize="36"
+            fontWeight="700"
+          >
+            R
+          </text>
+        </svg>
 
         {/* Title */}
         <div className="text-center">
-          <h1 className="font-display text-3xl font-bold tracking-tight text-brand mb-2">
+          <h1 className="font-display text-3xl font-bold tracking-tight text-ink mb-2">
             Resume Builder
           </h1>
-          <p className="text-body text-secondary opacity-75">
+          <p className="text-body text-ink-soft opacity-75">
             Craft your perfect resume
           </p>
         </div>
@@ -51,7 +62,7 @@ export default function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
           {[...Array(3)].map((_, i) => (
             <div
               key={i}
-              className="h-2 w-2 rounded-full bg-brand"
+              className="h-2 w-2 rounded-full bg-terracotta"
               style={{
                 animation: `bounce 1.4s infinite ease-in-out`,
                 animationDelay: `${i * 0.16}s`,

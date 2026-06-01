@@ -6,6 +6,6 @@ type DividerProps = {
 
 export default function Divider({ className }: DividerProps) {
   return (
-    <hr className={cn('border-t border-hairline my-2', className)} />
+    <hr className={cn('border-t border-warm-border my-2', className)} />
   )
 }

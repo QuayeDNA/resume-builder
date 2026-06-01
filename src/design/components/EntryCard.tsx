@@ -11,14 +11,14 @@ type EntryCardProps = {
 export default function EntryCard({ children, onDelete, className }: EntryCardProps) {
   return (
     <div className={cn(
-      'relative rounded-xl border border-subtle bg-elevated/90 transition-all duration-150',
-      'hover:border-active',
+      'relative rounded-xl border border-warm-border bg-paper-deep/60 transition-all duration-200 shadow-soft',
+      'hover:border-warm-border-strong',
       className,
     )}>
       {onDelete && (
         <button
           onClick={onDelete}
-          className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center rounded-full bg-error-subtle border border-error/30 text-error hover:bg-error/20 transition-all duration-100 z-10"
+          className="absolute -top-2.5 -right-2.5 w-5 h-5 flex items-center justify-center rounded-full bg-error-subtle border border-error/30 text-error hover:bg-error/20 transition-all duration-150 z-10"
           aria-label="Delete entry"
         >
           <X size={10} />

@@ -42,7 +42,7 @@ export default function CoverLetterSection() {
 
       {/* Tone selector */}
       <div className="space-y-1">
-        <label className="block text-label uppercase text-text-muted">Tone</label>
+        <label className="block text-label uppercase text-ink-muted">Tone</label>
         <div className="flex gap-1">
           {COVER_LETTER_TONES.map((tone) => (
             <button
@@ -50,8 +50,8 @@ export default function CoverLetterSection() {
               onClick={() => updateCL('tone', tone)}
               className={`flex-1 py-1.5 rounded-lg text-caption font-medium capitalize transition-all duration-100 ${
                 cl.tone === tone
-                  ? 'bg-brand-subtle border border-brand text-brand'
-                  : 'bg-elevated-2 border border-transparent text-text-muted hover:text-primary hover:bg-elevated'
+                  ? 'bg-terracotta-dim border border-terracotta text-terracotta'
+                  : 'bg-white border border-transparent text-ink-muted hover:text-ink hover:bg-paper-deep'
               }`}
             >
               {tone}
@@ -74,7 +74,7 @@ export default function CoverLetterSection() {
         />
       </div>
 
-      <Hint>Switch to <span className="text-primary font-medium">Cover Letter</span> view in the preview panel to see it rendered.</Hint>
+      <Hint>Switch to <span className="text-ink font-medium">Cover Letter</span> view in the preview panel to see it rendered.</Hint>
     </Card>
   )
 }

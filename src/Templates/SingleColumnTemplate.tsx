@@ -57,7 +57,6 @@ export default function SingleColumnTemplate({ data }: { data: ResumeData }) {
 
   return (
     <div
-      id="resume-preview"
       style={{
         width: '100%',
         margin: '0 auto',
@@ -68,7 +67,6 @@ export default function SingleColumnTemplate({ data }: { data: ResumeData }) {
         color: '#1a1a1a',
         background: '#ffffff',
         boxSizing: 'border-box',
-        minHeight: '1122px',
       }}
     >
       <div

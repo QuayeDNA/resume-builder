@@ -23,10 +23,8 @@ export default function ATSTemplate({ data }: { data: ResumeData }) {
 
   return (
     <div
-      id="resume-preview"
       style={{
         width: '100%',
-        minHeight: '1122px',
         boxSizing: 'border-box',
         background: '#ffffff',
         color: '#111111',

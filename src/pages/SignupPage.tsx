@@ -2,6 +2,8 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { FileText } from 'lucide-react'
+import { Input } from '../design/components/Field'
+import Button from '../design/components/Button'
 
 export default function SignupPage() {
   const navigate = useNavigate()
@@ -25,40 +27,35 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-dvh items-center justify-center bg-void p-4">
+    <div className="flex min-h-dvh items-center justify-center bg-paper p-4">
       <div className="w-full max-w-sm">
         <div className="mb-8 text-center">
           <div className="mb-3 flex justify-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-subtle">
-              <FileText size={24} className="text-brand" />
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-terracotta-dim border border-terracotta/30">
+              <FileText size={24} className="text-terracotta" />
             </div>
           </div>
-          <h1 className="font-display text-2xl font-bold text-primary">Create an account</h1>
-          <p className="mt-1 text-body text-secondary">Start building your resume</p>
+          <h1 className="font-display text-2xl font-bold text-ink">Create an account</h1>
+          <p className="mt-1 text-body text-ink-soft">Start building your resume</p>
         </div>
 
         <form onSubmit={handleSignup} className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-label text-text-muted">Email</label>
-            <input
+            <label className="mb-1.5 block text-label text-ink-muted">Email</label>
+            <Input
               type="email"
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(v) => setEmail(v as string)}
               placeholder="you@example.com"
-              required
-              className="w-full rounded-xl border border-subtle bg-elevated px-3.5 py-2.5 text-body text-primary placeholder:text-disabled transition-all focus:border-brand focus:ring-1 focus:ring-brand-subtle focus:outline-none"
             />
           </div>
           <div>
-            <label className="mb-1.5 block text-label text-text-muted">Password</label>
-            <input
+            <label className="mb-1.5 block text-label text-ink-muted">Password</label>
+            <Input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(v) => setPassword(v as string)}
               placeholder="At least 6 characters"
-              required
-              minLength={6}
-              className="w-full rounded-xl border border-subtle bg-elevated px-3.5 py-2.5 text-body text-primary placeholder:text-disabled transition-all focus:border-brand focus:ring-1 focus:ring-brand-subtle focus:outline-none"
             />
           </div>
 
@@ -66,18 +63,14 @@ export default function SignupPage() {
             <p className="rounded-lg bg-error-subtle px-3 py-2 text-caption text-error">{error}</p>
           )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-xl bg-brand px-4 py-2.5 text-body font-medium text-white transition-all hover:bg-brand-hover disabled:opacity-50"
-          >
+          <Button type="submit" size="full" loading={loading}>
             {loading ? 'Creating account…' : 'Create account'}
-          </button>
+          </Button>
         </form>
 
-        <p className="mt-6 text-center text-caption text-text-muted">
+        <p className="mt-6 text-center text-caption text-ink-muted">
           Already have an account?{' '}
-          <Link to="/login" className="text-brand hover:text-brand-hover">
+          <Link to="/login" className="text-terracotta hover:text-terracotta/80 font-medium">
             Sign in
           </Link>
         </p>

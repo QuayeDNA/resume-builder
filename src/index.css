@@ -1,46 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
-  * { box-sizing: border-box; }
-  html, body, #root { min-height: 100%; }
+  * {
+    box-sizing: border-box;
+  }
+
+  html, body, #root {
+    min-height: 100%;
+  }
+
   body {
-    background: #070710;
     margin: 0;
-    color: #e8e6f0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
   }
-  ::-webkit-scrollbar { width: 3px; height: 3px; }
-  ::-webkit-scrollbar-track { background: #090912; }
-  ::-webkit-scrollbar-thumb { background: #20203a; border-radius: 3px; }
+
+  ::selection {
+    background: var(--color-terracotta-dim);
+    color: var(--color-terracotta);
+  }
+
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--color-paper-deep);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-ink-muted);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-ink-soft);
+  }
+
   input, textarea, select {
     outline: none;
-    background: #161622;
-    color: #e8e6f0;
-    border: 1px solid rgba(255,255,255,0.10);
-    border-radius: 0.75rem;
-  }
-  input:focus, textarea:focus, select:focus {
-    border-color: #6c63ff !important;
-    box-shadow: 0 0 0 2px rgba(108,99,255,0.12);
+    font-family: inherit;
   }
 }
 
 @layer utilities {
   .resume-page {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
     background: #fff;
     color: #1a1a1a;
     font-size: 10.5px;
     line-height: 1.5;
   }
-  .print-only { display: none; }
+
+  .print-only {
+    display: none;
+  }
 }
 
 @media print {
-  @page { margin: 0; size: A4; }
-  body { margin: 0; background: white; }
-  .no-print { display: none !important; }
-  .print-only { display: block !important; }
+  @page {
+    margin: 0;
+    size: A4;
+  }
+
+  body {
+    margin: 0;
+    background: white;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
 }

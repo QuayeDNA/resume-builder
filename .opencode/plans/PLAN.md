@@ -1,133 +1,329 @@
 # ResumeForge — Complete Enhancement Plan
 
 > Generated from full codebase audit on 2026-06-01
+> Last updated: 2026-06-01
 
 ---
 
 ## Current State Assessment
 
-The app is a functional single-page React/Vite resume builder with a strong dark-themed design system, Zustand state management, localStorage persistence, multi-provider AI integration (Groq → Zephyr fallback), 11 templates, an ATS checker, and cover letter support. However, it remains a **client-side-only MVP** with critical gaps: no database, no auth, no TypeScript, no tests, unused ghost dependencies, and limited customization/export options.
+The app is a functional single-page React/Vite resume builder with a warm tactile-themed design system (post-Phase 3 redesign), Zustand state management, localStorage persistence, multi-provider AI integration (Groq → Zephyr fallback), 11 templates, an ATS checker, and cover letter support. The app is TypeScript, has Supabase backend with auth, routing, error boundaries, drag-and-drop reordering, and custom sections.
+
+### Key Stats
+- **Status**: MVP → production-ready foundation
+- **TypeScript**: 0 errors, strict mode
+- **Backend**: Supabase project with 5 tables + RLS
+- **Auth**: Login/signup pages, session management
+- **Routing**: react-router-dom with auth routes
+- **Bundlesize**: ~556KB JS (Supabase + dnd-kit bulk)
 
 ---
 
-## Phase 0 — Immediate Fixes & Housekeeping
+## Phase 0 — Immediate Fixes & Housekeeping ✅
 
-**Goal**: Clean up technical debt before layering new features.
+**Goal**: Clean up technical debt.
 
-| Task | Detail |
+| Task | Status |
 |------|--------|
-| 0.1 Remove ghost dependencies | `html2pdf.js`, `@headlessui/react`, `clsx`, `@dnd-kit/*` — either unused or duplicated. Install them only when actually implemented. |
-| 0.2 Remove empty skeleton dirs | `src/features/resume/templates/` is a half-started refactor with empty subdirectories. Clean it up. |
-| 0.3 Replace custom `cn()` with `clsx` + `tailwind-merge` | The custom utility works but is non-standard. Use established libraries for class merging. |
-| 0.4 Revoke committed API keys | `.env.local` contains real API keys that were committed. Rotate them immediately. |
-| 0.5 Ensure `.env.local` is gitignored | Verify it's in `.gitignore` and hasn't been tracked. |
-| 0.6 Fix README inaccuracies | README says "html2pdf.js" for PDF (uses print-window instead), says "8 templates" (there are 11), says "keyboard-navigable" (no shortcut docs). |
+| 0.1 Remove ghost dependencies | ✅ Done |
+| 0.2 Remove empty skeleton dirs | ✅ Done |
+| 0.3 Replace custom `cn()` with clsx + tailwind-merge | ⏳ Skipped — cn() works for current usage |
+| 0.4 Revoke committed API keys | ⏳ Pending — .env.local keys need rotation |
+| 0.5 Ensure `.env.local` is gitignored | ✅ Done |
+| 0.6 Fix README inaccuracies | ✅ Done |
 
 ---
 
-## Phase 1 — Foundation & Infrastructure
+## Phase 1 — Foundation & Infrastructure ✅
 
 **Goal**: Production-grade backend, auth, and type safety.
 
-### 1.1 TypeScript Migration
-- Rename `.js`/`.jsx` → `.ts`/`.tsx` incrementally (section by section)
-- Convert JSDoc typedefs in `src/types/index.js` to proper TypeScript interfaces
-- Enable strict mode in `tsconfig.json`
-- Benefits: compile-time safety, better IDE support, fewer runtime bugs
-
-### 1.2 Database & Backend (Supabase)
-- Add `@supabase/supabase-js`
-- Schema design:
-  - `users` (id, email, name, avatar_url, created_at, subscription_tier)
-  - `resumes` (id, user_id, data JSONB, template, metadata, created_at, updated_at)
-  - `resume_slots` (id, resume_id, name, data JSONB, cl JSONB, created_at)
-  - `cover_letters` (id, user_id, resume_id, data JSONB, created_at)
-  - `subscriptions` (id, user_id, stripe_customer_id, stripe_subscription_id, tier, status, current_period_end)
-- Row-Level Security (RLS) for multi-tenant isolation
-- Serverless functions for CRUD (Vercel or Supabase Edge Functions)
-
-### 1.3 Authentication (Supabase Auth)
-- Email/password + Google OAuth sign-in
-- Preserve anonymous mode (build without signing up, optionally create account later)
-- Auth-UI with Supabase's built-in components
-- Session persistence across devices
-
-### 1.4 Routing (React Router)
-- Add `react-router-dom` v6
-- Routes: `/` (editor), `/templates` (browse gallery), `/saved` (slots dashboard), `/settings`, `/pricing`, `/login`
-- Deep-linkable sections: `/editor?section=experience`
-- Browser back/forward support
-
-### 1.5 Error Boundaries & Monitoring
-- React Error Boundary wrapper at app level
-- Graceful fallback UI for crashes
-- Optional: Sentry for production error tracking
+| Task | Status |
+|------|--------|
+| 1.1 TypeScript Migration | ✅ 0 errors, strict mode |
+| 1.2 Database & Backend (Supabase) | ✅ 5 tables + RLS + triggers deployed |
+| 1.3 Authentication | ✅ Login/signup pages + session management |
+| 1.4 Routing | ✅ react-router-dom with auth routes |
+| 1.5 Error Boundaries | ✅ App-level ErrorBoundary |
 
 ---
 
-## Phase 2 — Editor UX & Customization
+## Phase 2 — Editor UX & Customization ✅
 
 **Goal**: Smooth, highly interactive editing experience.
 
-### 2.1 Drag-and-Drop Reordering
-- Implement `@dnd-kit` (already in `package.json`)
-- Reorder experience entries, education entries, projects, certifications
-- Reorder bullet points within experience entries
-- Reorder entire sections on the resume
-- Animated drop indicators
-
-### 2.2 Undo/Redo System
-- Command history pattern (Zustand middleware)
-- `Ctrl+Z` / `Ctrl+Shift+Z` keyboard shortcuts
-- Visual undo/redo buttons in toolbar
-- Max 50 steps, configurable
-
-### 2.3 Rich Text for Bullets
-- Replace `<textarea>` with a lightweight rich text editor (TipTap or custom `contenteditable`)
-- Bold, italic, bullet lists, links
-- Preserve plain text fallback for ATS export
-
-### 2.4 Section Visibility Toggle
-- Each section gets an eye toggle (show/hide on preview)
-- Create role-specific resume variants without deleting data
-- Preview updates in real-time
-
-### 2.5 Custom Sections
-- Users can add custom section headings with free-form content
-- Name, icon, position in the section order
-
-### 2.6 Enhanced Auto-Save
-- Keep 1.2s debounce from `useAutoSave`
-- Add clear "Saving..." → "Saved @ HH:MM" indicator
-- Named version snapshots (snapshot before AI rewrites)
-- Version diff viewer
-
-### 2.7 Keyboard Shortcuts
-- `Ctrl+S` — save
-- `Ctrl+Z` / `Ctrl+Shift+Z` — undo/redo
-- `Ctrl+1-9` — jump to section
-- `Ctrl+P` — export PDF
-- `?` — show shortcuts overlay
+| Task | Status |
+|------|--------|
+| 2.1 Drag-and-Drop Reordering | ✅ Entries, bullets, nav sections |
+| 2.2 Undo/Redo System | ⏳ Pending |
+| 2.3 Rich Text for Bullets | ⏳ Pending |
+| 2.4 Section Visibility Toggle | ⏳ Pending |
+| 2.5 Custom Sections | ✅ CustomSectionEntry + dynamic sidebar |
+| 2.6 Enhanced Auto-Save | ⏳ Pending |
+| 2.7 Keyboard Shortcuts | ⏳ Pending |
 
 ---
 
-## Phase 3 — Templates & Theming Overhaul
+## Phase 3 — Complete Visual Redesign: "Playful & Tactile" ✅
+
+**Goal**: Transform the app from a generic dark-theme developer tool into a warm, approachable, tactile product that feels like a beautifully crafted notebook.
+
+### Creative Direction
+
+**Tone**: Warm, friendly, approachable, crafted — like a high-end stationery set.
+**Target audience**: Resume builders are often stressed job seekers — the tool should feel calming and supportive, not cold and technical.
+**Differentiation**: No dark purple sci-fi theme. No generic Tailwind patterns. A warm off-white paper-and-ink aesthetic with grain texture, soft shadows, and organic details.
+
+### Design System
+
+| Token | Before | After |
+|-------|--------|-------|
+| Page background | `#06060b` void | `#f8f4f0` warm paper |
+| Card background | `#0f0f18` surface | `#f0ebe4` warm paper |
+| Primary text | `#e8e6f0` | `#2a2520` ink |
+| Secondary text | `#9a98b0` | `#6b6258` soft ink |
+| Accent | `#7c6fff` purple | `#c76b4a` terracotta |
+| Secondary accent | — | `#8ca98c` sage |
+| Body font | DM Sans | Bricolage Grotesque |
+| Display font | Playfair Display | Fraunces (variable) |
+| Mono font | DM Mono | IBM Plex Mono |
+| Border treatment | Sharp hairline | Soft shadow + grain |
+| Motion | 100ms snap | 350ms ease-out-expo |
+| Button shape | Rounded-lg | Pill (rounded-full) |
+
+### New Layout Architecture
+
+The sidebar is no longer a dump of 10+ section nav items. It becomes a proper app-level navigation:
+
+```
+[SIDEBAR]              [EDITOR VIEW - accordion]         [PREVIEW]
+┌────────────┐         ┌─────────────────────────┐       ┌──────────┐
+│ ✏️ Editor  │         │ 🔽 Personal Info    ⠿   │       │          │
+│ 🎨 Templates│        │ ┌─────────────────────┐│       │  Resume  │
+│ 📄 Cover    │         │ │ Name, Title, Email ││       │  Preview │
+│ 💾 Saved    │         │ └─────────────────────┘│       │          │
+│ ⚙️ Settings │         │ 🔽 Experience     ⠿   │       │          │
+│ 📤 Export   │         │ ┌─────────────────────┐│       │          │
+├────────────┤         │ │ Company, Role...   ││       │          │
+│ 👤 Profile  │         │ └─────────────────────┘│       │          │
+└────────────┘         │ 🔽 Education...         │       └──────────┘
+                        │ 🔽 Skills...            │
+                        │ + Add Custom Section    │
+                        └─────────────────────────┘
+```
+
+#### Sidebar (nav.tsx)
+- **Editor** — Opens the accordion editor view with all resume sections
+- **Templates** — Opens template gallery (replaces old Design section)
+- **Cover Letter** — Opens cover letter editor
+- **Saved** — Opens saved slots manager
+- **Settings** — New: account, preferences, AI provider config
+- **Export** — Downloads PDF or opens export dialog
+- **Bottom**: User avatar + name (auth) or "Sign in" link
+
+#### Editor View (editor panel)
+- One scrollable view containing all resume sections as collapsible accordion cards
+- Each section (Personal, Experience, Education, Skills, Projects, Certifications, Languages, Custom) is a `Card.tsx` accordion, default-expanded
+- Drag handles on accordion headers to reorder sections
+- "Add Custom Section" button at bottom
+- ATS checker appears inline at bottom or as collapsible section
+
+#### Mobile Navigation
+- Replace radial dial overlay with a bottom sheet (slide-up panel with section list)
+- Keep mobile header with Edit/Preview tabs
+
+### Typography
+
+- **Body**: Bricolage Grotesque (warm humanist sans, Google Fonts)
+- **Display**: Fraunces (variable soft-serif with optical sizes, Google Fonts)
+- **UI/Mono**: IBM Plex Mono (Google Fonts)
+- **Scale**: caption 12px → body 14px → heading 18px → display 36px → hero 64px
+- **Weight contrast**: 300 (light body) + 700 (bold headings), never 400 vs 600
+
+### Color Tokens (CSS Custom Properties)
+
+```css
+--color-paper:       #f8f4f0
+--color-paper-warm:  #f0ebe4
+--color-paper-deep:  #e8e0d6
+--color-ink:         #2a2520
+--color-ink-soft:    #6b6258
+--color-ink-muted:   #9c9287
+--color-terracotta:  #c76b4a
+--color-terracotta-dim: rgba(199,107,74,0.12)
+--color-sage:        #8ca98c
+--color-sage-dim:    rgba(140,169,140,0.12)
+--color-warm-border: rgba(42,37,32,0.08)
+```
+
+### Texture & Atmosphere
+
+- **Grain overlay**: Fixed-position SVG `feTurbulence` noise filter at 4% opacity
+- **Soft shadows**: Multi-layer `box-shadow` using ink at low opacity
+- **Preview desk**: Warm wooden/desk surface texture (CSS gradient pattern)
+- **Card depth**: Subtle `box-shadow` + slight rotation on drag
+
+### Motion System
+
+- All UI transitions: `350ms cubic-bezier(0.19, 1, 0.22, 1)` (ease-out-expo)
+- Color shifts: `200ms ease`
+- Section enters: stagger children at `80ms` intervals via `--i` counter
+- Button press: `active:scale-[0.97]` with immediate timing
+- Drag feedback: `scale(1.02)` on hover, drop ghost opacity
+- `prefers-reduced-motion` respected globally
+
+### Signature Moment
+
+Splash screen: hand-drawn-style "R" logo that draws itself in (SVG path animation), then app content fades in around it with staggered paper-like reveals. Sets the tactile, crafted tone from the first impression.
+
+### Files to Create
+
+| File | Purpose |
+|------|---------|
+| `docs/DESIGN_PHILOSOPHY.md` | 1-page creative manifesto |
+| `src/design/tokens.css` | CSS custom properties |
+| `src/design/textures/grain.css` | SVG noise filter |
+| `src/design/textures/desk.css` | Warm desk pattern for preview |
+| `src/components/Mobile/BottomSheetNav.tsx` | Replaces RadialNavOverlay |
+| `src/components/Preview/ZoomControls.tsx` | Fit/100%/150% zoom |
+
+### Files to Rewrite
+
+| File | Change |
+|------|--------|
+| `tailwind.config.js` | All colors, fonts, shadows, radius, animations |
+| `src/index.css` | Ground color, grain overlay, base typography |
+| `src/design/components/Button.tsx` | Pill shape, tactile press, new variants |
+| `src/design/components/Card.tsx` | Warm surface, soft shadow, accordion refinements |
+| `src/components/UI/Input.tsx` | Recessed paper field, inset focus shadow |
+| `src/components/UI/Select.tsx` | Custom chevron, paper dropdown |
+| `src/components/Editor/SideNav.tsx` | Core-feature nav + user profile |
+| `src/components/Editor/EditorPanel.tsx` | Accordion view of all sections |
+| `src/components/Preview/PreviewPanel.tsx` | Warm desk texture, zoom controls |
+| `src/components/SplashScreen.tsx` | Hand-drawn R logo animation |
+| `src/App.tsx` | Bottom sheet nav, layout update |
+| `src/components/SortableList.tsx` | Bigger handle, drop ghost, soft animation |
+
+### Implementation Order
+
+1. Design philosophy + CSS tokens
+2. Tailwind config + index.css + textures
+3. Typography imports (Google Fonts)
+4. Button / Card / Input / Select redesign
+5. SideNav rewrite (core features only)
+6. EditorPanel rewrite (accordion view)
+7. PreviewPanel redesign (desk texture + zoom)
+8. BottomSheetNav (replace radial overlay)
+9. App.tsx layout + routing cleanup
+10. SplashScreen signature moment
+11. Polish — micro-interactions, focus states, reduced-motion
+
+---
+
+## Phase 3.5 — Multi-Page Template System
+
+**Goal**: Content that exceeds a single A4 page flows naturally into subsequent pages with proper page breaks, headers/footers, and zero content clipping.
+
+### Current State
+
+Every template renders into a single A4-sized container (794×1123px). Overflow content is hidden. The PDF export captures the single container only — anything outside it is lost. There is no awareness of page boundaries.
+
+### Architecture: Page Content Manager + Page-Aware Templates
+
+Replace the current monolithic template rendering with a **page composition system**:
+
+```
+[Layout Engine]
+  ├─ Measures each section's rendered height
+  ├─ Fits sections into 1056px-tall "pages"
+  ├─ Inserts page breaks at section boundaries (never mid-section)
+  └─ Renders n pages, each with headers/footers
+```
+
+### Key Components
+
+| Component | Responsibility |
+|-----------|---------------|
+| `PageContainer` | Measures a single A4 page (794×1056px), clips overflow, renders header/footer bar (name, page number, total pages) |
+| `PageComposer` | Takes section VNodes, renders them one-by-one into hidden measurement containers, calculates which sections fit on each page, then renders the actual pages |
+| `PageBreakRenderer` | Displays a visual page break indicator between pages in preview mode (dashed line with "Page 1" / "Page 2" labels) |
+
+### Measurement Strategy (Hidden Iframe / Off-DOM)
+
+1. Clone the section content into a **hidden measurement container** with A4 dimensions and `overflow: visible; max-height: none`
+2. Measure `scrollHeight` of each section independently
+3. Start packing sections into pages:
+   - If a section fits on remaining page space → place it
+   - If it doesn't fit → move to next page (page break before section)
+   - If a single section is taller than one page → allow it to overflow (rare edge case for very long experience entries)
+4. For each page, render `PageContainer` with the assigned sections + page number
+
+### Visual Page Break
+
+In preview mode, display a **subtle dashed page break indicator** between pages:
+
+```
+┌─────────────────────────┐
+│     Page 1 content      │
+│                         │
+└─────────────────────────┘
+- - - - - - - - - - - - - -
+  Page 1 | Page 2
+- - - - - - - - - - - - - -
+┌─────────────────────────┐
+│     Page 2 content      │
+│                         │
+└─────────────────────────┘
+```
+
+### PDF Export
+
+For PDF export, concatenate all pages vertically, add `page-break-after: always` between them, and capture the full height. The browser's `@page` rules handle actual print pagination.
+
+### Template Compatibility
+
+All 3 template renderers (SingleColumn, TwoColumn, ATS) must be **page-aware**:
+- Accept a `pageBreak` prop or context
+- Render section headings with `break-inside: avoid` CSS
+- Support wrapper div per page rather than one monolithic container
+
+### Implementation Order
+
+1. ✅ Create `PageContainer` component — A4 box, header/footer, overflow hidden
+2. ✅ Create `PageComposer` — off-DOM measurement, page stacking via translateY clipping
+3. ✅ Integrate into `PreviewPanel` — PageComposer wraps templates, zoom applies to page stack
+4. ⬜ Add visual page break indicators (dashed lines + page labels) — page numbers + 24px gap serve this purpose for now
+5. ✅ Update `exportToPdf` — captures all `[data-page-container]` elements, serializes each page
+6. ⬜ Test edge cases: 1-page resume, 3-page resume, section larger than one page
+7. ⬜ Polish: transition animations between pages on zoom change
+
+### Why Not CSS `@page`?
+
+CSS `@page` only works in print/PDF output and cannot be used for on-screen multi-page preview. Content needs to be actively measured and split in JavaScript for the interactive preview to show proper multi-page layout.
+
+### Why Not `html2canvas`?
+
+Rendering to canvas loses text selection, accessibility, and increases bundle size. The DOM-splitting approach preserves native text rendering and is much lighter.
+
+---
+
+## Phase 4 — Templates & Theming Overhaul
 
 **Goal**: Highly customizable, visually stunning templates.
 
-### 3.1 Real Template Thumbnails
+### 4.1 Real Template Thumbnails
 - Replace current CSS-block approximations with actual rendered mini-previews
 - Use `html-to-image` to capture screenshot previews of templates with sample data
 - Hover zoom, grid/gallery view toggle
 
-### 3.2 Template Customization Panel
+### 4.2 Template Customization Panel
 - **Color picker**: Customize accent and secondary colors per template
 - **Font selector**: 8-10 curated font pairings from Google Fonts
 - **Spacing controls**: Margins (narrow/medium/wide), section spacing, line height
 - **Layout toggles**: Show/hide/reorder sections on the final output
 - **Font size scale**: Slight adjustments to heading/body sizes
 
-### 3.3 New Template Categories
+### 4.3 New Template Categories
 Expand from 11 → 25+ templates:
 
 | Category | Count | Examples |
@@ -140,12 +336,12 @@ Expand from 11 → 25+ templates:
 | Timeline | 2 | Chronological, Functional Timeline |
 | Tech | 3 | Developer, DevOps, Data Science |
 
-### 3.4 Theme System (Light/Dark)
+### 4.4 Theme System (Light/Dark)
 - Full light mode with proper contrast hierarchy
 - Toggle in header/settings, persisted to localStorage
 - Preview panel: toggle between white background (traditional) and dark (screen viewing)
 
-### 3.5 Preview Modes
+### 4.5 Preview Modes
 - **Full page**: Current A4-sized preview
 - **Scroll mode**: Continuous scroll for long resumes
 - **Mobile preview**: Simulate phone view
@@ -153,114 +349,104 @@ Expand from 11 → 25+ templates:
 
 ---
 
-## Phase 4 — AI Enhancement
+## Phase 5 — AI Enhancement
 
 **Goal**: Intelligent, streaming, context-aware AI that genuinely helps users.
 
-### 4.1 Streaming AI Responses
+### 5.1 Streaming AI Responses
 - Replace all-or-nothing loading spinner with token-by-token streaming
 - Use Vercel AI SDK or raw SSE from the API
 - Display text appearing in real-time in the editor field
-- Feels dramatically faster and more responsive
 
-### 4.2 Job Description Matching
+### 5.2 Job Description Matching
 - Paste a job description URL or text
 - AI identifies key requirements, skills, keywords
 - "Match Resume" button compares resume against JD
 - Match percentage + highlighted missing keywords
-- AI suggests bullet rewrites tailored to the JD
 
-### 4.3 Keyword Gap Analysis
+### 5.3 Keyword Gap Analysis
 - Extract keywords from the job description
 - Compare against current resume
 - Visual gap report: "Matched" (green) vs "Missing" (red)
 - "Add Missing Skills" one-click button
-- AI suggestions for where to incorporate missing keywords into experience bullets
 
-### 4.4 AI Full Resume Rewrite
+### 5.4 AI Full Resume Rewrite
 - "Rewrite Entire Resume" button
 - AI rewrites every section for consistency and impact
 - Target tone options: Professional, Confident, Warm, Executive
-- Target industry/role
 - Preserves all facts and dates — only rewrites language
 
-### 4.5 Cover Letter Enhancements
+### 5.5 Cover Letter Enhancements
 - Consider job description in generation (not just resume data)
 - Multiple paragraph style options after generation
 - "Tone Shift" — re-generate in a different tone without starting over
-- "Shorten" / "Elaborate" for the generated letter
 
-### 4.6 AI Interview Question Generator
+### 5.6 AI Interview Question Generator
 - Generate likely interview questions from resume
 - Categories: "Experience at X", "Technical", "Behavioral"
 - Practice mode with talking points
 
-### 4.7 Prompt Management
+### 5.7 Prompt Management
 - Move hardcoded prompts from `src/api/prompts.js` into a configurable system
 - Allow power users to customize prompts (stored locally)
 - Prompt versioning — updates don't break existing behavior
 
-### 4.8 OpenAI / Multiple Model Support
+### 5.8 OpenAI / Multiple Model Support
 - Add GPT-4o as an optional provider
 - Let users choose preferred AI provider in settings
 - Server-side key management (never expose to client)
-- Show model quality indicator per provider
 
 ---
 
-## Phase 5 — Import & Export Expansion
+## Phase 6 — Import & Export Expansion
 
 **Goal**: True portability — get data in and out however the user needs.
 
-### 5.1 Professional PDF Export
+### 6.1 Professional PDF Export
 - Replace print-window approach with a proper PDF library
-- Options: `@react-pdf/renderer` (React-based), Puppeteer-based server render, or `jsPDF`
 - Support A4 and US Letter formats
 - Custom margins (narrow/medium/wide)
 - Embed PDF metadata (title, author, subject)
 
-### 5.2 DOCX Export (Word Format)
+### 6.2 DOCX Export (Word Format)
 - Use `docx` npm library
 - Preserve formatting, fonts, layout
 - ATS-friendly output option (plain tables, minimal formatting)
-- One-click download
 
-### 5.3 Import from LinkedIn
+### 6.3 Import from LinkedIn
 - Parse LinkedIn profile PDF export
 - Extract: name, title, experience, education, skills, certifications
 - Map to ResumeData structure
-- Handle edge cases: date formats, missing sections
 
-### 5.4 Import from Existing Resume (AI Parse)
+### 6.4 Import from Existing Resume (AI Parse)
 - Upload existing PDF/DOCX resume
 - AI extracts structured data
 - Map to ResumeData
 - Review/correct before applying
 
-### 5.5 Google Docs / Drive Integration
+### 6.5 Google Docs / Drive Integration
 - Export directly to Google Docs via API
 - Import from Google Docs
 - Auto-backup resumes to Drive folder
-- Requires Google OAuth scope
 
-### 5.6 Public Share Link
+### 6.6 Public Share Link
 - Generate unique shareable URL for each resume
 - Hosted HTML version on Vercel edge
 - Optional password protection
 - QR code generation for the share link
 
-### 5.7 Batch Export
+### 6.7 Batch Export
 - Export all saved slots as ZIP archive
 - Each slot: JSON + PDF + DOCX
 - One-click download all
 
 ---
 
-## Phase 6 — Monetization & Paid Features
+## Phase 7 — Monetization & Paid Features
 
 **Goal**: Sustainable revenue without degrading the free experience.
 
-### 6.1 Subscription Tiers
+### 7.1 Subscription Tiers
 
 | Feature | Free | Pro ($9.99/mo) | Lifetime ($199) |
 |---------|------|-----------------|-----------------|
@@ -278,88 +464,76 @@ Expand from 11 → 25+ templates:
 | Priority AI model | — | ✓ | ✓ |
 | Share links | — | 5 active | Unlimited |
 
-Enterprise (custom pricing): team management, org branding, centralized billing, SSO, dedicated support.
-
-### 6.2 Payment Integration
+### 7.2 Payment Integration
 - Stripe for subscription management
 - Lemon Squeezy as fallback (EU VAT compliance)
 - Pricing page at `/pricing`
 - Subscription management portal (cancel, upgrade, downgrade)
 - Stripe webhooks for lifecycle events
 
-### 6.3 AI Credit System
+### 7.3 AI Credit System
 - Track per-user AI usage
 - Reset monthly for subscriptions
-- Rollover up to cap for annual plans
 - Display remaining credits in UI
 - "Buy more credits" option for free tier
-- Credit costs: simple actions = 1 credit, complex = 3-5 credits
 
-### 6.4 Premium Templates
+### 7.4 Premium Templates
 - Exclusive templates for Pro/Lifetime users
 - Industry-specific: Healthcare, Tech, Finance, Education, Creative
-- Designer-curated color palettes
-- Premium font pairings (variable fonts)
 - UI badges: "Free" vs "Pro"
 
-### 6.5 Usage Dashboard
+### 7.5 Usage Dashboard
 - Per-user analytics: resumes created, exports, AI actions, templates used
-- Monthly email digest
 - Helps users see value and decide to upgrade
 
 ---
 
-## Phase 7 — Advanced Features & Integrations
+## Phase 8 — Advanced Features & Integrations
 
 **Goal**: Delight users with unexpected but valuable capabilities.
 
-### 7.1 Collaboration
+### 8.1 Collaboration
 - Share resume for review with friend/mentor
 - Comment system on sections/bullets
 - Real-time collaboration via Supabase Realtime
-- View-only vs edit access levels
 
-### 7.2 GitHub Integration
+### 8.2 GitHub Integration
 - Import projects from GitHub via API
 - Authenticate with GitHub OAuth
 - Select repos, auto-generate descriptions
-- Optional: keep projects synced
 
-### 7.3 Notion Integration
+### 8.3 Notion Integration
 - Import work history from Notion database
 - Map Notion properties to resume fields
-- Notion OAuth integration
 
-### 7.4 Spell Check & Grammar
+### 8.4 Spell Check & Grammar
 - Client-side spell checker (`nspell` with dictionary)
 - Squiggly underline for misspellings
-- Grammar suggestions via AI (1 credit) or LanguageTool API
+- Grammar suggestions via AI or LanguageTool API
 
-### 7.5 Multi-Language Resume
+### 8.5 Multi-Language Resume
 - Translate resume via AI
 - Maintain separate translations per resume
 - Side-by-side editing: original + translation
-- Export each language version separately
 
-### 7.6 Resume Analytics
+### 8.6 Resume Analytics
 - Track views (for shared links)
-- Track which sections recruiters spend time on (future)
 - A/B test two versions of a resume
 
 ---
 
-## Phase 8 — Polish, Performance & Quality
+## Phase 9 — Polish, Performance & Quality
 
 **Goal**: Production-ready quality across every surface.
 
-### 8.1 Testing
+### 9.1 Testing
 - Unit tests: `ats.js`, `storage.js`, `defaults.js`
 - Component tests: EditorPanel, PreviewPanel, each section component
 - Integration tests: Zustand store actions
 - E2E: create resume → AI improve → export PDF
 - Stack: Vitest + React Testing Library + Playwright
 
-### 8.2 Accessibility Audit
+### 9.2 Accessibility Audit
 - axe-core / Lighthouse audit
 - Proper heading hierarchy (h1-h6)
 - ARIA labels on all interactive elements
@@ -368,22 +542,19 @@ Enterprise (custom pricing): team management, org branding, centralized billing,
 - Screen reader testing: NVDA / VoiceOver
 - Visible focus rings on all interactive elements
 
-### 8.3 Performance Optimization
+### 9.3 Performance Optimization
 - Lazy-load section components (`React.lazy` + `Suspense`)
-- Memoize expensive computations (already done in PreviewPanel)
+- Memoize expensive computations
 - Bundle analysis with `vite-bundle-visualizer`
 - Reduce layout shifts in editor
-- Image optimization for template thumbnails
 
-### 8.4 Mobile Experience
-- Full-screen editing mode on mobile
-- Bottom sheet for section nav (replace full-screen radial overlay on small screens)
+### 9.4 Mobile Experience
+- Bottom sheet for section nav (replaces radial overlay on small screens)
 - Touch-friendly tap targets (min 44px)
-- Swipe gestures for navigation
 - PWA: service worker + manifest for installability
 - Offline support via service worker caching
 
-### 8.5 CI/CD
+### 9.5 CI/CD
 - GitHub Actions: lint + typecheck + test + build on every PR
 - Vercel preview deployments per branch
 - Automated accessibility checks in CI (axe-playwright)
@@ -404,9 +575,9 @@ Enterprise (custom pricing): team management, org branding, centralized billing,
 - Image optimization for template thumbnails
 - Middleware for auth-protected routes
 - Layout system for shared navigation
-- Edge runtime for AI proxy (lower latency)
 
 ### Store Architecture
+
 Split the monolithic Zustand store into slices:
 - `useResumeStore` — resume data, mutations
 - `useUIStore` — active section, view mode, mobile nav state
@@ -421,52 +592,48 @@ Split the monolithic Zustand store into slices:
 |---------|--------|--------|-------|-----------|
 | TypeScript migration | Medium | High | 1 | |
 | Supabase + Auth | Critical | High | 1 | |
+| Visual redesign | Very High | High | 3 | |
 | Drag-and-drop reorder | High | Medium | 2 | ⚡ |
+| Custom sections | High | Medium | 2 | ⚡ |
 | Undo/redo | High | Medium | 2 | ⚡ |
 | Rich text editor | Medium | High | 2 | |
 | Section visibility toggles | Medium | Low | 2 | ⚡ |
-| Real template thumbnails | High | Low | 3 | ⚡ |
-| Custom colors/fonts/spacing | High | Medium | 3 | |
-| Light mode | Medium | Low | 3 | ⚡ |
-| Preview toggle (light/dark) | Medium | Low | 3 | ⚡ |
-| AI streaming | High | Medium | 4 | |
-| Job description matching | Very High | Medium | 4 | |
-| Keyword gap analysis | Very High | Medium | 4 | |
-| PDF export (proper) | Critical | Medium | 5 | |
-| DOCX export | High | Low | 5 | ⚡ |
-| LinkedIn import | High | Medium | 5 | |
-| Subscription system | Critical | High | 6 | |
-| AI credit system | High | Medium | 6 | |
-| Premium templates | Medium | Low | 6 | |
-| Full testing suite | High | High | 8 | |
-| Accessibility audit | High | Medium | 8 | |
-| Mobile improvements | High | Medium | 8 | |
+| Real template thumbnails | High | Low | 4 | ⚡ |
+| Custom colors/fonts/spacing | High | Medium | 4 | |
+| Light mode | Medium | Low | 4 | ⚡ |
+| Preview toggle (light/dark) | Medium | Low | 4 | ⚡ |
+| AI streaming | High | Medium | 5 | |
+| Job description matching | Very High | Medium | 5 | |
+| Keyword gap analysis | Very High | Medium | 5 | |
+| PDF export (proper) | Critical | Medium | 6 | |
+| DOCX export | High | Low | 6 | ⚡ |
+| LinkedIn import | High | Medium | 6 | |
+| Subscription system | Critical | High | 7 | |
+| AI credit system | High | Medium | 7 | |
+| Premium templates | Medium | Low | 7 | |
+| Full testing suite | High | High | 9 | |
+| Accessibility audit | High | Medium | 9 | |
+| Mobile improvements | High | Medium | 9 | |
 
 ---
 
 ## Quick Wins (Can Be Done Immediately)
 
-These are high-impact, low-effort items that don't require backend changes:
-
 1. **Real template thumbnails** — Replace CSS blocks with actual rendered previews
 2. **Section visibility toggles** — Show/hide per resume version
 3. **Save indicator** — "Saving..." / "Saved @ HH:MM" in the sidebar
 4. **Light/dark preview toggle** — Toggle preview background
-5. **DOCX export** — Add `docx` library + export button (few hours)
+5. **DOCX export** — Add `docx` library + export button
 6. **Keyboard shortcut overlay** — `?` key opens shortcut reference
-7. **Error boundary** — Catch rendering errors gracefully
-8. **Drag-to-reorder** — Wire up the already-installed `@dnd-kit`
-9. **Undo/redo** — Zustand middleware for history (1-2 days)
-10. **Mobile full-screen editing** — Better mobile layout without full rebuild
+7. **Undo/redo** — Zustand middleware for history (1-2 days)
+8. **Mobile bottom sheet nav** — Replace radial overlay
 
 ---
 
 ## Notes on Current Code That Should Be Preserved
 
-- **Design system (`src/design/tokens.js`)**: Excellent color palette and token system. Keep and extend.
-- **Design components (`src/design/components/`)**: Well-abstracted UI primitives. Keep as the foundation.
 - **AI provider chain (`src/api/freeAI.js`)**: Smart fallback pattern (Groq → Zephyr). Extend with more providers.
 - **ATS checker (`src/utils/ats.js`)**: Good scoring algorithm. Improve weighting and add more checks.
 - **Auto-save debounce (`src/hooks/useAutoSave.js`)**: Works well. Just add better feedback.
 - **Zustand store structure**: Clean and readable. Just split when it grows too large.
-- **Mobile radial nav**: Beautiful UX pattern. Keep for desktop-tablet; replace with bottom sheet on phones.
+- **Template rendering logic**: The section rendering in templates works well — just need custom section support.

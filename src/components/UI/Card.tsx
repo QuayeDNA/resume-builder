@@ -23,7 +23,7 @@ export default function Card({ title, children, defaultOpen, className, headerRi
       {onAdd && (
         <button
           onClick={onAdd}
-          className="w-full border border-dashed border-subtle text-text-muted rounded-lg py-1.5 text-caption hover:border-brand hover:text-brand transition-all duration-100"
+          className="w-full border border-dashed border-warm-border-strong text-ink-muted rounded-lg py-1.5 text-caption hover:border-terracotta hover:text-terracotta transition-all duration-150"
         >
           + {addLabel || 'Add'}
         </button>

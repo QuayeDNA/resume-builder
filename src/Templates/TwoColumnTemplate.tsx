@@ -68,13 +68,11 @@ export default function TwoColumnTemplate({ data }: { data: ResumeData }) {
 
   return (
     <div
-      id="resume-preview"
       style={{
         fontFamily: "'DM Sans', Arial, sans-serif",
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'stretch',
-        minHeight: '1122px',
         fontSize: '10px',
         background: '#ffffff',
         width: '100%',

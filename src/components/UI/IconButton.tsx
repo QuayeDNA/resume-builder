@@ -2,10 +2,10 @@ import type { ReactNode, ButtonHTMLAttributes } from 'react'
 import { cn } from '../../utils/classNames'
 
 const variants = {
-  ghost:   'bg-transparent text-text-muted hover:text-primary hover:bg-elevated-2',
+  ghost:   'bg-transparent text-ink-muted hover:text-ink hover:bg-paper-deep',
   danger:  'bg-error-subtle text-error border border-error/20 hover:bg-error/20',
   success: 'bg-success-subtle text-success border border-success/20 hover:bg-success/20',
-  primary: 'bg-brand text-white border border-brand-hover hover:bg-brand-hover',
+  primary: 'bg-terracotta text-white border border-terracotta/80 hover:bg-terracotta/90',
 } as const
 
 type IconButtonProps = {
@@ -29,7 +29,7 @@ export default function IconButton({ onClick, children, title, variant = 'ghost'
       onClick={onClick}
       title={title}
       className={cn(
-        'flex items-center justify-center rounded-lg transition-all duration-100 active:scale-95',
+        'flex items-center justify-center rounded-lg transition-all duration-150 active:scale-95',
         variants[variant],
         sizes[size],
         className,

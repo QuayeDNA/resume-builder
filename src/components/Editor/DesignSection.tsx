@@ -27,8 +27,8 @@ function TemplateThumb({ id, template, selected, onClick }: {
       onClick={onClick}
       className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all duration-100 ${
         selected
-          ? 'bg-brand-subtle border-brand'
-          : 'bg-elevated border-subtle hover:border-active'
+          ? 'bg-terracotta-dim border-terracotta'
+          : 'bg-paper-deep border-warm-border-strong hover:border-terracotta/40'
       }`}
     >
       <div className="w-10 h-7 rounded-md overflow-hidden relative flex flex-shrink-0">
@@ -50,7 +50,7 @@ function TemplateThumb({ id, template, selected, onClick }: {
           </div>
         )}
       </div>
-      <span className={`text-[8px] font-medium leading-none ${selected ? 'text-primary' : 'text-text-muted'}`}>
+      <span className={`text-[8px] font-medium leading-none ${selected ? 'text-ink' : 'text-ink-muted'}`}>
         {template.label}
       </span>
     </button>
@@ -87,22 +87,22 @@ export default function DesignSection() {
             <div key={i} className="flex gap-2 items-start">
               <span className="text-success text-[9px] mt-px flex-shrink-0">✓</span>
               <div>
-                <span className="text-caption text-primary font-medium block">{hint.label}</span>
-                <span className="text-caption text-text-muted">{hint.detail}</span>
+                <span className="text-caption text-ink font-medium block">{hint.label}</span>
+                <span className="text-caption text-ink-muted">{hint.detail}</span>
               </div>
             </div>
           ))}
         </div>
       )}
 
-      <p className="text-label uppercase text-text-muted mb-2">Single Column</p>
+      <p className="text-label uppercase text-ink-muted mb-2">Single Column</p>
       <div className="grid grid-cols-1 gap-2 mb-4 sm:grid-cols-2 xl:grid-cols-3">
         {design.filter(([, t]) => t.layout === 'single').map(([id, t]) => (
           <TemplateThumb key={id} id={id} template={t} selected={currentTemplate === id} onClick={() => setTemplate(id)} />
         ))}
       </div>
 
-      <p className="text-label uppercase text-text-muted mb-2">Two Column</p>
+      <p className="text-label uppercase text-ink-muted mb-2">Two Column</p>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {twoCol.map(([id, t]) => (
           <TemplateThumb key={id} id={id} template={t} selected={currentTemplate === id} onClick={() => setTemplate(id)} />
