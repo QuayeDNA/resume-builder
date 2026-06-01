@@ -8,7 +8,18 @@ import SplashScreen from './components/SplashScreen'
 import useResumeStore from './store/useResumeStore'
 import { exportToPdf } from './utils/pdf'
 
-function MobileHeader({ onMenuToggle, mobileView, onViewChange }) {
+const MOBILE_TABS = [
+  { id: 'edit' as const, label: 'Edit', icon: FileText },
+  { id: 'preview' as const, label: 'Preview', icon: Eye },
+] as const
+
+type MobileTabId = 'edit' | 'preview'
+
+function MobileHeader({ onMenuToggle, mobileView, onViewChange }: {
+  onMenuToggle: () => void
+  mobileView: string
+  onViewChange: (v: MobileTabId) => void
+}) {
   const data = useResumeStore((s) => s.data)
   const handleExport = () => exportToPdf('resume-preview', data.personal.name || 'resume')
 
@@ -36,10 +47,7 @@ function MobileHeader({ onMenuToggle, mobileView, onViewChange }) {
       </div>
 
       <div className="flex border-t border-hairline bg-surface/80">
-        {[
-          { id: 'edit', label: 'Edit', icon: FileText },
-          { id: 'preview', label: 'Preview', icon: Eye },
-        ].map((view) => (
+        {MOBILE_TABS.map((view) => (
           <button
             key={view.id}
             onClick={() => onViewChange(view.id)}
@@ -58,13 +66,13 @@ function MobileHeader({ onMenuToggle, mobileView, onViewChange }) {
   )
 }
 
-function RadialNavOverlay({ open, onClose }) {
+function RadialNavOverlay({ open, onClose }: { open: boolean; onClose: () => void }) {
   const activeSection = useResumeStore((s) => s.activeSection)
   const setActiveSection = useResumeStore((s) => s.setActiveSection)
   const setMobileView = useResumeStore((s) => s.setActiveView)
   const [mounted, setMounted] = useState(open)
   const [closing, setClosing] = useState(false)
-  const [hoveredItem, setHoveredItem] = useState(null)
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
 
   useEffect(() => {
     if (open) {
@@ -109,7 +117,6 @@ function RadialNavOverlay({ open, onClose }) {
             closing ? 'scale-90 opacity-0' : 'scale-100 opacity-100'
           }`}
         >
-          {/* Animated background donut ring */}
           <div
             className="pointer-events-none absolute inset-0 rounded-full border border-hairline bg-[radial-gradient(circle_at_center,rgba(124,111,255,0.18)_0_38%,rgba(124,111,255,0.12)_39_46%,rgba(124,111,255,0.06)_47_53%,rgba(15,15,24,0.94)_54_100%)] shadow-preview transition-all duration-300 ease-out"
             style={{
@@ -118,7 +125,6 @@ function RadialNavOverlay({ open, onClose }) {
             }}
           />
 
-          {/* Center close button with improved design */}
           <button
             type="button"
             onClick={onClose}
@@ -129,7 +135,6 @@ function RadialNavOverlay({ open, onClose }) {
             <X size={20} strokeWidth={2} />
           </button>
 
-          {/* Navigation items */}
           {NAV_ITEMS.map((item, index) => {
             const angle = startAngle + index * step
             const isActive = activeSection === item.id
@@ -137,12 +142,11 @@ function RadialNavOverlay({ open, onClose }) {
 
             return (
               <div key={item.id}>
-                {/* Navigation button */}
                 <button
                   type="button"
                   onClick={() => {
                     setActiveSection(item.id)
-                    setMobileView('edit')
+                    setMobileView('resume')
                     onClose()
                   }}
                   onMouseEnter={() => setHoveredItem(item.id)}
@@ -158,12 +162,11 @@ function RadialNavOverlay({ open, onClose }) {
                   style={{
                     '--radial-scale': closing ? 0.92 : isActive ? 1.05 : 1,
                     transform: `translate(-50%, -50%) rotate(${angle}deg) translateY(-${radius}px) rotate(${-angle}deg) scale(var(--radial-scale))`,
-                  }}
+                  } as React.CSSProperties}
                 >
                   <item.icon size={18} strokeWidth={isActive ? 2 : 1.5} className="transition-transform duration-200 group-hover:scale-120" />
                 </button>
 
-                {/* Label - visible on hover or for active item */}
                 {(isHovered || isActive) && (
                   <div
                     className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
@@ -193,12 +196,9 @@ export default function App() {
   useAutoSave()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
-  const mobileView = useResumeStore((s) => s.activeView)
-  const setMobileView = useResumeStore((s) => s.setActiveView)
+  const [mobileView, setMobileView] = useState<MobileTabId>('edit')
 
   useEffect(() => {
-    // Check if splash screen has been shown before (within this session)
-    // It will show on every fresh page load but only once per session
     const splashShown = sessionStorage.getItem('resume-builder:splash-shown')
     if (splashShown) {
       setShowSplash(false)
@@ -228,13 +228,13 @@ export default function App() {
           {mobileView === 'edit' ? <EditorPanel /> : <PreviewPanel />}
         </div>
 
-      <div className="hidden min-h-0 lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
-        <EditorPanel />
-      </div>
+        <div className="hidden min-h-0 lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
+          <EditorPanel />
+        </div>
 
-      <div className="hidden min-h-0 lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
-        <PreviewPanel />
-      </div>
+        <div className="hidden min-h-0 lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
+          <PreviewPanel />
+        </div>
       </div>
     </>
   )

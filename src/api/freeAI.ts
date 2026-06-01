@@ -1,40 +1,27 @@
-/**
- * Token-based AI providers.
- * Chains: Groq → Hugging Face Zephyr
- * Both require free account tokens, but no paid plan is needed to start.
- */
+const GROQ_MODEL = (import.meta as Record<string, any>).env.VITE_GROQ_MODEL || 'llama-3.1-8b-instant'
+const HF_MODEL = (import.meta as Record<string, any>).env.VITE_HF_MODEL || 'HuggingFaceH4/zephyr-7b-beta'
+const GROQ_KEY: string = (import.meta as Record<string, any>).env.VITE_GROQ_API_KEY || ''
+const HF_TOKEN: string = (import.meta as Record<string, any>).env.VITE_HF_TOKEN || (import.meta as Record<string, any>).env.VITE_HUGGINGFACE_API_KEY || ''
 
-const GROQ_MODEL = import.meta.env.VITE_GROQ_MODEL || 'llama-3.1-8b-instant'
-const HF_MODEL = import.meta.env.VITE_HF_MODEL || 'HuggingFaceH4/zephyr-7b-beta'
-const GROQ_KEY = import.meta.env.VITE_GROQ_API_KEY || ''
-const HF_TOKEN = import.meta.env.VITE_HF_TOKEN || import.meta.env.VITE_HUGGINGFACE_API_KEY || ''
+let lastProvider: string | null = null
 
-let lastProvider = null
-
-export function getLastProvider() {
+export function getLastProvider(): string | null {
   return lastProvider
 }
 
-export function getConfiguredProvider() {
+export function getConfiguredProvider(): string | null {
   if (GROQ_KEY) return 'groq'
   if (HF_TOKEN) return 'zephyr'
   return null
 }
 
-/**
- * Try Groq free tier first, then HuggingFace as fallback.
- * @param {string} userPrompt
- * @param {string} [systemPrompt]
- * @param {number} [maxTokens]
- * @returns {Promise<string>}
- */
-export async function callFreeAI(userPrompt, systemPrompt = '', maxTokens = 1000) {
+export async function callFreeAI(userPrompt: string, systemPrompt = '', maxTokens = 1000): Promise<string> {
   const providers = [
     { name: 'Groq', fn: () => callGroq(userPrompt, systemPrompt, maxTokens) },
     { name: 'Zephyr', fn: () => callHuggingFace(userPrompt, systemPrompt, maxTokens) },
   ]
 
-  let lastError
+  let lastError: Error | null = null
   for (const provider of providers) {
     try {
       const result = await provider.fn()
@@ -42,21 +29,21 @@ export async function callFreeAI(userPrompt, systemPrompt = '', maxTokens = 1000
         lastProvider = provider.name.toLowerCase()
         return result.trim()
       }
-    } catch (err) {
-      lastError = err
-      console.warn(`${provider.name} failed, trying next provider:`, err.message)
+    } catch (err: unknown) {
+      lastError = err instanceof Error ? err : new Error(String(err))
+      console.warn(`${provider.name} failed, trying next provider:`, lastError.message)
     }
   }
 
   throw new Error(lastError?.message || 'Both Groq and Zephyr failed. Check your tokens and try again.')
 }
 
-async function callGroq(userPrompt, systemPrompt, maxTokens) {
+async function callGroq(userPrompt: string, systemPrompt: string, maxTokens: number): Promise<string> {
   if (!GROQ_KEY) {
     throw new Error('Groq token missing. Set VITE_GROQ_API_KEY in .env.local')
   }
 
-  const messages = []
+  const messages: { role: string; content: string }[] = []
   if (systemPrompt) {
     messages.push({ role: 'system', content: systemPrompt })
   }
@@ -77,15 +64,15 @@ async function callGroq(userPrompt, systemPrompt, maxTokens) {
   })
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
+    const err = await res.json().catch(() => ({})) as { error?: { message?: string } }
     throw new Error(err.error?.message || `Groq HTTP ${res.status}`)
   }
 
-  const data = await res.json()
+  const data = await res.json() as { choices?: { message?: { content?: string } }[] }
   return data.choices?.[0]?.message?.content || ''
 }
 
-async function callHuggingFace(userPrompt, systemPrompt, maxTokens) {
+async function callHuggingFace(userPrompt: string, systemPrompt: string, maxTokens: number): Promise<string> {
   if (!HF_TOKEN) {
     throw new Error('Hugging Face token missing. Set VITE_HF_TOKEN in .env.local')
   }
@@ -114,30 +101,24 @@ async function callHuggingFace(userPrompt, systemPrompt, maxTokens) {
   )
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}))
+    const err = await res.json().catch(() => ({})) as { error?: string }
     throw new Error(err.error || `HuggingFace HTTP ${res.status}`)
   }
 
-  const data = await res.json()
+  const data = await res.json() as { generated_text?: string }[] | { generated_text?: string }
 
-  // HuggingFace Inference API returns an array with generated_text
   if (Array.isArray(data) && data[0]?.generated_text) {
     return data[0].generated_text.trim()
   }
 
-  // Some models return { generated_text: string }
-  if (data.generated_text) {
+  if (!Array.isArray(data) && data.generated_text) {
     return data.generated_text.trim()
   }
 
   throw new Error('Unexpected HuggingFace response format')
 }
 
-/**
- * Check if any free provider is reachable.
- * @returns {Promise<boolean>}
- */
-export async function checkFreeAIAvailable() {
+export async function checkFreeAIAvailable(): Promise<boolean> {
   try {
     const token = GROQ_KEY || HF_TOKEN
     if (!token) return false
@@ -146,18 +127,17 @@ export async function checkFreeAIAvailable() {
       ? 'https://api.groq.com/openai/v1/models'
       : `https://api-inference.huggingface.co/models/${HF_MODEL}`
 
-    const res = await fetch(url, {
-      method: 'GET',
-      headers: GROQ_KEY
-        ? {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${GROQ_KEY}`,
-          }
-        : {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${HF_TOKEN}`,
-          },
-    })
+    const headers: Record<string, string> = GROQ_KEY
+      ? {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${GROQ_KEY}`,
+        }
+      : {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${HF_TOKEN}`,
+        }
+
+    const res = await fetch(url, { method: 'GET', headers })
     return res.ok
   } catch {
     return false

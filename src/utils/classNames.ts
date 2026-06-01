@@ -1,10 +1,6 @@
-/**
- * Conditional class name merger
- * Like clsx + tailwind-merge in one tiny function
- */
-export function cn(...inputs) {
+export function cn(...inputs: (string | boolean | null | undefined)[]) {
   const classes = inputs.filter(Boolean).join(' ').split(/\s+/)
-  const classMap = {}
+  const classMap: Record<string, boolean> = {}
   for (const cls of classes) {
     if (cls) classMap[cls] = true
   }

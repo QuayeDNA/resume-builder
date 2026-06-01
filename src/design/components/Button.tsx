@@ -1,3 +1,4 @@
+import type { ReactNode, ButtonHTMLAttributes } from 'react'
 import { cn } from '../../utils/classNames'
 
 const variants = {
@@ -6,14 +7,25 @@ const variants = {
   danger: 'bg-transparent text-error border border-error/30 hover:bg-error-subtle hover:border-error/50',
   success: 'bg-transparent text-success border border-success/30 hover:bg-success-subtle hover:border-success/50',
   ai: 'bg-ai-subtle text-ai border border-ai/20 hover:bg-ai-hover hover:border-ai/30',
-}
+} as const
 
 const sizes = {
   sm: 'px-2 py-1 text-[10px]',
   md: 'px-3 py-1.5 text-[11px]',
   lg: 'px-4 py-2 text-body',
   full: 'w-full px-3 py-2 text-body',
-}
+} as const
+
+type ButtonProps = {
+  children?: ReactNode
+  onClick?: () => void
+  variant?: keyof typeof variants
+  size?: keyof typeof sizes
+  disabled?: boolean
+  loading?: boolean
+  className?: string
+  icon?: ReactNode
+} & ButtonHTMLAttributes<HTMLButtonElement>
 
 export default function Button({
   children,
@@ -25,7 +37,7 @@ export default function Button({
   className,
   icon,
   ...props
-}) {
+}: ButtonProps) {
   const isDisabled = disabled || loading
 
   return (

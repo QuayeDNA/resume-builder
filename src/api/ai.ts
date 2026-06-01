@@ -1,9 +1,5 @@
-/**
- * Unified AI provider for the app.
- * Priority order: Groq → Zephyr.
- */
-
 import { callFreeAI, getConfiguredProvider, getLastProvider } from './freeAI'
+import type { ExperienceEntry } from '../types'
 import {
   formatImprovesSummaryPrompt,
   formatImproveBulletPrompt,
@@ -12,29 +8,15 @@ import {
   formatGenerateCoverLetterPrompt,
 } from './prompts'
 
-/**
- * Call the best available AI provider with automatic fallback.
- * @param {string} userPrompt
- * @param {string} [systemPrompt]
- * @param {number} [maxTokens]
- * @returns {Promise<string>}
- */
-export async function callAI(userPrompt, systemPrompt = '', maxTokens = 1000) {
+export async function callAI(userPrompt: string, systemPrompt = '', maxTokens = 1000): Promise<string> {
   return callFreeAI(userPrompt, systemPrompt, maxTokens)
 }
 
-/**
- * Returns which provider is currently active.
- * @returns {'groq' | 'zephyr' | null}
- */
-export function getActiveProvider() {
+export function getActiveProvider(): string | null {
   return getLastProvider() || getConfiguredProvider()
 }
 
-/**
- * Returns a human-readable provider label.
- */
-export function getProviderLabel() {
+export function getProviderLabel(): string {
   const provider = getActiveProvider()
   switch (provider) {
     case 'groq': return 'Groq'
@@ -43,42 +25,42 @@ export function getProviderLabel() {
   }
 }
 
-// ── AI Helper Functions with Predefined, Structured Prompts ─────────────────
-// Each function uses a prompt template that formats user input with context,
-// instructions, and output format expectations.
-
-export async function aiImproveSummary(currentSummary, jobTitle) {
+export async function aiImproveSummary(currentSummary: string, jobTitle: string): Promise<string> {
   const { userPrompt, systemPrompt, maxTokens } = formatImprovesSummaryPrompt(currentSummary, jobTitle)
   return callAI(userPrompt, systemPrompt, maxTokens)
 }
 
-export async function aiImproveBullet(bullet, role, company) {
+export async function aiImproveBullet(bullet: string, role: string, company: string): Promise<string> {
   const { userPrompt, systemPrompt, maxTokens } = formatImproveBulletPrompt(bullet, role, company)
   return callAI(userPrompt, systemPrompt, maxTokens)
 }
 
-export async function aiSuggestBullets(role, company) {
+export async function aiSuggestBullets(role: string, company: string): Promise<string[]> {
   const { userPrompt, systemPrompt, maxTokens } = formatSuggestBulletsPrompt(role, company)
   const raw = await callAI(userPrompt, systemPrompt, maxTokens)
   return raw.split('\n').map((l) => l.trim()).filter((l) => l.length > 5).slice(0, 3)
 }
 
-export async function aiSuggestSkills(jobTitle, currentSkills) {
+export async function aiSuggestSkills(jobTitle: string, currentSkills: string[]): Promise<string[]> {
   const { userPrompt, systemPrompt, maxTokens } = formatSuggestSkillsPrompt(jobTitle, currentSkills)
   const raw = await callAI(userPrompt, systemPrompt, maxTokens)
   return raw.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 6)
 }
 
-export async function aiGenerateCoverLetter({ name, title, summary, skills, experience, role, company, tone }) {
+export async function aiGenerateCoverLetter({
+  name, title, summary, skills, experience, role, company, tone,
+}: {
+  name: string
+  title: string
+  summary: string
+  skills: string[]
+  experience: ExperienceEntry[]
+  role: string
+  company: string
+  tone: string
+}): Promise<string> {
   const { userPrompt, systemPrompt, maxTokens } = formatGenerateCoverLetterPrompt({
-    name,
-    title,
-    summary,
-    skills,
-    experience,
-    role,
-    company,
-    tone,
+    name, title, summary, skills, experience, role, company, tone,
   })
   return callAI(userPrompt, systemPrompt, maxTokens)
 }

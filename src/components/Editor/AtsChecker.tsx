@@ -3,10 +3,11 @@ import { Activity, X } from 'lucide-react'
 import { calculateAtsScore, getScoreColor, getScoreLabel } from '../../utils/ats'
 import { Button, Hint } from '../UI'
 import useResumeStore from '../../store/useResumeStore'
+import type { AtsResult } from '../../types'
 
 export default function AtsChecker() {
   const data = useResumeStore((s) => s.data)
-  const [result, setResult] = useState(null)
+  const [result, setResult] = useState<AtsResult | null>(null)
   const [visible, setVisible] = useState(false)
 
   const run = () => {
@@ -43,7 +44,6 @@ export default function AtsChecker() {
             </span>
           </div>
 
-          {/* Progress bar */}
           <div className="h-1.5 bg-elevated-2 rounded-full overflow-hidden mb-3">
             <div
               className="h-full rounded-full transition-all duration-500 ease-out"
@@ -55,7 +55,7 @@ export default function AtsChecker() {
             <Hint variant="success">Your resume looks excellent!</Hint>
           ) : (
             <div className="space-y-1">
-              {result.feedback.map((f, i) => (
+              {result.feedback.map((f: string, i: number) => (
                 <div key={i} className="text-caption text-warning">→ {f}</div>
               ))}
             </div>

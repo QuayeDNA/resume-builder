@@ -10,7 +10,7 @@ export default function PersonalSection() {
 
   const handleImproveSummary = () =>
     run('summary', () => aiImproveSummary(personal.summary, personal.title), (v) =>
-      updatePersonal('summary', v),
+      updatePersonal('summary', v as string),
     )
 
   return (

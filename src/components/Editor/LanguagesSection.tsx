@@ -23,7 +23,7 @@ export default function LanguagesSection() {
               label="Proficiency"
               value={l.proficiency}
               onChange={(v) => updateLanguage(l.id, 'proficiency', v)}
-              options={PROFICIENCY_OPTIONS}
+              options={[...PROFICIENCY_OPTIONS]}
             />
           </div>
         </EntryCard>

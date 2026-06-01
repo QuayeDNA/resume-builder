@@ -10,11 +10,11 @@
 
 ### Core Resume Builder
 - **Live real-time preview** — WYSIWYG editing with instant feedback
-- **8 professional templates** — 6 single-column + 2 two-column sidebar layouts
+- **11 professional templates** — 6 single-column, 2 two-column sidebar, 3 ATS-optimized layouts
 - **All standard sections** — Personal Info, Work Experience, Education, Skills, Projects, Certifications, Languages
 - **Unlimited entries** — Add as many experiences, bullets, projects, etc. as needed
 
-### AI Features (Claude-powered)
+### AI Features (Groq / HuggingFace)
 - **AI Improve Summary** — Rewrites your professional summary to be more compelling and ATS-optimized
 - **AI Improve Bullet** — Per-bullet AI enhancement with strong action verbs and quantified metrics
 - **AI Suggest Bullets** — Generates 3 ready-to-use achievement bullets for any role
@@ -38,16 +38,14 @@
 - **Reset to defaults** — One-click restore to sample data
 
 ### PDF Export
-- Client-side PDF generation via `html2pdf.js` (no server required)
-- Falls back to browser print dialog if needed
-- A4-formatted output
+- Client-side PDF generation via print window API (no server required)
+- A4-formatted output with full CSS fidelity
 
 ### Design & UX
 - Fully responsive dark-mode editor
 - Collapsible section cards in the editor panel
 - Smooth section animations
 - Toast notifications for all AI and save actions
-- Keyboard-navigable interface
 
 ---
 
@@ -110,6 +108,7 @@ resume-builder/
 │   │   ├── index.js                # Template registry + getTemplate()
 │   │   ├── SingleColumnTemplate.jsx
 │   │   ├── TwoColumnTemplate.jsx
+│   │   ├── ATSTemplate.jsx
 │   │   └── CoverLetterTemplate.jsx
 │   │
 │   ├── types/
@@ -118,8 +117,9 @@ resume-builder/
 │   └── utils/
 │       ├── defaults.js             # Default resume + cover letter data
 │       ├── storage.js              # localStorage read/write helpers
+│       ├── classNames.js           # Conditional class name merger
 │       ├── ats.js                  # ATS scoring algorithm
-│       └── pdf.js                  # html2pdf export utility
+│       └── pdf.js                  # Print-window PDF export utility
 │
 ├── .env.example
 ├── .gitignore
@@ -137,7 +137,7 @@ resume-builder/
 
 ### Prerequisites
 - Node.js 18+
-- An [Anthropic API key](https://console.anthropic.com) (for AI features)
+- API keys (for AI features — supports Anthropic Claude, Groq, or HuggingFace)
 
 ### Local Development
 
@@ -151,7 +151,7 @@ npm install
 
 # 3. Set up environment variables
 cp .env.example .env.local
-# Edit .env.local and add your VITE_ANTHROPIC_API_KEY
+# Edit .env.local and add your API keys (see .env.example for all options)
 
 # 4. Start the dev server
 npm run dev
@@ -190,9 +190,11 @@ git push -u origin main
 
 In the Vercel project settings → **Environment Variables**, add:
 
-| Key                   | Value              |
-|-----------------------|--------------------|
-| `ANTHROPIC_API_KEY`   | `sk-ant-your-key` |
+| Key                   | Value                |
+|-----------------------|----------------------|
+| `ANTHROPIC_API_KEY`   | `sk-ant-your-key`   |
+| `VITE_GROQ_API_KEY`   | `gsk-your-key`      |
+| `VITE_HF_TOKEN`       | `hf_your-token`     |
 
 ### Step 4 — Deploy
 
@@ -209,8 +211,8 @@ Every `git push` to `main` triggers an automatic redeploy.
 | Framework     | React 18   |
 | Styling       | Tailwind CSS 3 |
 | State         | Zustand    |
-| AI            | Anthropic Claude (claude-sonnet-4) |
-| PDF Export    | html2pdf.js |
+| AI            | Groq (Llama 3.1) → HuggingFace Zephyr (auto-fallback chain) |
+| PDF Export    | Print Window API |
 | Icons         | Lucide React |
 | Toasts        | react-hot-toast |
 | Build Tool    | Vite 5     |
@@ -221,7 +223,7 @@ Every `git push` to `main` triggers an automatic redeploy.
 ## 🔮 Future Features Roadmap
 
 ### High Priority
-- [ ] **Drag-to-reorder** — Reorder experience bullets and section entries with @dnd-kit (already in package.json)
+- [ ] **Drag-to-reorder** — Reorder experience bullets and section entries
 - [ ] **More templates** — Minimalist, Academic, Creative, Timeline layouts
 - [ ] **Custom color picker** — Let users customize template accent colors
 - [ ] **Section reordering** — Move entire sections up/down on the resume

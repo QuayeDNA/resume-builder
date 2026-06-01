@@ -1,23 +1,81 @@
 import { create } from 'zustand'
 import { DEFAULT_RESUME, DEFAULT_COVER_LETTER } from '../utils/defaults'
 import { loadResumeFromStorage, saveResumeToStorage, loadSlotsFromStorage, saveSlotsToStorage } from '../utils/storage'
+import type {
+  ResumeData,
+  CoverLetterData,
+  ResumeSlot,
+  ActiveView,
+  PersonalInfo,
+  ExperienceEntry,
+  EducationEntry,
+  ProjectEntry,
+  CertificationEntry,
+  LanguageEntry,
+} from '../types'
 
-const stored = loadResumeFromStorage()
+type StoredData = {
+  data: ResumeData
+  cl: CoverLetterData
+  savedAt: number | null
+} | null
 
-const useResumeStore = create((set, get) => ({
-  // ── State ────────────────────────────────────────────────────────────────
-  data:        stored?.data || DEFAULT_RESUME,
-  cl:          stored?.cl   || DEFAULT_COVER_LETTER,
-  slots:       loadSlotsFromStorage(),
-  activeView:  'resume',   // 'resume' | 'cover'
+interface ResumeStore {
+  data: ResumeData
+  cl: CoverLetterData
+  slots: ResumeSlot[]
+  activeView: ActiveView
+  activeSection: string
+  savedAt: number | null
+
+  updatePersonal: <K extends keyof PersonalInfo>(field: K, value: PersonalInfo[K]) => void
+  addExperience: () => void
+  removeExperience: (id: number) => void
+  updateExperience: <K extends keyof ExperienceEntry>(id: number, field: K, value: ExperienceEntry[K]) => void
+  updateBullet: (expId: number, idx: number, value: string) => void
+  addBullet: (expId: number) => void
+  removeBullet: (expId: number, idx: number) => void
+  appendBullets: (expId: number, bullets: string[]) => void
+  addEducation: () => void
+  removeEducation: (id: number) => void
+  updateEducation: <K extends keyof EducationEntry>(id: number, field: K, value: EducationEntry[K]) => void
+  setSkills: (skills: string[]) => void
+  addSkills: (newSkills: string[]) => void
+  removeSkill: (idx: number) => void
+  addProject: () => void
+  removeProject: (id: number) => void
+  updateProject: <K extends keyof ProjectEntry>(id: number, field: K, value: ProjectEntry[K]) => void
+  addCertification: () => void
+  removeCertification: (id: number) => void
+  updateCertification: <K extends keyof CertificationEntry>(id: number, field: K, value: CertificationEntry[K]) => void
+  addLanguage: () => void
+  removeLanguage: (id: number) => void
+  updateLanguage: <K extends keyof LanguageEntry>(id: number, field: K, value: LanguageEntry[K]) => void
+  setTemplate: (templateKey: string) => void
+  updateCoverLetter: <K extends keyof CoverLetterData>(field: K, value: CoverLetterData[K]) => void
+  setActiveView: (view: ActiveView) => void
+  setActiveSection: (section: string) => void
+  saveToSlot: () => void
+  loadFromSlot: (slot: ResumeSlot) => void
+  deleteSlot: (id: number) => void
+  persist: () => void
+  reset: () => void
+  loadFromJSON: (parsed: { data?: ResumeData; cl?: CoverLetterData }) => void
+}
+
+const stored: StoredData = loadResumeFromStorage()
+
+const useResumeStore = create<ResumeStore>((set, get) => ({
+  data: stored?.data ?? DEFAULT_RESUME,
+  cl: stored?.cl ?? DEFAULT_COVER_LETTER,
+  slots: loadSlotsFromStorage(),
+  activeView: 'resume',
   activeSection: 'personal',
-  savedAt:     stored?.savedAt || null,
+  savedAt: stored?.savedAt ?? null,
 
-  // ── Personal ────────────────────────────────────────────────────────────
   updatePersonal: (field, value) =>
     set((s) => ({ data: { ...s.data, personal: { ...s.data.personal, [field]: value } } })),
 
-  // ── Experience ──────────────────────────────────────────────────────────
   addExperience: () =>
     set((s) => ({
       data: {
@@ -72,7 +130,6 @@ const useResumeStore = create((set, get) => ({
       },
     })),
 
-  // ── Education ────────────────────────────────────────────────────────────
   addEducation: () =>
     set((s) => ({
       data: { ...s.data, education: [...s.data.education, { id: Date.now(), school: '', degree: '', start: '', end: '', gpa: '' }] },
@@ -86,7 +143,6 @@ const useResumeStore = create((set, get) => ({
       data: { ...s.data, education: s.data.education.map((e) => (e.id === id ? { ...e, [field]: value } : e)) },
     })),
 
-  // ── Skills ───────────────────────────────────────────────────────────────
   setSkills: (skills) =>
     set((s) => ({ data: { ...s.data, skills } })),
 
@@ -96,7 +152,6 @@ const useResumeStore = create((set, get) => ({
   removeSkill: (idx) =>
     set((s) => ({ data: { ...s.data, skills: s.data.skills.filter((_, i) => i !== idx) } })),
 
-  // ── Projects ─────────────────────────────────────────────────────────────
   addProject: () =>
     set((s) => ({
       data: { ...s.data, projects: [...s.data.projects, { id: Date.now(), name: '', url: '', description: '' }] },
@@ -110,7 +165,6 @@ const useResumeStore = create((set, get) => ({
       data: { ...s.data, projects: s.data.projects.map((p) => (p.id === id ? { ...p, [field]: value } : p)) },
     })),
 
-  // ── Certifications ───────────────────────────────────────────────────────
   addCertification: () =>
     set((s) => ({
       data: { ...s.data, certifications: [...s.data.certifications, { id: Date.now(), name: '', issuer: '', year: '' }] },
@@ -124,10 +178,9 @@ const useResumeStore = create((set, get) => ({
       data: { ...s.data, certifications: s.data.certifications.map((c) => (c.id === id ? { ...c, [field]: value } : c)) },
     })),
 
-  // ── Languages ────────────────────────────────────────────────────────────
   addLanguage: () =>
     set((s) => ({
-      data: { ...s.data, languages: [...(s.data.languages || []), { id: Date.now(), language: '', proficiency: 'Native' }] },
+      data: { ...s.data, languages: [...(s.data.languages || []), { id: Date.now(), language: '', proficiency: 'Native' as const }] },
     })),
 
   removeLanguage: (id) =>
@@ -138,23 +191,19 @@ const useResumeStore = create((set, get) => ({
       data: { ...s.data, languages: (s.data.languages || []).map((l) => (l.id === id ? { ...l, [field]: value } : l)) },
     })),
 
-  // ── Template ─────────────────────────────────────────────────────────────
   setTemplate: (templateKey) =>
     set((s) => ({ data: { ...s.data, template: templateKey } })),
 
-  // ── Cover Letter ─────────────────────────────────────────────────────────
   updateCoverLetter: (field, value) =>
     set((s) => ({ cl: { ...s.cl, [field]: value } })),
 
-  // ── UI State ─────────────────────────────────────────────────────────────
-  setActiveView:    (view)    => set({ activeView: view }),
+  setActiveView: (view) => set({ activeView: view }),
   setActiveSection: (section) => set({ activeSection: section }),
 
-  // ── Slots ─────────────────────────────────────────────────────────────────
   saveToSlot: () => {
     const { data, cl, slots } = get()
-    const slot = {
-      id:   Date.now(),
+    const slot: ResumeSlot = {
+      id: Date.now(),
       name: `${data.personal.name || 'Resume'} — ${new Date().toLocaleDateString()}`,
       data,
       cl,
@@ -174,7 +223,6 @@ const useResumeStore = create((set, get) => ({
     set({ slots: updated })
   },
 
-  // ── Persistence ──────────────────────────────────────────────────────────
   persist: () => {
     const { data, cl } = get()
     saveResumeToStorage(data, cl)
@@ -186,8 +234,8 @@ const useResumeStore = create((set, get) => ({
   },
 
   loadFromJSON: (parsed) => {
-    if (parsed.data) set((s) => ({ data: parsed.data }))
-    if (parsed.cl)   set((s) => ({ cl: parsed.cl }))
+    if (parsed.data) set({ data: parsed.data })
+    if (parsed.cl) set({ cl: parsed.cl })
   },
 }))
 

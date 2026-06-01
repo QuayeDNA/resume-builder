@@ -1,6 +1,11 @@
 import { cn } from '../../utils/classNames'
 
-export default function Skeleton({ lines = 3, className }) {
+type SkeletonProps = {
+  lines?: number
+  className?: string
+}
+
+export default function Skeleton({ lines = 3, className }: SkeletonProps) {
   return (
     <div className={cn('space-y-2 animate-pulse', className)}>
       {Array.from({ length: lines }).map((_, i) => (

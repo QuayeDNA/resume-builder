@@ -1,5 +1,6 @@
-/** @type {import('../types').ResumeData} */
-export const DEFAULT_RESUME = {
+import type { ResumeData, CoverLetterData } from '../types'
+
+export const DEFAULT_RESUME: ResumeData = {
   personal: {
     name: 'Alexandra Chen',
     title: 'Senior Product Designer',
@@ -54,7 +55,7 @@ export const DEFAULT_RESUME = {
       id: 1,
       name: 'OpenType — Open Source Font Explorer',
       url: 'opentype.dev',
-      description: 'Built a web app for designers to explore and pair fonts. 12k monthly active users.',
+      description: 'A web app for designers to explore and pair fonts. 12k monthly active users.',
     },
   ],
   certifications: [{ id: 1, name: 'Google UX Design Certificate', issuer: 'Google', year: '2020' }],
@@ -65,8 +66,7 @@ export const DEFAULT_RESUME = {
   template: 'modern',
 }
 
-/** @type {import('../types').CoverLetterData} */
-export const DEFAULT_COVER_LETTER = {
+export const DEFAULT_COVER_LETTER: CoverLetterData = {
   recipientName: 'Hiring Manager',
   company: 'Target Company',
   role: 'Product Designer',

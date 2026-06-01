@@ -15,7 +15,8 @@ export default function SkillsSection() {
 
   const handleSuggest = () =>
     run('skills', () => aiSuggestSkills(personal.title, skills), async (suggested) => {
-      const newSkills = suggested.filter((s) => !skills.includes(s))
+      const arr = Array.isArray(suggested) ? suggested : suggested.split(',').map((s: string) => s.trim()).filter(Boolean)
+      const newSkills = arr.filter((s: string) => !skills.includes(s))
       if (newSkills.length === 0) {
         toast('No new skills to add!')
         return
@@ -29,7 +30,7 @@ export default function SkillsSection() {
       <Hint>Comma-separated. Click × to remove a skill.</Hint>
       <textarea
         value={skills.join(', ')}
-        onChange={(e) =>
+        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
           setSkills(e.target.value.split(',').map((s) => s.trim()).filter(Boolean))
         }
         placeholder="React, TypeScript, Node.js, Figma…"

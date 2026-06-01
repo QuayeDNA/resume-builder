@@ -1,14 +1,20 @@
+import type { ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '../../utils/classNames'
 
-export default function EntryCard({ children, onDelete, className }) {
+type EntryCardProps = {
+  children: ReactNode
+  onDelete?: () => void
+  className?: string
+}
+
+export default function EntryCard({ children, onDelete, className }: EntryCardProps) {
   return (
     <div className={cn(
       'relative rounded-xl border border-subtle bg-elevated/90 transition-all duration-150',
       'hover:border-active',
       className,
     )}>
-      {/* Delete button */}
       {onDelete && (
         <button
           onClick={onDelete}
@@ -18,8 +24,6 @@ export default function EntryCard({ children, onDelete, className }) {
           <X size={10} />
         </button>
       )}
-
-      {/* Content */}
       <div className="p-3 space-y-2">
         {children}
       </div>

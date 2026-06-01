@@ -1,11 +1,4 @@
-/**
- * Predefined prompt templates for AI-assisted resume and cover letter generation.
- * Each template includes system context, detailed instructions, and output format.
- */
-
-// ═══════════════════════════════════════════════════════════════════════════
-// System Messages
-// ═══════════════════════════════════════════════════════════════════════════
+import type { ExperienceEntry } from '../types'
 
 export const RESUME_SYSTEM = `You are an expert resume writer with deep knowledge of ATS (Applicant Tracking System) optimization.
 Your responses must be:
@@ -25,11 +18,7 @@ Your responses must be:
 - Professional in tone but human in voice
 Return ONLY the body paragraphs with no salutation, sign-off, or preamble.`
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Resume Prompts
-// ═══════════════════════════════════════════════════════════════════════════
-
-export function formatImprovesSummaryPrompt(currentSummary, jobTitle) {
+export function formatImprovesSummaryPrompt(currentSummary: string, jobTitle: string) {
   return {
     userPrompt: `Professional Summary to Improve (for ${jobTitle || 'professional'}):
 "${currentSummary}"
@@ -47,7 +36,7 @@ Return only the improved summary.`,
   }
 }
 
-export function formatImproveBulletPrompt(bullet, role, company) {
+export function formatImproveBulletPrompt(bullet: string, role: string, company: string) {
   return {
     userPrompt: `Bullet Point to Improve (${role || 'professional'} at ${company || 'company'}):
 "${bullet}"
@@ -65,7 +54,7 @@ Return only the improved bullet point.`,
   }
 }
 
-export function formatSuggestBulletsPrompt(role, company) {
+export function formatSuggestBulletsPrompt(role: string, company: string) {
   return {
     userPrompt: `Generate 3 Strong Resume Bullets for: ${role || 'professional'} at ${company || 'company'}
 
@@ -87,7 +76,7 @@ Collaborated with design team to launch new product dashboard, improving user en
   }
 }
 
-export function formatSuggestSkillsPrompt(jobTitle, currentSkills) {
+export function formatSuggestSkillsPrompt(jobTitle: string, currentSkills: string[]) {
   return {
     userPrompt: `Suggest 6 ATS-Friendly Skills for: ${jobTitle || 'professional'}
 
@@ -108,19 +97,17 @@ Example: Python, Machine Learning, Data Analysis, Problem Solving, Team Leadersh
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════════════
-// Cover Letter Prompts
-// ═══════════════════════════════════════════════════════════════════════════
-
 export function formatGenerateCoverLetterPrompt({
-  name,
-  title,
-  summary,
-  skills,
-  experience,
-  role,
-  company,
-  tone,
+  name, title, summary, skills, experience, role, company, tone,
+}: {
+  name: string
+  title: string
+  summary: string
+  skills: string[]
+  experience: ExperienceEntry[]
+  role: string
+  company: string
+  tone: string
 }) {
   const topSkills = skills.slice(0, 5).join(', ')
   const recentExp = experience[0] ? `${experience[0].role} at ${experience[0].company}` : 'recent experience'

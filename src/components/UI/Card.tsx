@@ -1,6 +1,17 @@
+import type { ReactNode } from 'react'
 import CardBase from '../../design/components/Card'
 
-export default function Card({ title, children, defaultOpen, className, headerRight, onAdd, addLabel }) {
+type CardProps = {
+  title: string
+  children: ReactNode
+  defaultOpen?: boolean
+  className?: string
+  headerRight?: ReactNode
+  onAdd?: () => void
+  addLabel?: string
+}
+
+export default function Card({ title, children, defaultOpen, className, headerRight, onAdd, addLabel }: CardProps) {
   return (
     <CardBase
       title={title}

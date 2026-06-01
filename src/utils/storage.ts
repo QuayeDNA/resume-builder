@@ -1,7 +1,15 @@
-const RESUME_KEY = 'resumeforge_v1'
-const SLOTS_KEY  = 'resumeforge_slots_v1'
+import type { ResumeData, CoverLetterData, ResumeSlot } from '../types'
 
-export function loadResumeFromStorage() {
+const RESUME_KEY = 'resumeforge_v1'
+const SLOTS_KEY = 'resumeforge_slots_v1'
+
+type StoredSnapshot = {
+  data: ResumeData
+  cl: CoverLetterData
+  savedAt: number
+}
+
+export function loadResumeFromStorage(): StoredSnapshot | null {
   try {
     const raw = localStorage.getItem(RESUME_KEY)
     return raw ? JSON.parse(raw) : null
@@ -10,7 +18,7 @@ export function loadResumeFromStorage() {
   }
 }
 
-export function saveResumeToStorage(data, cl) {
+export function saveResumeToStorage(data: ResumeData, cl: CoverLetterData): void {
   try {
     localStorage.setItem(RESUME_KEY, JSON.stringify({ data, cl, savedAt: Date.now() }))
   } catch (e) {
@@ -18,7 +26,7 @@ export function saveResumeToStorage(data, cl) {
   }
 }
 
-export function loadSlotsFromStorage() {
+export function loadSlotsFromStorage(): ResumeSlot[] {
   try {
     const raw = localStorage.getItem(SLOTS_KEY)
     return raw ? JSON.parse(raw) : []
@@ -27,7 +35,7 @@ export function loadSlotsFromStorage() {
   }
 }
 
-export function saveSlotsToStorage(slots) {
+export function saveSlotsToStorage(slots: ResumeSlot[]): void {
   try {
     localStorage.setItem(SLOTS_KEY, JSON.stringify(slots))
   } catch (e) {
@@ -35,22 +43,22 @@ export function saveSlotsToStorage(slots) {
   }
 }
 
-export function exportAsJSON(data, cl, name = 'resume') {
+export function exportAsJSON(data: ResumeData, cl: CoverLetterData, name = 'resume'): void {
   const blob = new Blob([JSON.stringify({ data, cl }, null, 2)], { type: 'application/json' })
-  const url  = URL.createObjectURL(blob)
-  const a    = document.createElement('a')
-  a.href     = url
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
   a.download = `${name}.json`
   a.click()
   URL.revokeObjectURL(url)
 }
 
-export function importFromJSON(file) {
+export function importFromJSON(file: File): Promise<{ data?: ResumeData; cl?: CoverLetterData }> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
-    reader.onload  = (e) => {
+    reader.onload = (e) => {
       try {
-        const parsed = JSON.parse(e.target.result)
+        const parsed = JSON.parse(e.target?.result as string)
         resolve(parsed)
       } catch {
         reject(new Error('Invalid JSON file'))

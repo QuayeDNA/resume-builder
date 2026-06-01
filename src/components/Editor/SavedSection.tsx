@@ -21,7 +21,7 @@ export default function SavedSection() {
     toast.success('JSON exported!')
   }
 
-  const handleImport = async (e) => {
+  const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     try {
@@ -29,7 +29,7 @@ export default function SavedSection() {
       loadFromJSON(parsed)
       toast.success('Resume loaded!')
     } catch (err) {
-      toast.error(err.message)
+      toast.error(err instanceof Error ? err.message : 'Import failed')
     }
     e.target.value = ''
   }

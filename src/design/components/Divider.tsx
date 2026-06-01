@@ -1,6 +1,10 @@
 import { cn } from '../../utils/classNames'
 
-export default function Divider({ className }) {
+type DividerProps = {
+  className?: string
+}
+
+export default function Divider({ className }: DividerProps) {
   return (
     <hr className={cn('border-t border-hairline my-2', className)} />
   )

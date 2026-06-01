@@ -12,7 +12,7 @@ import DesignSection         from './DesignSection'
 import SavedSection          from './SavedSection'
 import AtsChecker            from './AtsChecker'
 
-const SECTION_LABELS = {
+const SECTION_LABELS: Record<string, string> = {
   personal:       'Personal Info',
   experience:     'Work Experience',
   education:      'Education',
@@ -25,9 +25,9 @@ const SECTION_LABELS = {
   saved:          'Saved Resumes',
 }
 
-const SHOW_ATS = ['personal','experience','skills','projects','certifications','languages']
+const SHOW_ATS: string[] = ['personal','experience','skills','projects','certifications','languages']
 
-function SectionContent({ section }) {
+function SectionContent({ section }: { section: string }) {
   switch (section) {
     case 'personal':       return <PersonalSection />
     case 'experience':     return <ExperienceSection />

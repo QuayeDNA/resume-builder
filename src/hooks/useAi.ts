@@ -2,27 +2,26 @@ import { useState, useCallback } from 'react'
 import toast from 'react-hot-toast'
 import { getProviderLabel } from '../api/ai'
 
-/**
- * Wrapper hook for AI calls with loading state + toast notifications
- */
-export function useAi() {
-  const [loading, setLoading] = useState({})
+type LoadingState = Record<string, boolean>
 
-  const run = useCallback(async (key, asyncFn, onSuccess) => {
+export function useAi() {
+  const [loading, setLoading] = useState<LoadingState>({})
+
+  const run = useCallback(async (key: string, asyncFn: () => Promise<string | string[]>, onSuccess: (result: string | string[]) => void) => {
     setLoading((l) => ({ ...l, [key]: true }))
     try {
       const result = await asyncFn()
       onSuccess(result)
       const provider = getProviderLabel()
       toast.success(`${provider} ✦`)
-    } catch (err) {
-      toast.error(err.message || 'AI request failed')
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : 'AI request failed')
     } finally {
       setLoading((l) => ({ ...l, [key]: false }))
     }
   }, [])
 
-  const isLoading = useCallback((key) => !!loading[key], [loading])
+  const isLoading = useCallback((key: string): boolean => !!loading[key], [loading])
 
   return { run, isLoading }
 }

@@ -1,6 +1,15 @@
+import type { ReactNode, ElementType } from 'react'
 import { cn } from '../../utils/classNames'
 
-export default function EmptyState({ icon: Icon, title, description, action, className }) {
+type EmptyStateProps = {
+  icon?: ElementType
+  title?: string
+  description?: string
+  action?: ReactNode
+  className?: string
+}
+
+export default function EmptyState({ icon: Icon, title, description, action, className }: EmptyStateProps) {
   return (
     <div className={cn(
       'flex flex-col items-center justify-center py-6 text-center space-y-2',

@@ -1,96 +1,97 @@
-/**
- * @typedef {Object} PersonalInfo
- * @property {string} name
- * @property {string} title
- * @property {string} email
- * @property {string} phone
- * @property {string} location
- * @property {string} website
- * @property {string} linkedin
- * @property {string} summary
- */
+export interface PersonalInfo {
+  name: string
+  title: string
+  email: string
+  phone: string
+  location: string
+  website: string
+  linkedin: string
+  summary: string
+}
 
-/**
- * @typedef {Object} ExperienceEntry
- * @property {number} id
- * @property {string} company
- * @property {string} role
- * @property {string} start
- * @property {string} end
- * @property {string} location
- * @property {string[]} bullets
- */
+export interface ExperienceEntry {
+  id: number
+  company: string
+  role: string
+  start: string
+  end: string
+  location: string
+  bullets: string[]
+}
 
-/**
- * @typedef {Object} EducationEntry
- * @property {number} id
- * @property {string} school
- * @property {string} degree
- * @property {string} start
- * @property {string} end
- * @property {string} gpa
- */
+export interface EducationEntry {
+  id: number
+  school: string
+  degree: string
+  start: string
+  end: string
+  gpa: string
+}
 
-/**
- * @typedef {Object} ProjectEntry
- * @property {number} id
- * @property {string} name
- * @property {string} url
- * @property {string} description
- */
+export interface ProjectEntry {
+  id: number
+  name: string
+  url: string
+  description: string
+}
 
-/**
- * @typedef {Object} CertificationEntry
- * @property {number} id
- * @property {string} name
- * @property {string} issuer
- * @property {string} year
- */
+export interface CertificationEntry {
+  id: number
+  name: string
+  issuer: string
+  year: string
+}
 
-/**
- * @typedef {Object} LanguageEntry
- * @property {number} id
- * @property {string} language
- * @property {string} proficiency
- */
+export interface LanguageEntry {
+  id: number
+  language: string
+  proficiency: string
+}
 
-/**
- * @typedef {Object} ResumeData
- * @property {PersonalInfo} personal
- * @property {ExperienceEntry[]} experience
- * @property {EducationEntry[]} education
- * @property {string[]} skills
- * @property {ProjectEntry[]} projects
- * @property {CertificationEntry[]} certifications
- * @property {LanguageEntry[]} languages
- * @property {string} template
- */
+export interface ResumeData {
+  personal: PersonalInfo
+  experience: ExperienceEntry[]
+  education: EducationEntry[]
+  skills: string[]
+  projects: ProjectEntry[]
+  certifications: CertificationEntry[]
+  languages: LanguageEntry[]
+  template: string
+}
 
-/**
- * @typedef {Object} CoverLetterData
- * @property {string} recipientName
- * @property {string} company
- * @property {string} role
- * @property {string} tone
- * @property {string} body
- */
+export interface CoverLetterData {
+  recipientName: string
+  company: string
+  role: string
+  tone: string
+  body: string
+}
 
-/**
- * @typedef {Object} ResumeSlot
- * @property {number} id
- * @property {string} name
- * @property {ResumeData} data
- * @property {CoverLetterData} cl
- */
+export interface ResumeSlot {
+  id: number
+  name: string
+  data: ResumeData
+  cl: CoverLetterData
+}
 
-/**
- * @typedef {Object} AtsResult
- * @property {number} score
- * @property {string[]} feedback
- * @property {number} verbCount
- * @property {number} metricCount
- */
+export interface AtsResult {
+  score: number
+  feedback: string[]
+  verbCount: number
+  metricCount: number
+}
 
-export const PROFICIENCY_OPTIONS = ['Native', 'Fluent', 'Advanced', 'Intermediate', 'Basic']
-export const COVER_LETTER_TONES  = ['professional', 'enthusiastic', 'concise', 'creative']
-export const SECTION_IDS = ['personal','experience','education','skills','projects','certifications','languages','coverletter','design','saved']
+export type ActiveView = 'resume' | 'cover'
+export type ActiveSection = typeof SECTION_IDS[number]
+export type ProficiencyLevel = typeof PROFICIENCY_OPTIONS[number]
+export type CoverLetterTone = typeof COVER_LETTER_TONES[number]
+
+export const PROFICIENCY_OPTIONS = ['Native', 'Fluent', 'Advanced', 'Intermediate', 'Basic'] as const
+export const COVER_LETTER_TONES  = ['professional', 'enthusiastic', 'concise', 'creative'] as const
+export const SECTION_IDS = ['personal','experience','education','skills','projects','certifications','languages','coverletter','design','saved'] as const
+
+export type NavItem = {
+  id: ActiveSection
+  label: string
+  icon: string
+}

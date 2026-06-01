@@ -1,6 +1,7 @@
 import { getTemplate } from './index'
+import type { ResumeData, CertificationEntry, LanguageEntry, ProjectEntry, EducationEntry, ExperienceEntry } from '../types'
 
-function SectionTitle({ label, accent }) {
+function SectionTitle({ label, accent }: { label: string; accent: string }) {
   return (
     <div style={{ marginTop: '16px', marginBottom: '10px' }}>
       <h2
@@ -21,7 +22,7 @@ function SectionTitle({ label, accent }) {
   )
 }
 
-function Bullet({ text, color }) {
+function Bullet({ text, color }: { text: string; color: string }) {
   return (
     <div
       style={{
@@ -50,7 +51,7 @@ function Bullet({ text, color }) {
   )
 }
 
-export default function SingleColumnTemplate({ data }) {
+export default function SingleColumnTemplate({ data }: { data: ResumeData }) {
   const t = getTemplate(data.template)
   const { personal: p, experience, education, skills, projects, certifications, languages } = data
 
@@ -70,7 +71,6 @@ export default function SingleColumnTemplate({ data }) {
         minHeight: '1122px',
       }}
     >
-      {/* ── Header ── */}
       <div
         style={{
           marginBottom: '18px',
@@ -86,7 +86,6 @@ export default function SingleColumnTemplate({ data }) {
             gap: '24px',
           }}
         >
-          {/* Name + Title */}
           <div style={{ flex: 1, minWidth: 0 }}>
             <h1
               style={{
@@ -115,7 +114,6 @@ export default function SingleColumnTemplate({ data }) {
             )}
           </div>
 
-          {/* Contact block */}
           <div
             style={{
               display: 'flex',
@@ -137,7 +135,6 @@ export default function SingleColumnTemplate({ data }) {
           </div>
         </div>
 
-        {/* Summary */}
         {p.summary && (
           <p
             style={{
@@ -153,11 +150,10 @@ export default function SingleColumnTemplate({ data }) {
         )}
       </div>
 
-      {/* ── Experience ── */}
       {experience.length > 0 && (
         <>
           <SectionTitle label="Experience" accent={t.accent} />
-          {experience.map((e, idx) => (
+          {experience.map((e: ExperienceEntry, idx: number) => (
             <div key={e.id} style={{ marginTop: idx > 0 ? '14px' : '0' }}>
               <div
                 style={{
@@ -172,23 +168,19 @@ export default function SingleColumnTemplate({ data }) {
                     {e.role}
                   </span>
                   {e.company && (
-                    <span
-                      style={{ fontWeight: '600', marginLeft: '6px', fontSize: '10.5px', color: t.secondary }}
-                    >
+                    <span style={{ fontWeight: '600', marginLeft: '6px', fontSize: '10.5px', color: t.secondary }}>
                       @ {e.company}
                     </span>
                   )}
                 </div>
-                <div
-                  style={{ fontSize: '9.5px', color: '#777777', textAlign: 'right', flexShrink: '0' }}
-                >
+                <div style={{ fontSize: '9.5px', color: '#777777', textAlign: 'right', flexShrink: '0' }}>
                   <div style={{ whiteSpace: 'nowrap' }}>
                     {e.start}{e.end ? ` – ${e.end}` : ''}
                   </div>
                   {e.location && <div style={{ whiteSpace: 'nowrap' }}>{e.location}</div>}
                 </div>
               </div>
-              {e.bullets.filter((b) => b.trim()).map((b, i) => (
+              {e.bullets.filter((b: string) => b.trim()).map((b: string, i: number) => (
                 <Bullet key={i} text={b} color={t.secondary} />
               ))}
             </div>
@@ -196,35 +188,17 @@ export default function SingleColumnTemplate({ data }) {
         </>
       )}
 
-      {/* ── Education ── */}
       {education.length > 0 && (
         <>
           <SectionTitle label="Education" accent={t.accent} />
-          {education.map((e, idx) => (
-            <div
-              key={e.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                gap: '12px',
-                marginTop: idx > 0 ? '10px' : '0',
-              }}
-            >
+          {education.map((e: EducationEntry, idx: number) => (
+            <div key={e.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px', marginTop: idx > 0 ? '10px' : '0' }}>
               <div style={{ flex: 1, minWidth: 0 }}>
-                <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
-                  {e.degree}
-                </span>
-                {e.school && (
-                  <span style={{ marginLeft: '6px', fontSize: '10.5px', color: t.secondary }}>
-                    · {e.school}
-                  </span>
-                )}
+                <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>{e.degree}</span>
+                {e.school && <span style={{ marginLeft: '6px', fontSize: '10.5px', color: t.secondary }}>· {e.school}</span>}
               </div>
               <div style={{ fontSize: '9.5px', color: '#777777', textAlign: 'right', flexShrink: '0' }}>
-                <div style={{ whiteSpace: 'nowrap' }}>
-                  {e.start}{e.end ? ` – ${e.end}` : ''}
-                </div>
+                <div style={{ whiteSpace: 'nowrap' }}>{e.start}{e.end ? ` – ${e.end}` : ''}</div>
                 {e.gpa && <div style={{ whiteSpace: 'nowrap' }}>GPA: {e.gpa}</div>}
               </div>
             </div>
@@ -232,24 +206,12 @@ export default function SingleColumnTemplate({ data }) {
         </>
       )}
 
-      {/* ── Skills ── */}
       {skills.length > 0 && (
         <>
           <SectionTitle label="Skills" accent={t.accent} />
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-            {skills.filter((s) => s.trim()).map((s, i) => (
-              <span
-                key={i}
-                style={{
-                  borderRadius: '4px',
-                  padding: '4px 10px',
-                  fontSize: '9.5px',
-                  fontWeight: '500',
-                  background: `${t.accent}18`,
-                  border: `1px solid ${t.accent}44`,
-                  color: t.accent,
-                }}
-              >
+            {skills.filter((s: string) => s.trim()).map((s: string, i: number) => (
+              <span key={i} style={{ borderRadius: '4px', padding: '4px 10px', fontSize: '9.5px', fontWeight: '500', background: `${t.accent}18`, border: `1px solid ${t.accent}44`, color: t.accent }}>
                 {s}
               </span>
             ))}
@@ -257,76 +219,41 @@ export default function SingleColumnTemplate({ data }) {
         </>
       )}
 
-      {/* ── Projects ── */}
       {projects.length > 0 && (
         <>
           <SectionTitle label="Projects" accent={t.accent} />
-          {projects.map((pr, idx) => (
+          {projects.map((pr: ProjectEntry, idx: number) => (
             <div key={pr.id} style={{ marginTop: idx > 0 ? '10px' : '0' }}>
-              <div
-                style={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                }}
-              >
-                <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
-                  {pr.name}
-                </span>
-                {pr.url && (
-                  <span
-                    style={{ fontSize: '9.5px', textDecoration: 'underline', flexShrink: '0', color: t.secondary }}
-                  >
-                    View
-                  </span>
-                )}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>{pr.name}</span>
+                {pr.url && <span style={{ fontSize: '9.5px', textDecoration: 'underline', flexShrink: '0', color: t.secondary }}>View</span>}
               </div>
-              {pr.description && (
-                <p style={{ fontSize: '10px', color: '#333333', margin: '4px 0 0 0' }}>
-                  {pr.description}
-                </p>
-              )}
+              {pr.description && <p style={{ fontSize: '10px', color: '#333333', margin: '4px 0 0 0' }}>{pr.description}</p>}
             </div>
           ))}
         </>
       )}
 
-      {/* ── Certifications ── */}
       {certifications.length > 0 && (
         <>
           <SectionTitle label="Certifications" accent={t.accent} />
-          {certifications.map((c, idx) => (
+          {certifications.map((c: CertificationEntry, idx: number) => (
             <div key={c.id} style={{ marginTop: idx > 0 ? '8px' : '0' }}>
               <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>{c.name}</span>
               {(c.issuer || c.year) && (
-                <div style={{ fontSize: '9.5px', color: '#777777' }}>
-                  {c.issuer}{c.year ? ` · ${c.year}` : ''}
-                </div>
+                <div style={{ fontSize: '9.5px', color: '#777777' }}>{c.issuer}{c.year ? ` · ${c.year}` : ''}</div>
               )}
             </div>
           ))}
         </>
       )}
 
-      {/* ── Languages ── */}
       {languages && languages.length > 0 && (
         <>
           <SectionTitle label="Languages" accent={t.accent} />
-          {languages.map((l, idx) => (
-            <div
-              key={l.id}
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                gap: '12px',
-                marginTop: idx > 0 ? '8px' : '0',
-              }}
-            >
-              <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>
-                {l.language}
-              </span>
+          {languages.map((l: LanguageEntry, idx: number) => (
+            <div key={l.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '12px', marginTop: idx > 0 ? '8px' : '0' }}>
+              <span style={{ fontWeight: '600', fontSize: '11px', color: '#1a1a1a' }}>{l.language}</span>
               <span style={{ fontSize: '9.5px', color: t.secondary }}>{l.proficiency}</span>
             </div>
           ))}

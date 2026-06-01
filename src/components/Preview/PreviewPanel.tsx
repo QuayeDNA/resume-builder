@@ -31,7 +31,7 @@ export default function PreviewPanel() {
       {/* ── Toolbar ── */}
       <div className="flex min-h-12 flex-wrap items-center gap-2 border-b border-hairline bg-surface px-3 py-2 sm:flex-nowrap">
         <div className="flex gap-0.5 rounded-lg bg-elevated p-0.5">
-          {[['resume', 'Resume'], ['cover', 'Cover Letter']].map(([m, l]) => (
+          {([['resume', 'Resume'], ['cover', 'Cover Letter']] as const).map(([m, l]) => (
             <button
               key={m}
               onClick={() => setActiveView(m)}

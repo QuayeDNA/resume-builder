@@ -1,8 +1,17 @@
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { useState } from 'react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '../../utils/classNames'
 
-export default function Card({ title, children, defaultOpen = true, className, headerRight }) {
+type CardProps = {
+  title: string
+  children: ReactNode
+  defaultOpen?: boolean
+  className?: string
+  headerRight?: ReactNode
+}
+
+export default function Card({ title, children, defaultOpen = true, className, headerRight }: CardProps) {
   const [open, setOpen] = useState(defaultOpen)
 
   return (

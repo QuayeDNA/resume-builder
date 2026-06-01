@@ -12,7 +12,14 @@ const ATS_KEYWORD_HINTS = [
   { label: 'Include measurable results', detail: 'Use numbers: "Increased revenue by 25%" not "Improved revenue"' },
 ]
 
-function TemplateThumb({ id, template, selected, onClick }) {
+const templateEntries = Object.entries(TEMPLATES)
+
+function TemplateThumb({ id, template, selected, onClick }: {
+  id: string
+  template: typeof TEMPLATES[keyof typeof TEMPLATES]
+  selected: boolean
+  onClick: () => void
+}) {
   const isTwoCol = template.layout === 'two-col'
   const isATS = template.layout === 'ats'
   return (
@@ -52,29 +59,27 @@ function TemplateThumb({ id, template, selected, onClick }) {
 
 export default function DesignSection() {
   const currentTemplate = useResumeStore((s) => s.data.template)
-  const setTemplate     = useResumeStore((s) => s.setTemplate)
-  const isATS = TEMPLATES[currentTemplate]?.layout === 'ats'
+  const setTemplate = useResumeStore((s) => s.setTemplate)
+  const currentT = TEMPLATES[currentTemplate as keyof typeof TEMPLATES]
+  const isATS = currentT?.layout === 'ats'
 
-  const design = Object.entries(TEMPLATES).filter(([, t]) => t.category === 'design')
-  const twoCol = Object.entries(TEMPLATES).filter(([, t]) => t.layout === 'two-col')
-  const ats    = Object.entries(TEMPLATES).filter(([, t]) => t.category === 'ats')
+  const design = templateEntries.filter(([, t]) => t.category === 'design')
+  const twoCol = templateEntries.filter(([, t]) => t.layout === 'two-col')
+  const ats = templateEntries.filter(([, t]) => t.category === 'ats')
 
   return (
     <Card title="Resume Templates">
-      {/* ATS banner */}
       <div className="mb-3 p-2 rounded-lg bg-success-subtle border border-success/20">
         <p className="text-caption text-success font-medium uppercase">ATS-Optimized</p>
         <p className="text-caption text-success/80">Maximum compatibility with Applicant Tracking Systems</p>
       </div>
 
-      {/* ATS templates */}
       <div className="grid grid-cols-3 gap-2 mb-4 sm:grid-cols-3">
         {ats.map(([id, t]) => (
           <TemplateThumb key={id} id={id} template={t} selected={currentTemplate === id} onClick={() => setTemplate(id)} />
         ))}
       </div>
 
-      {/* ATS tips (shown when ATS template active) */}
       {isATS && (
         <div className="mb-4 p-3 rounded-lg bg-info-subtle border border-info/20 space-y-1.5">
           <p className="text-caption text-info font-medium uppercase">ATS Optimization Tips</p>
@@ -90,7 +95,6 @@ export default function DesignSection() {
         </div>
       )}
 
-      {/* Single Column */}
       <p className="text-label uppercase text-text-muted mb-2">Single Column</p>
       <div className="grid grid-cols-1 gap-2 mb-4 sm:grid-cols-2 xl:grid-cols-3">
         {design.filter(([, t]) => t.layout === 'single').map(([id, t]) => (
@@ -98,7 +102,6 @@ export default function DesignSection() {
         ))}
       </div>
 
-      {/* Two Column */}
       <p className="text-label uppercase text-text-muted mb-2">Two Column</p>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {twoCol.map(([id, t]) => (

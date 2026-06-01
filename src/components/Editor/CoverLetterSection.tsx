@@ -27,7 +27,7 @@ export default function CoverLetterSection() {
           tone:       cl.tone,
         }),
       (v) => {
-        updateCL('body', v)
+        updateCL('body', v as string)
         setActiveView('cover')
       },
     )

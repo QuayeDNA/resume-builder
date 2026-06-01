@@ -1,8 +1,18 @@
+import type { ReactNode } from 'react'
 import { Sparkles } from 'lucide-react'
 import Button from '../../design/components/Button'
 import { getProviderLabel } from '../../api/ai'
 
-export default function AiButton({ onClick, loading, disabled, children, size = 'md', showProvider = false }) {
+type AiButtonProps = {
+  onClick?: () => void
+  loading?: boolean
+  disabled?: boolean
+  children: ReactNode
+  size?: 'sm' | 'md'
+  showProvider?: boolean
+}
+
+export default function AiButton({ onClick, loading, disabled, children, size = 'md', showProvider = false }: AiButtonProps) {
   const providerLabel = showProvider ? getProviderLabel() : null
 
   return (

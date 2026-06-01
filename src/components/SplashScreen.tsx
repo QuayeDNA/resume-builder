@@ -5,7 +5,7 @@ import { FileText } from 'lucide-react'
  * SplashScreen / Loader component shown on initial app load
  * Automatically dismisses after 2.5 seconds
  */
-export default function SplashScreen({ onDismiss }) {
+export default function SplashScreen({ onDismiss }: { onDismiss: () => void }) {
   const [isClosing, setIsClosing] = useState(false)
 
   useEffect(() => {
