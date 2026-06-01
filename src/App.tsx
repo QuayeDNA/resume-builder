@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Menu, X, FileText, Eye, FileDown } from 'lucide-react'
 import { useAutoSave } from './hooks/useAutoSave'
+import { useSupabaseSync } from './hooks/useSupabaseSync'
 import SideNav, { NAV_ITEMS } from './components/Editor/SideNav'
 import EditorPanel from './components/Editor/EditorPanel'
 import PreviewPanel from './components/Preview/PreviewPanel'
@@ -194,6 +195,7 @@ function RadialNavOverlay({ open, onClose }: { open: boolean; onClose: () => voi
 
 export default function App() {
   useAutoSave()
+  useSupabaseSync()
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
   const [mobileView, setMobileView] = useState<MobileTabId>('edit')
