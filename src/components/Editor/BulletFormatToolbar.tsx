@@ -1,4 +1,5 @@
 import { Bold, Italic } from 'lucide-react'
+import IconButton from '../UI/IconButton'
 import { wrapSelection } from '../../utils/bulletFormatting'
 
 export default function BulletFormatToolbar({
@@ -23,24 +24,12 @@ export default function BulletFormatToolbar({
 
   return (
     <div className="flex gap-0.5 mb-1">
-      <button
-        type="button"
-        onClick={() => applyFormat('**')}
-        className="flex h-6 w-6 items-center justify-center rounded text-ink-muted hover:bg-paper-deep hover:text-ink transition-colors"
-        title="Bold"
-        aria-label="Bold"
-      >
+      <IconButton onClick={() => applyFormat('**')} variant="ghost" size="sm" title="Bold" aria-label="Bold">
         <Bold size={12} />
-      </button>
-      <button
-        type="button"
-        onClick={() => applyFormat('*')}
-        className="flex h-6 w-6 items-center justify-center rounded text-ink-muted hover:bg-paper-deep hover:text-ink transition-colors"
-        title="Italic"
-        aria-label="Italic"
-      >
+      </IconButton>
+      <IconButton onClick={() => applyFormat('*')} variant="ghost" size="sm" title="Italic" aria-label="Italic">
         <Italic size={12} />
-      </button>
+      </IconButton>
     </div>
   )
 }

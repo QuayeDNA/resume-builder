@@ -98,6 +98,8 @@ interface ResumeStore {
   reorderNavSection: (from: number, to: number) => void
   exportDialogOpen: boolean
   setExportDialogOpen: (open: boolean) => void
+  atsDialogOpen: boolean
+  setAtsDialogOpen: (open: boolean) => void
 }
 
 const MAX_HISTORY = 50
@@ -123,6 +125,8 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
   redoStack: [],
   exportDialogOpen: false,
   setExportDialogOpen: (open) => set({ exportDialogOpen: open }),
+  atsDialogOpen: false,
+  setAtsDialogOpen: (open) => set({ atsDialogOpen: open }),
 
   undo: () => {
     const { undoStack, redoStack, data, cl } = get()

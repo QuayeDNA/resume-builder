@@ -1,4 +1,5 @@
 import useResumeStore from '../../store/useResumeStore'
+import Button from '../../design/components/Button'
 
 const SPACING_PRESETS = [
   { label: 'Narrow', value: { pagePadding: '28px 28px', sidebarPadding: '28px 16px', sectionGap: '10px' } },
@@ -48,12 +49,9 @@ export default function CustomizationPanel() {
       <div className="flex items-center justify-between">
         <h3 className="font-display text-sm font-bold tracking-tight text-ink">Customize Theme</h3>
         {hasOverrides && (
-          <button
-            onClick={resetThemeOverrides}
-            className="text-caption text-ink-muted hover:text-terracotta transition-colors duration-150"
-          >
+          <Button onClick={resetThemeOverrides} variant="ghost" size="sm">
             Reset
-          </button>
+          </Button>
         )}
       </div>
 

@@ -134,12 +134,9 @@ export default function AtsChecker() {
               {topSuggestions.map((s, i) => (
                 <div key={i} className="flex items-start gap-2">
                   <p className="text-caption text-ink-soft flex-1">{s.message}</p>
-                  <button
-                    onClick={() => handleGoToSection(s.section)}
-                    className="shrink-0 text-caption font-medium text-terracotta hover:text-ink transition-colors"
-                  >
+                  <Button onClick={() => handleGoToSection(s.section)} variant="ghost" size="sm">
                     Fix
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>
@@ -203,12 +200,9 @@ export default function AtsChecker() {
                       {s.impact === 'high' ? '!!' : s.impact === 'medium' ? '!' : '·'}
                     </span>
                     <p className="text-caption text-ink-soft flex-1">{s.message}</p>
-                    <button
-                      onClick={() => handleGoToSection(s.section)}
-                      className="shrink-0 text-caption font-medium text-terracotta hover:text-ink transition-colors"
-                    >
+                    <Button onClick={() => handleGoToSection(s.section)} variant="ghost" size="sm">
                       Fix
-                    </button>
+                    </Button>
                   </div>
                 ))}
               </div>

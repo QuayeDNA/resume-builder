@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '../../utils/classNames'
+import IconButton from '../../components/UI/IconButton'
 
 type EntryCardProps = {
   children: ReactNode
@@ -24,13 +25,11 @@ export default function EntryCard({ children, onDelete, className }: EntryCardPr
       className,
     )}>
       {onDelete && (
-        <button
-          onClick={handleDelete}
-          className="absolute -top-2.5 -right-2.5 w-5 h-5 flex items-center justify-center rounded-full bg-error-subtle border border-error/30 text-error hover:bg-error/20 transition-all duration-150 z-10"
-          aria-label="Delete entry"
-        >
-          <X size={10} />
-        </button>
+        <div className="absolute -top-2.5 -right-2.5 z-10">
+          <IconButton onClick={handleDelete} variant="danger" size="sm" aria-label="Delete entry">
+            <X size={10} />
+          </IconButton>
+        </div>
       )}
       <div className="p-3 space-y-2">
         {children}

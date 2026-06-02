@@ -70,7 +70,7 @@ export default function CoverLetterSection() {
           value={cl.body}
           onChange={(v) => updateCL('body', v)}
           placeholder="Or write your cover letter body here…"
-          rows={6}
+          rows={12}
         />
       </div>
 

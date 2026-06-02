@@ -6,6 +6,7 @@ export { default as EntryCard }  from './EntryCard'
 export { default as AiButton }   from './AiButton'
 export { default as IconButton } from './IconButton'
 export { default as Badge }      from './Badge'
+export { default as CommaInput } from './CommaInput'
 
 export { default as Surface }    from '../../design/components/Surface'
 export { default as Button }     from '../../design/components/Button'

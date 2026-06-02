@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react'
 import { useState } from 'react'
-import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react'
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { cn } from '../../utils/classNames'
+import { useDragHandle } from '../../components/Editor/DragHandleContext'
 
 type CardProps = {
   title?: string
@@ -10,11 +11,11 @@ type CardProps = {
   className?: string
   headerRight?: ReactNode
   onToggle?: (open: boolean) => void
-  dragHandle?: boolean
 }
 
-export default function Card({ title, children, defaultOpen = true, className, headerRight, onToggle, dragHandle }: CardProps) {
+export default function Card({ title, children, defaultOpen = true, className, headerRight, onToggle }: CardProps) {
   const [open, setOpen] = useState(defaultOpen)
+  const dragHandle = useDragHandle()
 
   const toggle = () => {
     const next = !open
@@ -25,14 +26,14 @@ export default function Card({ title, children, defaultOpen = true, className, h
   return (
     <div className={cn('overflow-hidden rounded-xl bg-paper-warm shadow-soft border border-warm-border transition-all duration-200', className)}>
       <button
+        ref={dragHandle?.setActivatorNodeRef}
+        {...dragHandle?.attributes}
+        {...(dragHandle?.listeners as Record<string, any> | undefined)}
         onClick={toggle}
-        className="flex w-full items-center justify-between px-3 py-3 transition-colors duration-150 hover:bg-paper-deep/50"
+        className="flex w-full cursor-grab items-center justify-between px-3 py-3 transition-colors duration-150 hover:bg-paper-deep/50 active:cursor-grabbing"
         aria-expanded={open}
       >
         <div className="flex items-center gap-2">
-          {dragHandle && (
-            <GripVertical size={14} className="text-ink-muted cursor-grab active:cursor-grabbing" />
-          )}
           {title && <h3 className="text-subheading text-ink font-medium">{title}</h3>}
         </div>
         <div className="flex items-center gap-2">

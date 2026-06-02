@@ -1,5 +1,5 @@
-import { Card, AiButton, Badge } from '../UI'
-import { Hint, Skeleton } from '../../design/components'
+import { Card, AiButton, CommaInput } from '../UI'
+import { Skeleton } from '../../design/components'
 import { useAi } from '../../hooks/useAi'
 import { aiSuggestSkills } from '../../api/ai'
 import useResumeStore from '../../store/useResumeStore'
@@ -10,7 +10,6 @@ export default function SkillsSection() {
   const personal  = useResumeStore((s) => s.data.personal)
   const setSkills = useResumeStore((s) => s.setSkills)
   const addSkills = useResumeStore((s) => s.addSkills)
-  const removeSkill = useResumeStore((s) => s.removeSkill)
   const { run, isLoading } = useAi()
 
   const handleSuggest = () =>
@@ -26,33 +25,18 @@ export default function SkillsSection() {
 
   return (
     <Card title="Skills">
-      <Hint>Comma-separated. Click × to remove a skill.</Hint>
-      <textarea
-        value={skills.join(', ')}
-        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-          setSkills(e.target.value.split(',').map((s) => s.trim()).filter(Boolean))
-        }
+      <CommaInput
+        values={skills}
+        onChange={setSkills}
         placeholder="React, TypeScript, Node.js, Figma…"
-        rows={3}
-        className="w-full bg-white border border-warm-border-strong rounded-lg px-2.5 py-1.5 text-body text-ink placeholder:text-ink-muted/60 resize-y transition-all duration-200 focus:border-terracotta focus:ring-2 focus:ring-terracotta-dim focus:outline-none"
+        hint="Type a skill and press comma or Enter to add it. Click × to remove."
       />
       <AiButton onClick={handleSuggest} loading={isLoading('skills')}>
         AI Suggest Skills
       </AiButton>
-
       {isLoading('skills') && (
         <div className="animate-fade-in">
           <Skeleton lines={2} />
-        </div>
-      )}
-
-      {skills.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mt-2">
-          {skills.filter((s) => s.trim()).map((s, i) => (
-            <Badge key={i} variant="brand" onRemove={() => removeSkill(i)}>
-              {s}
-            </Badge>
-          ))}
         </div>
       )}
     </Card>

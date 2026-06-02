@@ -35,7 +35,7 @@ export default function PersonalSection() {
         value={personal.summary}
         onChange={(v) => updatePersonal('summary', v)}
         placeholder="Write a compelling 2–3 sentence summary…"
-        rows={4}
+        rows={8}
       />
 
       <AiButton

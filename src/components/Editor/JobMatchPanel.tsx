@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Target, CheckCircle, XCircle, Lightbulb, TrendingUp, AlertTriangle, Sparkles } from 'lucide-react'
-import { Card, TextArea, AiButton } from '../UI'
+import { Card, TextArea, AiButton, IconButton } from '../UI'
 import { Hint, Button, Skeleton } from '../../design/components'
 import { useAi } from '../../hooks/useAi'
 import { aiAnalyzeJobMatch } from '../../api/ai'
@@ -34,7 +34,7 @@ export default function JobMatchPanel() {
           value={jobDescription}
           onChange={setJobDescription}
           placeholder="Paste the full job description here to analyze how well your resume matches…"
-          rows={6}
+          rows={12}
         />
         <AiButton onClick={handleAnalyze} loading={isLoading('jobmatch')} disabled={!jobDescription.trim()}>
           Analyze Match
@@ -150,13 +150,14 @@ export default function JobMatchPanel() {
                     {result.suggestedSkills.map((s, i) => (
                       <span key={i} className="inline-flex items-center gap-1 rounded-full bg-amber-50 border border-amber-200 px-2 py-0.5 text-caption text-amber-700">
                         {s}
-                        <button
+                        <IconButton
                           onClick={() => addSkills([s])}
-                          className="text-amber-500 hover:text-amber-700 transition-colors"
+                          variant="ghost"
+                          size="sm"
                           title="Add this skill"
                         >
                           +
-                        </button>
+                        </IconButton>
                       </span>
                     ))}
                   </div>

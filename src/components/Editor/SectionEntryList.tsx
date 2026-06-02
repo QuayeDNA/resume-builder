@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Card, EntryCard, Input, TextArea, Select } from '../UI'
+import { Card, EntryCard, Input, TextArea, Select, Button } from '../UI'
 import { EmptyState } from '../../design/components'
 import SortableList from '../SortableList'
 
@@ -33,7 +33,7 @@ function FieldInput({ field, value, onChange }: {
   const common = { value, onChange, placeholder: field.placeholder }
   switch (field.type) {
     case 'textarea':
-      return <TextArea label={field.label} rows={3} {...common} />
+      return <TextArea label={field.label} rows={6} {...common} />
     case 'select':
       return       <Select label={field.label} options={(field.options ?? []) as unknown as { value: string; label: string }[]} {...common} />
     default:
@@ -60,12 +60,9 @@ export default function SectionEntryList<T extends BaseEntry>({
           title={`No ${title.toLowerCase()} yet`}
           description={`Add your first entry to get started.`}
           action={
-            <button
-              onClick={onAdd}
-              className="rounded-lg bg-terracotta px-4 py-1.5 text-caption font-medium text-white transition-all hover:bg-terracotta/90 active:scale-[0.97]"
-            >
+            <Button onClick={onAdd} variant="primary" size="sm">
               + {addLabel || 'Add'}
-            </button>
+            </Button>
           }
         />
       ) : (

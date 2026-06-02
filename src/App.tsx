@@ -9,6 +9,7 @@ import SplashScreen from './components/SplashScreen'
 import BottomSheetNav from './components/Mobile/BottomSheetNav'
 import ExportDialog from './components/Export/ExportDialog'
 import UserSettingsDialog from './components/UserSettingsDialog'
+import AtsDialog from './components/Editor/AtsDialog'
 import useResumeStore from './store/useResumeStore'
 
 let splashCheckDone = false
@@ -109,12 +110,15 @@ export default function App() {
 
   const exportDialogOpen = useResumeStore((s) => s.exportDialogOpen)
   const setExportDialogOpen = useResumeStore((s) => s.setExportDialogOpen)
+  const atsDialogOpen = useResumeStore((s) => s.atsDialogOpen)
+  const setAtsDialogOpen = useResumeStore((s) => s.setAtsDialogOpen)
 
   return (
     <>
       {showSplash && <SplashScreen onDismiss={handleSplashDismiss} />}
 
       <ExportDialog open={exportDialogOpen} onClose={() => setExportDialogOpen(false)} />
+      <AtsDialog open={atsDialogOpen} onClose={() => setAtsDialogOpen(false)} />
       <UserSettingsDialog open={userSettingsOpen} onClose={() => setUserSettingsOpen(false)} />
 
       {/* Grain overlay */}
