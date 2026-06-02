@@ -31,14 +31,21 @@ export async function proxy(request: NextRequest) {
   const isAuthPage = request.nextUrl.pathname.startsWith('/login') ||
                      request.nextUrl.pathname.startsWith('/signup')
 
+  const isProtectedPage = request.nextUrl.pathname.startsWith('/builder')
+
   // Redirect authenticated users away from login/signup
   if (isAuthPage && session) {
-    return NextResponse.redirect(new URL('/', request.url))
+    return NextResponse.redirect(new URL('/builder', request.url))
+  }
+
+  // Redirect unauthenticated users away from protected pages
+  if (isProtectedPage && !session) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return response
 }
 
 export const config = {
-  matcher: ['/login', '/signup'],
+  matcher: ['/login', '/signup', '/builder'],
 }

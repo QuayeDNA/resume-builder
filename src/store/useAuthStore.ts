@@ -16,6 +16,7 @@ interface AuthState {
   setUser: (user: User | null, session: Session | null) => void
   signIn: (email: string, password: string) => Promise<{ error: string | null }>
   signUp: (email: string, password: string) => Promise<{ error: string | null }>
+  signInWithOAuth: (provider: 'google' | 'github') => Promise<{ error: string | null }>
   signOut: () => Promise<void>
   loadProfile: () => Promise<void>
   init: () => Promise<void>
@@ -37,6 +38,14 @@ const useAuthStore = create<AuthState>((set, get) => ({
 
   signUp: async (email, password) => {
     const { error } = await supabase.auth.signUp({ email, password })
+    return { error: error?.message || null }
+  },
+
+  signInWithOAuth: async (provider: 'google' | 'github') => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    })
     return { error: error?.message || null }
   },
 

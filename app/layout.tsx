@@ -2,8 +2,8 @@ import type { ReactNode } from 'react'
 import './globals.css'
 
 export const metadata = {
-  title: 'ResumeForge — Free AI Resume Builder',
-  description: 'Free, fully-featured resume builder with AI assistance. No paywall, no account required.',
+  title: 'ResumeForge — Build Your Resume, Tell Your Story',
+  description: 'Free, fully-featured resume builder with AI-powered assistance. Craft professional resumes in minutes. Sign up free.',
 }
 
 export default function RootLayout({ children }: { children: ReactNode }) {
