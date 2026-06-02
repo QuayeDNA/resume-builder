@@ -96,6 +96,8 @@ interface ResumeStore {
   updateCustomBullet: (sectionId: number, entryId: number, idx: number, value: string) => void
   reorderCustomEntries: (sectionId: number, from: number, to: number) => void
   reorderNavSection: (from: number, to: number) => void
+  exportDialogOpen: boolean
+  setExportDialogOpen: (open: boolean) => void
 }
 
 const MAX_HISTORY = 50
@@ -119,6 +121,8 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
   savedAt: stored?.savedAt ?? null,
   undoStack: [],
   redoStack: [],
+  exportDialogOpen: false,
+  setExportDialogOpen: (open) => set({ exportDialogOpen: open }),
 
   undo: () => {
     const { undoStack, redoStack, data, cl } = get()

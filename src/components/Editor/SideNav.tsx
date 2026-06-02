@@ -1,5 +1,4 @@
 import { FileText, Palette, Mail, Save, Settings, FileDown, Sliders, User, Target } from 'lucide-react'
-import { exportToPdf } from '../../utils/pdf'
 import useResumeStore from '../../store/useResumeStore'
 import type { LucideIcon } from 'lucide-react'
 
@@ -50,7 +49,9 @@ export default function SideNav() {
   const data = useResumeStore((s) => s.data)
   const user = useResumeStore((s) => (s as any).user) as { email?: string } | null
 
-  const handleExport = () => exportToPdf(data.personal.name || 'resume')
+  const setExportDialogOpen = useResumeStore((s) => s.setExportDialogOpen)
+
+  const handleExport = () => setExportDialogOpen(true)
 
   const handleNavClick = (id: string) => {
     setActiveSection(id)

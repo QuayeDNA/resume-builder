@@ -7,8 +7,8 @@ import EditorPanel from './components/Editor/EditorPanel'
 import PreviewPanel from './components/Preview/PreviewPanel'
 import SplashScreen from './components/SplashScreen'
 import BottomSheetNav from './components/Mobile/BottomSheetNav'
+import ExportDialog from './components/Export/ExportDialog'
 import useResumeStore from './store/useResumeStore'
-import { exportToPdf } from './utils/pdf'
 
 let splashCheckDone = false
 
@@ -24,8 +24,8 @@ function MobileHeader({ onMenuToggle, mobileView, onViewChange }: {
   mobileView: string
   onViewChange: (v: MobileTabId) => void
 }) {
-  const data = useResumeStore((s) => s.data)
-  const handleExport = () => exportToPdf(data.personal.name || 'resume')
+  const setExportDialogOpen = useResumeStore((s) => s.setExportDialogOpen)
+  const handleExport = () => setExportDialogOpen(true)
 
   return (
     <header className="fixed left-0 right-0 top-0 z-30 border-b border-warm-border bg-paper-warm/95 backdrop-blur-md lg:hidden">
@@ -105,9 +105,14 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [])
 
+  const exportDialogOpen = useResumeStore((s) => s.exportDialogOpen)
+  const setExportDialogOpen = useResumeStore((s) => s.setExportDialogOpen)
+
   return (
     <>
       {showSplash && <SplashScreen onDismiss={handleSplashDismiss} />}
+
+      <ExportDialog open={exportDialogOpen} onClose={() => setExportDialogOpen(false)} />
 
       {/* Grain overlay */}
       <div className="grain-overlay" />

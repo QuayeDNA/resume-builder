@@ -9,4 +9,15 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          pdf: ['jspdf', 'html2canvas'],
+          docx: ['docx'],
+          zip: ['jszip'],
+        },
+      },
+    },
+  },
 })
