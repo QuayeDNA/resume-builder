@@ -1,5 +1,5 @@
 import { Card, AiButton, Badge } from '../UI'
-import { Hint } from '../../design/components'
+import { Hint, Skeleton } from '../../design/components'
 import { useAi } from '../../hooks/useAi'
 import { aiSuggestSkills } from '../../api/ai'
 import useResumeStore from '../../store/useResumeStore'
@@ -39,6 +39,13 @@ export default function SkillsSection() {
       <AiButton onClick={handleSuggest} loading={isLoading('skills')}>
         AI Suggest Skills
       </AiButton>
+
+      {isLoading('skills') && (
+        <div className="animate-fade-in">
+          <Skeleton lines={2} />
+        </div>
+      )}
+
       {skills.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-2">
           {skills.filter((s) => s.trim()).map((s, i) => (

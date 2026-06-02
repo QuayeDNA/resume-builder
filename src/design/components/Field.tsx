@@ -1,3 +1,4 @@
+import { useId } from 'react'
 import { cn } from '../../utils/classNames'
 
 type FieldProps = {
@@ -6,20 +7,26 @@ type FieldProps = {
   hint?: string
   error?: string
   className?: string
+  htmlFor?: string
 }
 
-export function Field({ label, children, hint, error, className }: FieldProps) {
+export function Field({ label, children, hint, error, className, htmlFor }: FieldProps) {
+  const autoId = useId()
+  const fieldId = htmlFor || autoId
+  const errorId = `${fieldId}-error`
+  const hintId = `${fieldId}-hint`
+
   return (
     <div className={cn('space-y-1', className)}>
       {label && (
-        <label className="block text-label text-ink-muted">{label}</label>
+        <label htmlFor={fieldId} className="block text-label text-ink-muted">{label}</label>
       )}
       {children}
       {error && (
-        <p className="text-caption text-error">{error}</p>
+        <p id={errorId} className="text-caption text-error" role="alert">{error}</p>
       )}
       {hint && !error && (
-        <p className="text-caption text-ink-muted">{hint}</p>
+        <p id={hintId} className="text-caption text-ink-muted">{hint}</p>
       )}
     </div>
   )
@@ -42,6 +49,7 @@ export function Input({ value, onChange, placeholder, type = 'text', className, 
       value={value}
       onChange={(e) => onChange?.(e.target.value)}
       placeholder={placeholder}
+      aria-invalid={!!error}
       className={cn(
         'w-full min-w-0 appearance-none rounded-xl border border-warm-border-strong bg-white px-3 py-2.5 text-body text-ink shadow-soft',
         'placeholder:text-ink-muted transition-all duration-200',
@@ -71,6 +79,7 @@ export function TextArea({ value, onChange, placeholder, rows = 3, className, er
       onChange={(e) => onChange?.(e.target.value)}
       placeholder={placeholder}
       rows={rows}
+      aria-invalid={!!error}
       className={cn(
         'w-full min-w-0 appearance-none rounded-xl border border-warm-border-strong bg-white px-3 py-2.5 text-body text-ink shadow-soft',
         'placeholder:text-ink-muted resize-y transition-all duration-200',
@@ -103,6 +112,7 @@ export function Select({ value, onChange, options, className, error, ...rest }: 
       <select
         value={value}
         onChange={(e) => onChange?.(e.target.value)}
+        aria-invalid={!!error}
         className={cn(
           'w-full min-w-0 appearance-none rounded-xl border border-warm-border-strong bg-white px-3 py-2.5 pr-8 text-body text-ink shadow-soft cursor-pointer',
           'transition-all duration-200',

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { FileText, X, User, Briefcase, GraduationCap, Wrench, FolderOpen, Award, Languages, Palette, Mail, Save, Settings } from 'lucide-react'
 import useResumeStore from '../../store/useResumeStore'
 import { BUILTIN_SECTION_IDS } from '../../types'
@@ -37,11 +37,41 @@ export default function BottomSheetNav({ open, onClose }: { open: boolean; onClo
   const data = useResumeStore((s) => s.data)
   const [mounted, setMounted] = useState(open)
   const [closing, setClosing] = useState(false)
+  const panelRef = useRef<HTMLDivElement>(null)
+  const triggerRef = useRef<HTMLElement | null>(null)
+
+  const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      onClose()
+      return
+    }
+    if (e.key === 'Tab') {
+      const panel = panelRef.current
+      if (!panel) return
+      const focusable = panel.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      )
+      if (focusable.length === 0) return
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault()
+        last.focus()
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault()
+        first.focus()
+      }
+    }
+  }, [onClose])
 
   useEffect(() => {
     if (open) {
       setMounted(true)
-      requestAnimationFrame(() => setClosing(false))
+      triggerRef.current = document.activeElement as HTMLElement
+      requestAnimationFrame(() => {
+        setClosing(false)
+        panelRef.current?.focus()
+      })
       return
     }
 
@@ -50,10 +80,18 @@ export default function BottomSheetNav({ open, onClose }: { open: boolean; onClo
       const timer = window.setTimeout(() => {
         setMounted(false)
         setClosing(false)
+        triggerRef.current?.focus()
       }, 300)
       return () => window.clearTimeout(timer)
     }
   }, [open, mounted])
+
+  useEffect(() => {
+    if (mounted && !closing) {
+      document.addEventListener('keydown', handleKeyDown)
+      return () => document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [mounted, closing, handleKeyDown])
 
   if (!mounted) return null
 
@@ -74,7 +112,9 @@ export default function BottomSheetNav({ open, onClose }: { open: boolean; onClo
       />
 
       <div
-        className={`absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto rounded-t-2xl bg-paper border-t border-warm-border shadow-elevated transition-transform duration-300 ease-out-expo ${
+        ref={panelRef}
+        tabIndex={-1}
+        className={`absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto rounded-t-2xl bg-paper border-t border-warm-border shadow-elevated transition-transform duration-300 ease-out-expo focus:outline-none ${
           closing ? 'translate-y-full' : 'translate-y-0'
         }`}
       >

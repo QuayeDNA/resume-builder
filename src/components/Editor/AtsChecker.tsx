@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useMemo } from 'react'
 import { Activity, RefreshCw, ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
 import { calculateAtsScore, getScoreColor, getScoreLabel } from '../../utils/ats'
 import { Button, AiButton } from '../UI'
+import { Skeleton } from '../../design/components'
 import useResumeStore from '../../store/useResumeStore'
 import type { AtsResult } from '../../types'
 import { cn } from '../../utils/classNames'
@@ -170,6 +171,12 @@ export default function AtsChecker() {
           AI Suggestions
         </AiButton>
       </div>
+
+      {isLoading('atsai') && (
+        <div className="space-y-3 animate-fade-in">
+          <Skeleton lines={4} />
+        </div>
+      )}
 
       {aiResult && (
         <div className="bg-paper-deep/40 border border-warm-border rounded-xl p-3 animate-fade-up space-y-3">

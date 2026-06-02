@@ -143,7 +143,7 @@ export default function EditorPanel() {
   }
 
   return (
-    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden border-r border-warm-border bg-paper lg:h-full lg:max-h-none lg:w-full lg:max-w-[24rem] xl:max-w-[26rem]">
+    <section aria-label="Editor" className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden border-r border-warm-border bg-paper lg:h-full lg:max-h-none lg:w-full lg:max-w-[24rem] xl:max-w-[26rem]">
       <div className="flex-shrink-0 border-b border-warm-border bg-paper-warm px-4 py-3">
         <div className="flex items-center justify-between">
           <h2 className="text-heading text-ink font-display font-semibold">Editor</h2>
@@ -196,6 +196,6 @@ export default function EditorPanel() {
           + Add Custom Section
         </button>
       </div>
-    </div>
+    </section>
   )
 }

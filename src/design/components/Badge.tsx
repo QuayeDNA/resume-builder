@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { X } from 'lucide-react'
 import { cn } from '../../utils/classNames'
 
@@ -19,16 +19,24 @@ type BadgeProps = {
 }
 
 export default function Badge({ children, variant = 'default', onRemove, className }: BadgeProps) {
+  const [exiting, setExiting] = useState(false)
+
+  const handleRemove = () => {
+    setExiting(true)
+    setTimeout(() => onRemove?.(), 150)
+  }
+
   return (
     <span className={cn(
       'inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-label transition-all duration-150',
+      exiting && 'animate-scale-out',
       variants[variant],
       className,
     )}>
       {children}
       {onRemove && (
         <button
-          onClick={onRemove}
+          onClick={handleRemove}
           className="ml-0.5 hover:opacity-70 transition-opacity"
           aria-label="Remove"
         >

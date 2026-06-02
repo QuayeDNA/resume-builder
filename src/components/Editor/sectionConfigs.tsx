@@ -1,4 +1,4 @@
-import { type ReactNode, useRef } from 'react'
+import { type ReactNode, useRef, useState } from 'react'
 import { Sparkles, Loader2, X } from 'lucide-react'
 import { Input, Button, IconButton } from '../UI'
 import SortableList from '../SortableList'
@@ -115,9 +115,15 @@ function BulletRow({ bullet, expId, idx }: { bullet: string; expId: number; idx:
   const { run, isLoading } = useAi()
   const key = `b_${expId}_${idx}`
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const [exiting, setExiting] = useState(false)
+
+  const handleRemove = () => {
+    setExiting(true)
+    setTimeout(() => removeBullet(expId, idx), 150)
+  }
 
   return (
-    <div>
+    <div className={exiting ? 'animate-scale-out' : ''}>
       <BulletFormatToolbar textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement | null>} onUpdate={(v) => updateBullet(expId, idx, v)} />
       <div className="flex gap-1.5 items-start">
         <textarea
@@ -137,7 +143,7 @@ function BulletRow({ bullet, expId, idx }: { bullet: string; expId: number; idx:
           >
             {isLoading(key) ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
           </IconButton>
-          <IconButton onClick={() => removeBullet(expId, idx)} title="Remove bullet" variant="danger" size="sm">
+          <IconButton onClick={handleRemove} title="Remove bullet" variant="danger" size="sm">
             <X size={10} />
           </IconButton>
         </div>

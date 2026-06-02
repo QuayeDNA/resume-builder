@@ -28,7 +28,7 @@ function MobileHeader({ onMenuToggle, mobileView, onViewChange }: {
   const handleExport = () => setExportDialogOpen(true)
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-30 border-b border-warm-border bg-paper-warm/95 backdrop-blur-md lg:hidden">
+    <header className="fixed left-0 right-0 top-0 z-30 border-b border-warm-border bg-paper-warm/95 backdrop-blur-md md:hidden">
       <div className="flex h-14 items-center justify-between gap-3 px-4">
         <div className="flex min-w-0 items-center gap-2">
           <button
@@ -117,7 +117,8 @@ export default function App() {
       {/* Grain overlay */}
       <div className="grain-overlay" />
 
-      <div className="min-h-dvh bg-paper font-body text-ink lg:grid lg:h-dvh lg:grid-cols-[max-content_minmax(20rem,24rem)_minmax(0,1fr)] lg:overflow-hidden">
+      <h1 className="sr-only">ResumeForge Builder</h1>
+      <div className="min-h-dvh bg-paper font-body text-ink md:grid md:h-dvh md:grid-cols-[max-content_1fr] lg:grid-cols-[max-content_minmax(20rem,24rem)_minmax(0,1fr)] md:overflow-hidden">
         <MobileHeader
           onMenuToggle={() => setMobileNavOpen(true)}
           mobileView={mobileView}
@@ -126,14 +127,39 @@ export default function App() {
 
         <BottomSheetNav open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
 
-        <div className="hidden border-r border-warm-border lg:block">
+        <div className="hidden border-r border-warm-border md:block">
           <SideNav />
         </div>
 
-        <div className="flex min-h-0 h-[calc(100dvh)] flex-col overflow-hidden pt-24 lg:hidden">
+        {/* Mobile: single panel, tab-switched */}
+        <div className="flex min-h-0 h-[calc(100dvh)] flex-col overflow-hidden pt-24 md:hidden">
           {mobileView === 'edit' ? <EditorPanel /> : <PreviewPanel />}
         </div>
 
+        {/* Tablet: single panel, tab-switched, with tablet tab bar */}
+        <div className="hidden min-h-0 md:flex md:flex-col md:overflow-hidden lg:hidden" role="main" aria-label="Editor and preview">
+          <div className="flex border-b border-warm-border bg-paper-warm/80">
+            {MOBILE_TABS.map((view) => (
+              <button
+                key={view.id}
+                onClick={() => setMobileView(view.id)}
+                className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-3 py-2.5 text-caption font-medium transition-all duration-150 ${
+                  mobileView === view.id
+                    ? 'border-terracotta text-terracotta'
+                    : 'border-transparent text-ink-muted hover:text-ink'
+                }`}
+              >
+                <view.icon size={13} />
+                {view.label}
+              </button>
+            ))}
+          </div>
+          <div className="flex-1 overflow-hidden">
+            {mobileView === 'edit' ? <EditorPanel /> : <PreviewPanel />}
+          </div>
+        </div>
+
+        {/* Desktop: both panels side by side */}
         <div className="hidden min-h-0 lg:flex lg:h-full lg:flex-col lg:overflow-hidden">
           <EditorPanel />
         </div>

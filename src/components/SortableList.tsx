@@ -18,7 +18,7 @@ import { useState, type ReactNode } from 'react'
 
 function DragHandle() {
   return (
-    <div className="flex cursor-grab touch-none items-center text-ink-muted hover:text-ink active:cursor-grabbing">
+    <div className="flex cursor-grab touch-none items-center text-ink-muted hover:text-ink active:cursor-grabbing" role="button" tabIndex={0} aria-label="Drag to reorder">
       <GripVertical size={14} />
     </div>
   )

@@ -30,7 +30,7 @@ export default function PreviewPanel() {
   const activeView = useResumeStore((s) => s.activeView)
   const setActiveView = useResumeStore((s) => s.setActiveView)
   const [zoom, setZoom] = useState<number>(ZOOM_FIT)
-  const [bgMode, setBgMode] = useState<BgMode>(getStoredBg)
+  const [bgMode, setBgMode] = useState<BgMode>(() => getStoredBg())
   const [previewMode, setPreviewMode] = useState<PreviewMode>('page')
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -48,7 +48,7 @@ export default function PreviewPanel() {
   }, [activeView, data, cl])
 
   return (
-    <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-paper">
+    <section aria-label="Preview" className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-paper">
       {/* ── Toolbar: view toggle, preview mode, bg, zoom ── */}
       <div className="flex flex-col gap-1.5 border-b border-warm-border bg-paper-warm px-3 py-2">
         <div className="flex items-center gap-2">
@@ -98,13 +98,15 @@ export default function PreviewPanel() {
               <button
                 key={mode}
                 onClick={() => setPreviewMode(mode)}
+                aria-label={`${label} preview`}
+                aria-pressed={previewMode === mode}
                 className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-caption font-medium transition-all duration-150 ${
                   previewMode === mode
                     ? 'bg-terracotta text-white shadow-sm'
                     : 'text-ink-muted hover:text-ink'
                 }`}
               >
-                <Icon size={12} />
+                <Icon size={12} aria-hidden="true" />
                 <span className="hidden sm:inline">{label}</span>
               </button>
             ))}
@@ -117,6 +119,8 @@ export default function PreviewPanel() {
                 <button
                   key={mode}
                   onClick={() => handleBgChange(mode)}
+                  aria-label={mode === 'desk' ? 'Desk background' : mode === 'paper' ? 'White background' : 'Dark background'}
+                  aria-pressed={bgMode === mode}
                   className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-caption font-medium transition-all duration-150 ${
                     bgMode === mode
                       ? 'bg-terracotta text-white shadow-sm'
@@ -124,7 +128,7 @@ export default function PreviewPanel() {
                   }`}
                   title={mode === 'desk' ? 'Desk surface' : mode === 'paper' ? 'White background' : 'Dark background'}
                 >
-                  <Icon size={12} />
+                  <Icon size={12} aria-hidden="true" />
                 </button>
               )
             })}
@@ -184,6 +188,6 @@ export default function PreviewPanel() {
           </div>
         )}
       </div>
-    </div>
+    </section>
   )
 }

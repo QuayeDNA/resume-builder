@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Target, CheckCircle, XCircle, Lightbulb, TrendingUp, AlertTriangle, Sparkles } from 'lucide-react'
 import { Card, TextArea, AiButton } from '../UI'
-import { Hint, Button } from '../../design/components'
+import { Hint, Button, Skeleton } from '../../design/components'
 import { useAi } from '../../hooks/useAi'
 import { aiAnalyzeJobMatch } from '../../api/ai'
 import useResumeStore from '../../store/useResumeStore'
@@ -40,6 +40,14 @@ export default function JobMatchPanel() {
           Analyze Match
         </AiButton>
       </div>
+
+      {isLoading('jobmatch') && (
+        <div className="animate-fade-in space-y-4">
+          <div className="rounded-xl border border-warm-border bg-paper-warm p-4">
+            <Skeleton lines={5} />
+          </div>
+        </div>
+      )}
 
       {result && (
         <div className="animate-fade-up space-y-4">

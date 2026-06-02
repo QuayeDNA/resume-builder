@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Card, EntryCard, Input, TextArea, Select } from '../UI'
+import { EmptyState } from '../../design/components'
 import SortableList from '../SortableList'
 
 export type FieldConfig = {
@@ -51,23 +52,39 @@ export default function SectionEntryList<T extends BaseEntry>({
   onReorder,
   children,
 }: SectionEntryListProps<T>) {
+  const empty = items.length === 0
   return (
-    <Card title={title} onAdd={onAdd} addLabel={addLabel}>
-      <SortableList items={items} getId={(item) => item.id} onReorder={onReorder}>
-        {(item) => (
-          <EntryCard onDelete={() => onRemove(item.id)}>
-            {fields?.map((field) => (
-              <FieldInput
-                key={field.key}
-                field={field}
-                value={(item as unknown as Record<string, string>)[field.key] ?? ''}
-                onChange={(v) => onUpdate(item.id, field.key, v)}
-              />
-            ))}
-            {children?.(item)}
-          </EntryCard>
-        )}
-      </SortableList>
+    <Card title={title} onAdd={empty ? undefined : onAdd} addLabel={addLabel}>
+      {empty ? (
+        <EmptyState
+          title={`No ${title.toLowerCase()} yet`}
+          description={`Add your first entry to get started.`}
+          action={
+            <button
+              onClick={onAdd}
+              className="rounded-lg bg-terracotta px-4 py-1.5 text-caption font-medium text-white transition-all hover:bg-terracotta/90 active:scale-[0.97]"
+            >
+              + {addLabel || 'Add'}
+            </button>
+          }
+        />
+      ) : (
+        <SortableList items={items} getId={(item) => item.id} onReorder={onReorder}>
+          {(item) => (
+            <EntryCard onDelete={() => onRemove(item.id)}>
+              {fields?.map((field) => (
+                <FieldInput
+                  key={field.key}
+                  field={field}
+                  value={(item as unknown as Record<string, string>)[field.key] ?? ''}
+                  onChange={(v) => onUpdate(item.id, field.key, v)}
+                />
+              ))}
+              {children?.(item)}
+            </EntryCard>
+          )}
+        </SortableList>
+      )}
     </Card>
   )
 }
