@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
-import PageContainer, { PAGE_HEIGHT } from './PageContainer'
+import { PAGE_HEIGHT } from '../../Templates/theme'
+import PageContainer from './PageContainer'
 
 type PageComposerProps = {
   children: ReactNode
@@ -40,6 +41,7 @@ export default function PageComposer({ children }: PageComposerProps) {
               style={{
                 transform: `translateY(-${i * PAGE_HEIGHT}px)`,
                 width: '794px',
+                minHeight: PAGE_HEIGHT,
               }}
             >
               {children}

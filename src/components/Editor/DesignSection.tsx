@@ -1,113 +1,166 @@
+import { useState } from 'react'
 import { Card } from '../UI'
-import { Hint } from '../../design/components'
 import { TEMPLATES } from '../../Templates'
+import type { TemplateDefinition, TemplateCategory } from '../../Templates'
 import useResumeStore from '../../store/useResumeStore'
 
-const ATS_KEYWORD_HINTS = [
-  { label: 'Use standard section headings', detail: '"Experience", "Education", "Skills" — avoid creative names' },
-  { label: 'Include job-specific keywords', detail: 'Match terms from the job description you are applying to' },
-  { label: 'Spell out acronyms', detail: 'Write "Search Engine Optimization" before using "SEO"' },
-  { label: 'Use simple bullet points', detail: 'Avoid special characters, icons, or custom symbols' },
-  { label: 'Avoid tables and columns', detail: 'ATS parsers cannot read multi-column layouts reliably' },
-  { label: 'Include measurable results', detail: 'Use numbers: "Increased revenue by 25%" not "Improved revenue"' },
+const CATEGORIES: { key: 'all' | TemplateCategory; label: string }[] = [
+  { key: 'all', label: 'All' },
+  { key: 'design', label: 'Design' },
+  { key: 'minimal', label: 'Minimal' },
 ]
 
-const templateEntries = Object.entries(TEMPLATES)
+function LayoutPreview({ template }: { template: TemplateDefinition }) {
+  const { layout, colors } = template.theme
 
-function TemplateThumb({ id, template, selected, onClick }: {
-  id: string
-  template: typeof TEMPLATES[keyof typeof TEMPLATES]
-  selected: boolean
+  if (layout === 'two-col') {
+    return (
+      <div style={{ width: '100%', height: '100%', display: 'flex', overflow: 'hidden' }}>
+        <div style={{ width: '35%', height: '100%', background: colors.accent }}>
+          <div style={{ padding: '6px 3px' }}>
+            <div style={{ height: '4px', width: '70%', background: 'rgba(255,255,255,0.2)', borderRadius: '1px', marginBottom: '4px' }} />
+            <div style={{ height: '2px', width: '50%', background: 'rgba(255,255,255,0.15)', borderRadius: '1px', marginBottom: '6px' }} />
+            <div style={{ height: '2px', width: '90%', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '2px' }} />
+            <div style={{ height: '2px', width: '90%', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '2px' }} />
+            <div style={{ height: '2px', width: '60%', background: 'rgba(255,255,255,0.1)', borderRadius: '1px' }} />
+          </div>
+        </div>
+        <div style={{ flex: 1, height: '100%', background: '#f5f3f0', padding: '6px' }}>
+          <div style={{ height: '3px', width: '80%', background: colors.secondary + '40', borderRadius: '1px', marginBottom: '4px' }} />
+          <div style={{ height: '2px', width: '100%', background: '#ddd', borderRadius: '1px', marginBottom: '4px' }} />
+          <div style={{ height: '2px', width: '100%', background: '#ddd', borderRadius: '1px', marginBottom: '4px' }} />
+          <div style={{ height: '2px', width: '60%', background: '#ddd', borderRadius: '1px' }} />
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div style={{ width: '100%', height: '100%', background: '#ffffff', overflow: 'hidden', padding: '8px 6px' }}>
+      <div style={{ height: '6px', width: '60%', background: colors.accent, borderRadius: '1px', marginBottom: '4px' }} />
+      <div style={{ height: '2px', width: '90%', background: colors.secondary + '50', borderRadius: '1px', marginBottom: '8px' }} />
+      <div style={{ height: '2px', width: '100%', background: '#eee', borderRadius: '1px', marginBottom: '3px' }} />
+      <div style={{ height: '6px', width: '40%', background: colors.accent + '30', borderRadius: '1px', marginTop: '6px', marginBottom: '4px' }} />
+      <div style={{ height: '2px', width: '100%', background: '#eee', borderRadius: '1px', marginBottom: '3px' }} />
+      <div style={{ height: '2px', width: '100%', background: '#eee', borderRadius: '1px', marginBottom: '3px' }} />
+      <div style={{ height: '2px', width: '70%', background: '#eee', borderRadius: '1px', marginBottom: '3px' }} />
+      <div style={{ height: '6px', width: '30%', background: colors.accent + '30', borderRadius: '1px', marginTop: '6px', marginBottom: '4px' }} />
+      <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} style={{ height: '4px', width: '12px', background: colors.accent + '20', borderRadius: '2px' }} />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function TemplateCard({ template, isSelected, onClick }: {
+  template: TemplateDefinition
+  isSelected: boolean
   onClick: () => void
 }) {
-  const isTwoCol = template.layout === 'two-col'
-  const isATS = template.layout === 'ats'
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 p-2 rounded-xl border-2 transition-all duration-100 ${
-        selected
-          ? 'bg-terracotta-dim border-terracotta'
-          : 'bg-paper-deep border-warm-border-strong hover:border-terracotta/40'
+      className={`flex flex-col items-stretch gap-2 rounded-xl border-2 p-0 overflow-hidden transition-all duration-200 ${
+        isSelected
+          ? 'border-terracotta bg-terracotta-dim shadow-soft'
+          : 'border-warm-border-strong bg-paper hover:border-terracotta/40 hover:shadow-soft'
       }`}
     >
-      <div className="w-10 h-7 rounded-md overflow-hidden relative flex flex-shrink-0">
-        {isATS ? (
-          <div style={{ width: '100%', background: '#fff', position: 'relative', border: '1px solid #ddd' }}>
-            <div style={{ position: 'absolute', top: '2px', left: '3px', right: '3px', height: '1px', background: template.accent }} />
-            <div style={{ position: 'absolute', top: '5px', left: '3px', right: '3px', height: '0.5px', background: template.secondary }} />
-            <div style={{ position: 'absolute', bottom: '2px', left: '3px', right: '3px', height: '0.5px', background: template.secondary }} />
-          </div>
-        ) : isTwoCol ? (
-          <>
-            <div style={{ width: '35%', background: template.accent }} />
-            <div style={{ flex: 1, background: '#e8e8f0' }} />
-          </>
-        ) : (
-          <div style={{ width: '100%', background: template.accent, position: 'relative' }}>
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '5px', background: template.secondary }} />
-            <div style={{ position: 'absolute', top: '4px', left: '4px', right: '4px', height: '1.5px', background: 'rgba(255,255,255,0.15)' }} />
-          </div>
-        )}
+      <div className="h-24 w-full overflow-hidden bg-white border-b border-warm-border">
+        <LayoutPreview template={template} />
       </div>
-      <span className={`text-[8px] font-medium leading-none ${selected ? 'text-ink' : 'text-ink-muted'}`}>
-        {template.label}
-      </span>
+      <div className="px-2.5 pb-2.5 pt-0.5">
+        <div className="flex items-center justify-between">
+          <span className={`text-caption font-semibold ${isSelected ? 'text-ink' : 'text-ink'}`}>
+            {template.label}
+          </span>
+          <span className={`text-[8px] font-medium px-1.5 py-0.5 rounded-full ${
+            template.category === 'minimal'
+              ? 'bg-sage-dim text-sage'
+              : 'bg-terracotta-dim text-terracotta'
+          }`}>
+            {template.category === 'minimal' ? 'ATS' : 'Design'}
+          </span>
+        </div>
+        <p className="text-[9px] text-ink-muted leading-tight mt-0.5 text-left">
+          {template.description}
+        </p>
+      </div>
     </button>
   )
 }
 
 export default function DesignSection() {
   const currentTemplate = useResumeStore((s) => s.data.template)
+  const atsMode = useResumeStore((s) => s.data.atsMode)
   const setTemplate = useResumeStore((s) => s.setTemplate)
-  const currentT = TEMPLATES[currentTemplate as keyof typeof TEMPLATES]
-  const isATS = currentT?.layout === 'ats'
+  const setAtsMode = useResumeStore((s) => s.setAtsMode)
+  const [category, setCategory] = useState<'all' | TemplateCategory>('all')
 
-  const design = templateEntries.filter(([, t]) => t.category === 'design')
-  const twoCol = templateEntries.filter(([, t]) => t.layout === 'two-col')
-  const ats = templateEntries.filter(([, t]) => t.category === 'ats')
+  const entries = Object.entries(TEMPLATES)
+  const filtered = category === 'all' ? entries : entries.filter(([, t]) => t.category === category)
 
   return (
-    <Card title="Resume Templates">
-      <div className="mb-3 p-2 rounded-lg bg-success-subtle border border-success/20">
-        <p className="text-caption text-success font-medium uppercase">ATS-Optimized</p>
-        <p className="text-caption text-success/80">Maximum compatibility with Applicant Tracking Systems</p>
-      </div>
-
-      <div className="grid grid-cols-3 gap-2 mb-4 sm:grid-cols-3">
-        {ats.map(([id, t]) => (
-          <TemplateThumb key={id} id={id} template={t} selected={currentTemplate === id} onClick={() => setTemplate(id)} />
+    <div className="space-y-4">
+      {/* Category tabs */}
+      <div className="flex gap-1 rounded-lg border border-warm-border bg-paper p-0.5">
+        {CATEGORIES.map((cat) => (
+          <button
+            key={cat.key}
+            onClick={() => setCategory(cat.key)}
+            className={`flex-1 rounded-md px-2.5 py-1.5 text-caption font-medium transition-all duration-150 ${
+              category === cat.key
+                ? 'bg-terracotta text-white shadow-sm'
+                : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            {cat.label}
+          </button>
         ))}
       </div>
 
-      {isATS && (
-        <div className="mb-4 p-3 rounded-lg bg-info-subtle border border-info/20 space-y-1.5">
-          <p className="text-caption text-info font-medium uppercase">ATS Optimization Tips</p>
-          {ATS_KEYWORD_HINTS.map((hint, i) => (
-            <div key={i} className="flex gap-2 items-start">
-              <span className="text-success text-[9px] mt-px flex-shrink-0">✓</span>
-              <div>
-                <span className="text-caption text-ink font-medium block">{hint.label}</span>
-                <span className="text-caption text-ink-muted">{hint.detail}</span>
-              </div>
-            </div>
-          ))}
+      {/* ATS Mode toggle */}
+      <label className="flex items-center gap-3 p-3 rounded-xl bg-sage-dim border border-sage/20 cursor-pointer transition-all duration-200 hover:bg-sage/20">
+        <div className="relative">
+          <input
+            type="checkbox"
+            checked={atsMode}
+            onChange={(e) => setAtsMode(e.target.checked)}
+            className="sr-only peer"
+          />
+          <div className="w-9 h-5 rounded-full bg-paper-deep peer-checked:bg-sage transition-colors duration-200" />
+          <div className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white shadow-soft transition-transform duration-200 ${atsMode ? 'translate-x-4' : ''}`} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <p className="text-caption font-semibold text-ink">ATS Mode</p>
+          <p className="text-[10px] text-ink-muted leading-tight">
+            Strips colors, columns, and styling for maximum applicant tracking system compatibility
+          </p>
+        </div>
+      </label>
+
+      {/* ATS mode active indicator */}
+      {atsMode && (
+        <div className="p-3 rounded-lg bg-sage-dim border border-sage/20">
+          <p className="text-caption text-sage font-medium">
+            ATS Mode is active — any template will render in plain single-column format with ATS-safe styling.
+          </p>
         </div>
       )}
 
-      <p className="text-label uppercase text-ink-muted mb-2">Single Column</p>
-      <div className="grid grid-cols-1 gap-2 mb-4 sm:grid-cols-2 xl:grid-cols-3">
-        {design.filter(([, t]) => t.layout === 'single').map(([id, t]) => (
-          <TemplateThumb key={id} id={id} template={t} selected={currentTemplate === id} onClick={() => setTemplate(id)} />
+      {/* Template grid */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {filtered.map(([id, t]) => (
+          <TemplateCard
+            key={id}
+            template={t}
+            isSelected={!atsMode && currentTemplate === id}
+            onClick={() => setTemplate(id)}
+          />
         ))}
       </div>
-
-      <p className="text-label uppercase text-ink-muted mb-2">Two Column</p>
-      <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-        {twoCol.map(([id, t]) => (
-          <TemplateThumb key={id} id={id} template={t} selected={currentTemplate === id} onClick={() => setTemplate(id)} />
-        ))}
-      </div>
-    </Card>
+    </div>
   )
 }

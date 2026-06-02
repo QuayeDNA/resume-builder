@@ -222,6 +222,21 @@ export default function App() {
     }
   }, [])
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+        e.preventDefault()
+        if (e.shiftKey) {
+          useResumeStore.getState().redo()
+        } else {
+          useResumeStore.getState().undo()
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
+
   return (
     <>
       {showSplash && <SplashScreen onDismiss={() => setShowSplash(false)} />}

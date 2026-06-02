@@ -66,6 +66,7 @@ export interface ResumeData {
   customSections: CustomSectionEntry[]
   sectionOrder: string[]
   template: string
+  atsMode: boolean
 }
 
 export interface CoverLetterData {

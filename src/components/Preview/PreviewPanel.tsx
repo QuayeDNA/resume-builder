@@ -1,14 +1,9 @@
 import { FileDown, FileText, FileSignature } from 'lucide-react'
 import { useMemo, useRef, useState } from 'react'
-import { getTemplate } from '../../Templates'
-import SingleColumnTemplate  from '../../Templates/SingleColumnTemplate'
-import TwoColumnTemplate     from '../../Templates/TwoColumnTemplate'
-import ATSTemplate           from '../../Templates/ATSTemplate'
-import CoverLetterTemplate   from '../../Templates/CoverLetterTemplate'
-import { exportToPdf }       from '../../utils/pdf'
-import useResumeStore        from '../../store/useResumeStore'
-import PageComposer          from './PageComposer'
-import { PAGE_WIDTH }        from './PageContainer'
+import { TemplateRenderer, CoverLetterRenderer } from '../../Templates'
+import { exportToPdf } from '../../utils/pdf'
+import useResumeStore from '../../store/useResumeStore'
+import PageComposer from './PageComposer'
 import '../../design/textures/desk.css'
 
 const ZOOM_MIN = 0.5
@@ -17,23 +12,19 @@ const ZOOM_STEP = 0.25
 const ZOOM_FIT = -1
 
 export default function PreviewPanel() {
-  const data          = useResumeStore((s) => s.data)
-  const cl            = useResumeStore((s) => s.cl)
-  const activeView    = useResumeStore((s) => s.activeView)
+  const data = useResumeStore((s) => s.data)
+  const cl = useResumeStore((s) => s.cl)
+  const activeView = useResumeStore((s) => s.activeView)
   const setActiveView = useResumeStore((s) => s.setActiveView)
   const [zoom, setZoom] = useState<number>(ZOOM_FIT)
   const scrollRef = useRef<HTMLDivElement>(null)
 
-  const t = getTemplate(data.template)
-
   const handleExport = () => exportToPdf(data.personal.name || 'resume')
 
   const resumeContent = useMemo(() => {
-    if (activeView === 'cover') return <CoverLetterTemplate resume={data} cl={cl} />
-    if (t.layout === 'ats')    return <ATSTemplate data={data} />
-    if (t.layout === 'two-col') return <TwoColumnTemplate data={data} />
-    return <SingleColumnTemplate data={data} />
-  }, [activeView, data, cl, t.layout])
+    if (activeView === 'cover') return <CoverLetterRenderer resume={data} cl={cl} />
+    return <TemplateRenderer data={data} />
+  }, [activeView, data, cl])
 
   const zoomPercent = zoom === ZOOM_FIT ? 100 : Math.round(zoom * 100)
 
@@ -44,9 +35,7 @@ export default function PreviewPanel() {
 
   return (
     <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-paper">
-      {/* Toolbar */}
       <div className="flex min-h-12 flex-wrap items-center gap-2 border-b border-warm-border bg-paper-warm px-3 py-2 sm:flex-nowrap">
-        {/* View switcher */}
         <div className="flex gap-0.5 rounded-lg border border-warm-border bg-paper p-0.5 shadow-soft">
           <button
             onClick={() => setActiveView('resume')}
@@ -72,7 +61,6 @@ export default function PreviewPanel() {
           </button>
         </div>
 
-        {/* Zoom controls */}
         <div className="flex items-center gap-2">
           <button
             onClick={() => setZoom(ZOOM_FIT)}
@@ -109,11 +97,7 @@ export default function PreviewPanel() {
         </button>
       </div>
 
-      {/* Preview with desk texture */}
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-auto desk-surface p-4 sm:p-6"
-      >
+      <div ref={scrollRef} className="flex-1 overflow-auto desk-surface p-4 sm:p-6">
         <div
           className="transition-transform duration-300 ease-out-expo origin-top"
           style={{

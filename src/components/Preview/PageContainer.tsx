@@ -1,7 +1,5 @@
 import { type ReactNode } from 'react'
-
-export const PAGE_WIDTH = 794
-export const PAGE_HEIGHT = 1123
+import { PAGE_WIDTH, PAGE_HEIGHT } from '../../Templates/theme'
 
 type PageContainerProps = {
   pageNumber: number

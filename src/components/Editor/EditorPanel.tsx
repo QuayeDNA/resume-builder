@@ -1,3 +1,4 @@
+import { Undo2, Redo2 } from 'lucide-react'
 import useResumeStore from '../../store/useResumeStore'
 import Card from '../UI/Card'
 import PersonalSection       from './PersonalSection'
@@ -75,7 +76,27 @@ export default function EditorPanel() {
   return (
     <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden border-r border-warm-border bg-paper lg:h-full lg:max-h-none lg:w-full lg:max-w-[24rem] xl:max-w-[26rem]">
       <div className="flex-shrink-0 border-b border-warm-border bg-paper-warm px-4 py-3">
-        <h2 className="text-heading text-ink font-display font-semibold">Editor</h2>
+        <div className="flex items-center justify-between">
+          <h2 className="text-heading text-ink font-display font-semibold">Editor</h2>
+          <div className="flex gap-1">
+            <button
+              onClick={() => useResumeStore.getState().undo()}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-muted hover:bg-paper-deep hover:text-ink transition-colors"
+              aria-label="Undo (Ctrl+Z)"
+              title="Undo (Ctrl+Z)"
+            >
+              <Undo2 size={14} />
+            </button>
+            <button
+              onClick={() => useResumeStore.getState().redo()}
+              className="flex h-7 w-7 items-center justify-center rounded-lg text-ink-muted hover:bg-paper-deep hover:text-ink transition-colors"
+              aria-label="Redo (Ctrl+Shift+Z)"
+              title="Redo (Ctrl+Shift+Z)"
+            >
+              <Redo2 size={14} />
+            </button>
+          </div>
+        </div>
         <p className="text-caption text-ink-muted mt-0.5">Build your resume section by section</p>
       </div>
 

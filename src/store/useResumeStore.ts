@@ -15,6 +15,8 @@ import type {
   CustomSectionEntry,
 } from '../types'
 
+type HistoryEntry = { data: ResumeData; cl: CoverLetterData }
+
 type StoredData = {
   data: ResumeData
   cl: CoverLetterData
@@ -28,6 +30,11 @@ interface ResumeStore {
   activeView: ActiveView
   activeSection: string
   savedAt: number | null
+  undoStack: HistoryEntry[]
+  redoStack: HistoryEntry[]
+
+  undo: () => void
+  redo: () => void
 
   updatePersonal: <K extends keyof PersonalInfo>(field: K, value: PersonalInfo[K]) => void
   addExperience: () => void
@@ -59,6 +66,7 @@ interface ResumeStore {
   updateLanguage: <K extends keyof LanguageEntry>(id: number, field: K, value: LanguageEntry[K]) => void
   reorderLanguage: (from: number, to: number) => void
   setTemplate: (templateKey: string) => void
+  setAtsMode: (atsMode: boolean) => void
   updateCoverLetter: <K extends keyof CoverLetterData>(field: K, value: CoverLetterData[K]) => void
   setActiveView: (view: ActiveView) => void
   setActiveSection: (section: string) => void
@@ -80,7 +88,12 @@ interface ResumeStore {
   reorderNavSection: (from: number, to: number) => void
 }
 
+const MAX_HISTORY = 50
+
 const stored: StoredData = loadResumeFromStorage()
+
+let isUndoingOrRedoing = false
+let isPushingHistory = false
 
 const useResumeStore = create<ResumeStore>((set, get) => ({
   data: stored?.data ?? DEFAULT_RESUME,
@@ -89,6 +102,36 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
   activeView: 'resume',
   activeSection: 'personal',
   savedAt: stored?.savedAt ?? null,
+  undoStack: [],
+  redoStack: [],
+
+  undo: () => {
+    const { undoStack, redoStack, data, cl } = get()
+    if (undoStack.length === 0) return
+    const entry = undoStack[undoStack.length - 1]
+    isUndoingOrRedoing = true
+    set({
+      data: entry.data,
+      cl: entry.cl,
+      undoStack: undoStack.slice(0, -1),
+      redoStack: [...redoStack, { data, cl }],
+    })
+    isUndoingOrRedoing = false
+  },
+
+  redo: () => {
+    const { undoStack, redoStack, data, cl } = get()
+    if (redoStack.length === 0) return
+    const entry = redoStack[redoStack.length - 1]
+    isUndoingOrRedoing = true
+    set({
+      data: entry.data,
+      cl: entry.cl,
+      redoStack: redoStack.slice(0, -1),
+      undoStack: [...undoStack, { data, cl }],
+    })
+    isUndoingOrRedoing = false
+  },
 
   updatePersonal: (field, value) =>
     set((s) => ({ data: { ...s.data, personal: { ...s.data.personal, [field]: value } } })),
@@ -265,6 +308,9 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
   setTemplate: (templateKey) =>
     set((s) => ({ data: { ...s.data, template: templateKey } })),
 
+  setAtsMode: (atsMode) =>
+    set((s) => ({ data: { ...s.data, atsMode } })),
+
   updateCoverLetter: (field, value) =>
     set((s) => ({ cl: { ...s.cl, [field]: value } })),
 
@@ -403,5 +449,23 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
       return { data: { ...s.data, sectionOrder: arr } }
     }),
 }))
+
+/* ─── Auto-history: push snapshot to undoStack on every data/cl mutation ─── */
+
+let prevSnapshot: HistoryEntry | null = null
+
+useResumeStore.subscribe((state) => {
+  if (isUndoingOrRedoing || isPushingHistory) return
+  if (prevSnapshot && (state.data !== prevSnapshot.data || state.cl !== prevSnapshot.cl)) {
+    isPushingHistory = true
+    const s = useResumeStore.getState()
+    useResumeStore.setState({
+      undoStack: [...s.undoStack.slice(-(MAX_HISTORY - 1)), prevSnapshot],
+      redoStack: [],
+    })
+    isPushingHistory = false
+  }
+  prevSnapshot = { data: state.data, cl: state.cl }
+})
 
 export default useResumeStore
