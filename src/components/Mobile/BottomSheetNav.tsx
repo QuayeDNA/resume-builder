@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { FileText, X, User, Briefcase, GraduationCap, Wrench, FolderOpen, Award, Languages, Palette, Mail, Save, Settings } from 'lucide-react'
+import { FileText, X, User, Briefcase, GraduationCap, Wrench, FolderOpen, Award, Languages, Palette, Mail, Save } from 'lucide-react'
 import useResumeStore from '../../store/useResumeStore'
 import { BUILTIN_SECTION_IDS } from '../../types'
 import type { LucideIcon } from 'lucide-react'
@@ -18,7 +18,6 @@ const TOOL_ITEMS: { id: string; icon: LucideIcon; label: string }[] = [
   { id: 'templates',    icon: Palette,  label: 'Templates' },
   { id: 'coverletter',  icon: Mail,     label: 'Cover' },
   { id: 'saved',        icon: Save,     label: 'Saved' },
-  { id: 'settings',     icon: Settings, label: 'Settings' },
 ]
 
 const SECTION_LABELS: Record<string, string> = {

@@ -8,6 +8,7 @@ import PreviewPanel from './components/Preview/PreviewPanel'
 import SplashScreen from './components/SplashScreen'
 import BottomSheetNav from './components/Mobile/BottomSheetNav'
 import ExportDialog from './components/Export/ExportDialog'
+import UserSettingsDialog from './components/UserSettingsDialog'
 import useResumeStore from './store/useResumeStore'
 
 let splashCheckDone = false
@@ -76,6 +77,7 @@ export default function App() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
   const [showSplash, setShowSplash] = useState(true)
   const [mobileView, setMobileView] = useState<MobileTabId>('edit')
+  const [userSettingsOpen, setUserSettingsOpen] = useState(false)
 
   useEffect(() => {
     if (splashCheckDone) return
@@ -113,6 +115,7 @@ export default function App() {
       {showSplash && <SplashScreen onDismiss={handleSplashDismiss} />}
 
       <ExportDialog open={exportDialogOpen} onClose={() => setExportDialogOpen(false)} />
+      <UserSettingsDialog open={userSettingsOpen} onClose={() => setUserSettingsOpen(false)} />
 
       {/* Grain overlay */}
       <div className="grain-overlay" />
@@ -128,7 +131,7 @@ export default function App() {
         <BottomSheetNav open={mobileNavOpen} onClose={() => setMobileNavOpen(false)} />
 
         <div className="hidden border-r border-warm-border md:block">
-          <SideNav />
+          <SideNav onProfileClick={() => setUserSettingsOpen(true)} />
         </div>
 
         {/* Mobile: single panel, tab-switched */}

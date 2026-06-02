@@ -1,4 +1,4 @@
-import { FileText, Palette, Mail, Save, Settings, FileDown, Sliders, User, Target, LogIn, Sparkles } from 'lucide-react'
+import { FileText, Palette, Mail, Save, Sliders, User, Target, LogIn } from 'lucide-react'
 import useResumeStore from '../../store/useResumeStore'
 import useAuthStore from '../../store/useAuthStore'
 import type { LucideIcon } from 'lucide-react'
@@ -10,7 +10,6 @@ const NAV_ITEMS: { id: string; icon: LucideIcon; label: string }[] = [
   { id: 'customize',    icon: Sliders,    label: 'Customize' },
   { id: 'jobmatch',     icon: Target,     label: 'Match' },
   { id: 'saved',        icon: Save,       label: 'Saved' },
-  { id: 'settings',     icon: Settings,   label: 'Settings' },
 ]
 
 function NavButton({ id, icon: Icon, label, isActive, onClick }: {
@@ -44,15 +43,16 @@ function NavButton({ id, icon: Icon, label, isActive, onClick }: {
   )
 }
 
-export default function SideNav() {
+type SideNavProps = {
+  onProfileClick?: () => void
+}
+
+export default function SideNav({ onProfileClick }: SideNavProps) {
   const activeSection = useResumeStore((s) => s.activeSection)
   const setActiveSection = useResumeStore((s) => s.setActiveSection)
   const savedAt = useResumeStore((s) => s.savedAt)
-  const setExportDialogOpen = useResumeStore((s) => s.setExportDialogOpen)
 
-  const { user, subscriptionTier, signOut } = useAuthStore()
-
-  const handleExport = () => setExportDialogOpen(true)
+  const { user } = useAuthStore()
 
   const handleNavClick = (id: string) => {
     setActiveSection(id)
@@ -92,50 +92,19 @@ export default function SideNav() {
         </div>
       )}
 
-      {/* Export button */}
-      <button
-        onClick={handleExport}
-        aria-label="Export as PDF"
-        className="group relative flex w-16 flex-col items-center justify-center gap-1 rounded-xl border-2 border-sage/40 bg-sage-dim px-2 py-2 text-sage transition-all duration-200 hover:scale-105 hover:border-sage/60 hover:shadow-soft active:scale-95"
-      >
-        <FileDown size={18} strokeWidth={1.5} className="transition-transform duration-200 group-hover:scale-110" />
-        <span className="text-[9px] font-medium leading-none tracking-wide">Export</span>
-      </button>
-
-      {/* Divider */}
-      <div className="h-px w-8 bg-gradient-to-r from-transparent via-warm-border to-transparent" />
-
       {/* Auth section */}
       {user ? (
-        <div className="flex flex-col items-center gap-1 px-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-paper-deep border border-warm-border-strong text-ink-muted overflow-hidden">
-            {user.user_metadata?.avatar_url ? (
-              <img src={user.user_metadata.avatar_url} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <User size={16} />
-            )}
-          </div>
-          {user.email && (
-            <span className="text-[8px] text-ink-muted truncate max-w-[72px] text-center leading-tight">
-              {user.email.split('@')[0]}
-            </span>
+        <button
+          onClick={onProfileClick}
+          aria-label="Open user settings"
+          className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-transparent bg-paper-deep text-ink-muted overflow-hidden transition-all duration-200 hover:border-terracotta/40 hover:shadow-soft focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:ring-offset-2 focus-visible:ring-offset-paper"
+        >
+          {user.user_metadata?.avatar_url ? (
+            <img src={user.user_metadata.avatar_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <User size={16} />
           )}
-          {subscriptionTier === 'free' && (
-            <a
-              href="/pricing"
-              className="inline-flex items-center gap-0.5 rounded-full bg-sage-dim px-2 py-0.5 text-[8px] font-medium text-sage hover:bg-sage/20 transition-colors"
-            >
-              <Sparkles size={8} />
-              Upgrade
-            </a>
-          )}
-          <button
-            onClick={signOut}
-            className="text-[7px] text-ink-muted/40 hover:text-ink-muted transition-colors"
-          >
-            Sign out
-          </button>
-        </div>
+        </button>
       ) : (
         <a
           href="/login"
