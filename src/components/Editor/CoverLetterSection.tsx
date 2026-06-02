@@ -13,7 +13,7 @@ export default function CoverLetterSection() {
   const { run, isLoading } = useAi()
 
   const handleGenerate = () =>
-    run(
+    run<string>(
       'cover',
       () =>
         aiGenerateCoverLetter({
@@ -27,7 +27,7 @@ export default function CoverLetterSection() {
           tone:       cl.tone,
         }),
       (v) => {
-        updateCL('body', v as string)
+        updateCL('body', v)
         setActiveView('cover')
       },
     )

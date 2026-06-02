@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 import CardBase from '../../design/components/Card'
 
 type CardProps = {
-  title: string
+  title?: string
   children: ReactNode
   defaultOpen?: boolean
   className?: string

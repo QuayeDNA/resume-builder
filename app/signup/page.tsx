@@ -1,29 +1,32 @@
-import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
-import { FileText } from 'lucide-react'
-import { Input } from '../design/components/Field'
-import Button from '../design/components/Button'
+'use client'
 
-export default function LoginPage() {
-  const navigate = useNavigate()
+import { useState } from 'react'
+import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { supabase } from '../../src/lib/supabase'
+import { FileText } from 'lucide-react'
+import { Input } from '../../src/design/components/Field'
+import Button from '../../src/design/components/Button'
+
+export default function SignupPage() {
+  const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
     setLoading(true)
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    const { error } = await supabase.auth.signUp({ email, password })
     if (error) {
       setError(error.message)
       setLoading(false)
       return
     }
-    navigate('/')
+    router.push('/')
   }
 
   return (
@@ -35,11 +38,11 @@ export default function LoginPage() {
               <FileText size={24} className="text-terracotta" />
             </div>
           </div>
-          <h1 className="font-display text-2xl font-bold text-ink">Welcome back</h1>
-          <p className="mt-1 text-body text-ink-soft">Sign in to your account</p>
+          <h1 className="font-display text-2xl font-bold text-ink">Create an account</h1>
+          <p className="mt-1 text-body text-ink-soft">Start building your resume</p>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleSignup} className="space-y-4">
           <div>
             <label className="mb-1.5 block text-label text-ink-muted">Email</label>
             <Input
@@ -55,7 +58,7 @@ export default function LoginPage() {
               type="password"
               value={password}
               onChange={(v) => setPassword(v as string)}
-              placeholder="Enter your password"
+              placeholder="At least 6 characters"
             />
           </div>
 
@@ -64,14 +67,14 @@ export default function LoginPage() {
           )}
 
           <Button type="submit" size="full" loading={loading}>
-            {loading ? 'Signing in…' : 'Sign in'}
+            {loading ? 'Creating account…' : 'Create account'}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-caption text-ink-muted">
-          Don&apos;t have an account?{' '}
-          <Link to="/signup" className="text-terracotta hover:text-terracotta/80 font-medium">
-            Sign up
+          Already have an account?{' '}
+          <Link href="/login" className="text-terracotta hover:text-terracotta/80 font-medium">
+            Sign in
           </Link>
         </p>
       </div>

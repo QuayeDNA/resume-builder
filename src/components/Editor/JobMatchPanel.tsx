@@ -17,7 +17,7 @@ export default function JobMatchPanel() {
 
   const handleAnalyze = () => {
     if (!jobDescription.trim()) return
-    run('jobmatch', () => aiAnalyzeJobMatch(data, jobDescription), (v) => setResult(v as JobMatchResult))
+    run<JobMatchResult>('jobmatch', () => aiAnalyzeJobMatch(data, jobDescription), (v) => setResult(v))
   }
 
   const scoreColor = result

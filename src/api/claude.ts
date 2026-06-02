@@ -1,11 +1,11 @@
 import type { ExperienceEntry } from '../types'
 
-const IS_DEV = (import.meta as Record<string, any>).env.DEV
+const IS_DEV = process.env.NODE_ENV === 'development'
 const API_URL = IS_DEV
   ? 'https://api.anthropic.com/v1/messages'
   : '/api/claude'
 
-const DEV_KEY: string = (import.meta as Record<string, any>).env.VITE_ANTHROPIC_API_KEY || ''
+const DEV_KEY: string = process.env.NEXT_PUBLIC_ANTHROPIC_API_KEY || ''
 
 export async function callClaude(userPrompt: string, systemPrompt = '', maxTokens = 1000): Promise<string> {
   try {

@@ -9,8 +9,8 @@ export default function PersonalSection() {
   const { run, isLoading } = useAi()
 
   const handleImproveSummary = () =>
-    run('summary', () => aiImproveSummary(personal.summary, personal.title), (v) =>
-      updatePersonal('summary', v as string),
+    run<string>('summary', () => aiImproveSummary(personal.summary, personal.title), (v) =>
+      updatePersonal('summary', v),
     )
 
   return (

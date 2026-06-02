@@ -1,7 +1,7 @@
-const GROQ_MODEL = (import.meta as Record<string, any>).env.VITE_GROQ_MODEL || 'llama-3.1-8b-instant'
-const HF_MODEL = (import.meta as Record<string, any>).env.VITE_HF_MODEL || 'HuggingFaceH4/zephyr-7b-beta'
-const GROQ_KEY: string = (import.meta as Record<string, any>).env.VITE_GROQ_API_KEY || ''
-const HF_TOKEN: string = (import.meta as Record<string, any>).env.VITE_HF_TOKEN || (import.meta as Record<string, any>).env.VITE_HUGGINGFACE_API_KEY || ''
+const GROQ_MODEL = process.env.NEXT_PUBLIC_GROQ_MODEL || 'llama-3.1-8b-instant'
+const HF_MODEL = process.env.NEXT_PUBLIC_HF_MODEL || 'HuggingFaceH4/zephyr-7b-beta'
+const GROQ_KEY: string = process.env.NEXT_PUBLIC_GROQ_API_KEY || ''
+const HF_TOKEN: string = process.env.NEXT_PUBLIC_HF_TOKEN || ''
 
 let lastProvider: string | null = null
 
@@ -40,7 +40,7 @@ export async function callFreeAI(userPrompt: string, systemPrompt = '', maxToken
 
 async function callGroq(userPrompt: string, systemPrompt: string, maxTokens: number): Promise<string> {
   if (!GROQ_KEY) {
-    throw new Error('Groq token missing. Set VITE_GROQ_API_KEY in .env.local')
+    throw new Error('Groq token missing. Set NEXT_PUBLIC_GROQ_API_KEY in .env.local')
   }
 
   const messages: { role: string; content: string }[] = []
@@ -74,7 +74,7 @@ async function callGroq(userPrompt: string, systemPrompt: string, maxTokens: num
 
 async function callHuggingFace(userPrompt: string, systemPrompt: string, maxTokens: number): Promise<string> {
   if (!HF_TOKEN) {
-    throw new Error('Hugging Face token missing. Set VITE_HF_TOKEN in .env.local')
+    throw new Error('Hugging Face token missing. Set NEXT_PUBLIC_HF_TOKEN in .env.local')
   }
 
   const prompt = systemPrompt

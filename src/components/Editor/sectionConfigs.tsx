@@ -130,7 +130,7 @@ function BulletRow({ bullet, expId, idx }: { bullet: string; expId: number; idx:
         />
         <div className="flex flex-col gap-1 flex-shrink-0">
           <IconButton
-            onClick={() => run(key, () => aiImproveBullet(bullet, exp?.role || '', exp?.company || ''), (v) => updateBullet(expId, idx, v as string))}
+            onClick={() => run<string>(key, () => aiImproveBullet(bullet, exp?.role || '', exp?.company || ''), (v) => updateBullet(expId, idx, v))}
             disabled={isLoading(key) || !bullet.trim()}
             title="AI improve this bullet"
             variant="ghost" size="sm"
@@ -169,7 +169,7 @@ function ExperienceBullets({ entry }: { entry: ExperienceEntry }) {
           + Bullet
         </Button>
         <Button
-          onClick={() => run(suggestKey, () => aiSuggestBullets(entry.role, entry.company), (bullets) => appendBullets(entry.id, bullets as string[]))}
+          onClick={() => run<string[]>(suggestKey, () => aiSuggestBullets(entry.role, entry.company), (bullets) => appendBullets(entry.id, bullets))}
           variant="ghost" size="sm"
           loading={isLoading(suggestKey)}
           icon={!isLoading(suggestKey) && <Sparkles size={10} />}

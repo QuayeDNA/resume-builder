@@ -7,7 +7,7 @@ type LoadingState = Record<string, boolean>
 export function useAi() {
   const [loading, setLoading] = useState<LoadingState>({})
 
-  const run = useCallback(async (key: string, asyncFn: () => Promise<string | string[]>, onSuccess: (result: string | string[]) => void) => {
+  const run = useCallback(async <T>(key: string, asyncFn: () => Promise<T>, onSuccess: (result: T) => void) => {
     setLoading((l) => ({ ...l, [key]: true }))
     try {
       const result = await asyncFn()

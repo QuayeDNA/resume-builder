@@ -23,7 +23,7 @@ export default function AtsChecker() {
   const run = () => setResult(calculateAtsScore(data))
 
   const handleAiSuggest = () =>
-    runAi('atsai', () => aiAtsSuggestions(data), (v) => setAiResult(v as AtsAiResult))
+    runAi<AtsAiResult>('atsai', () => aiAtsSuggestions(data), (v) => setAiResult(v))
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)

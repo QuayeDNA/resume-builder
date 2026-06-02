@@ -4,7 +4,7 @@ import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react'
 import { cn } from '../../utils/classNames'
 
 type CardProps = {
-  title: string
+  title?: string
   children: ReactNode
   defaultOpen?: boolean
   className?: string
@@ -33,7 +33,7 @@ export default function Card({ title, children, defaultOpen = true, className, h
           {dragHandle && (
             <GripVertical size={14} className="text-ink-muted cursor-grab active:cursor-grabbing" />
           )}
-          <h3 className="text-subheading text-ink font-medium">{title}</h3>
+          {title && <h3 className="text-subheading text-ink font-medium">{title}</h3>}
         </div>
         <div className="flex items-center gap-2">
           {headerRight}

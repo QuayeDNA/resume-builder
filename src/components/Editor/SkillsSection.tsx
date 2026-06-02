@@ -14,9 +14,8 @@ export default function SkillsSection() {
   const { run, isLoading } = useAi()
 
   const handleSuggest = () =>
-    run('skills', () => aiSuggestSkills(personal.title, skills), async (suggested) => {
-      const arr = Array.isArray(suggested) ? suggested : suggested.split(',').map((s: string) => s.trim()).filter(Boolean)
-      const newSkills = arr.filter((s: string) => !skills.includes(s))
+    run<string[]>('skills', () => aiSuggestSkills(personal.title, skills), async (suggested) => {
+      const newSkills = suggested.filter((s: string) => !skills.includes(s))
       if (newSkills.length === 0) {
         toast('No new skills to add!')
         return

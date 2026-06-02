@@ -1,5 +1,6 @@
-import { FileText, Palette, Mail, Save, Settings, FileDown, Sliders, User, Target } from 'lucide-react'
+import { FileText, Palette, Mail, Save, Settings, FileDown, Sliders, User, Target, LogIn, Sparkles } from 'lucide-react'
 import useResumeStore from '../../store/useResumeStore'
+import useAuthStore from '../../store/useAuthStore'
 import type { LucideIcon } from 'lucide-react'
 
 const NAV_ITEMS: { id: string; icon: LucideIcon; label: string }[] = [
@@ -46,10 +47,9 @@ export default function SideNav() {
   const activeSection = useResumeStore((s) => s.activeSection)
   const setActiveSection = useResumeStore((s) => s.setActiveSection)
   const savedAt = useResumeStore((s) => s.savedAt)
-  const data = useResumeStore((s) => s.data)
-  const user = useResumeStore((s) => (s as any).user) as { email?: string } | null
-
   const setExportDialogOpen = useResumeStore((s) => s.setExportDialogOpen)
+
+  const { user, subscriptionTier, signOut } = useAuthStore()
 
   const handleExport = () => setExportDialogOpen(true)
 
@@ -104,17 +104,46 @@ export default function SideNav() {
       {/* Divider */}
       <div className="h-px w-8 bg-gradient-to-r from-transparent via-warm-border to-transparent" />
 
-      {/* User profile */}
-      <div className="flex flex-col items-center gap-1 px-2">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-paper-deep border border-warm-border-strong text-ink-muted">
-          <User size={16} />
+      {/* Auth section */}
+      {user ? (
+        <div className="flex flex-col items-center gap-1 px-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-full bg-paper-deep border border-warm-border-strong text-ink-muted overflow-hidden">
+            {user.user_metadata?.avatar_url ? (
+              <img src={user.user_metadata.avatar_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <User size={16} />
+            )}
+          </div>
+          {user.email && (
+            <span className="text-[8px] text-ink-muted truncate max-w-[72px] text-center leading-tight">
+              {user.email.split('@')[0]}
+            </span>
+          )}
+          {subscriptionTier === 'free' && (
+            <a
+              href="/pricing"
+              className="inline-flex items-center gap-0.5 rounded-full bg-sage-dim px-2 py-0.5 text-[8px] font-medium text-sage hover:bg-sage/20 transition-colors"
+            >
+              <Sparkles size={8} />
+              Upgrade
+            </a>
+          )}
+          <button
+            onClick={signOut}
+            className="text-[7px] text-ink-muted/40 hover:text-ink-muted transition-colors"
+          >
+            Sign out
+          </button>
         </div>
-        {user?.email && (
-          <span className="text-[8px] text-ink-muted truncate max-w-[72px] text-center leading-tight">
-            {user.email.split('@')[0]}
-          </span>
-        )}
-      </div>
+      ) : (
+        <a
+          href="/login"
+          className="group relative flex w-16 flex-col items-center justify-center gap-1 rounded-xl border-2 border-transparent px-2 py-2 text-ink-muted transition-all duration-200 hover:border-terracotta/30 hover:bg-terracotta-dim/60 hover:text-terracotta"
+        >
+          <LogIn size={18} strokeWidth={1.5} className="transition-transform duration-200 group-hover:scale-110" />
+          <span className="text-[9px] font-medium leading-none tracking-wide">Sign in</span>
+        </a>
+      )}
     </nav>
   )
 }
