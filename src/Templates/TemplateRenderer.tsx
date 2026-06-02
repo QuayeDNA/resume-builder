@@ -18,6 +18,7 @@ export default function TemplateRenderer({ data }: { data: ResumeData }) {
   if (!def) return null
 
   const theme = data.atsMode ? mergeWithATS(def.theme) : def.theme
+  const hidden = data.hiddenSections || []
 
   if (theme.layout === 'two-col') {
     return (
@@ -26,18 +27,21 @@ export default function TemplateRenderer({ data }: { data: ResumeData }) {
         sidebar={
           <>
             <PersonalHeader data={data} theme={theme} variant="sidebar" />
-            {renderSkills(data.skills, theme)}
-            {renderLanguages(data.languages, theme)}
-            {renderCertifications(data.certifications, theme)}
+            {!hidden.includes('skills') && renderSkills(data.skills, theme)}
+            {!hidden.includes('languages') && renderLanguages(data.languages, theme)}
+            {!hidden.includes('certifications') && renderCertifications(data.certifications, theme)}
           </>
         }
         main={
           <>
-            {data.personal.summary && renderSummary(data.personal.summary, theme)}
-            {renderExperience(data.experience, theme)}
-            {renderEducation(data.education, theme)}
-            {renderProjects(data.projects, theme)}
-            {renderCustomSections(data.customSections, theme)}
+            {!hidden.includes('personal') && data.personal.summary && renderSummary(data.personal.summary, theme)}
+            {!hidden.includes('experience') && renderExperience(data.experience, theme)}
+            {!hidden.includes('education') && renderEducation(data.education, theme)}
+            {!hidden.includes('projects') && renderProjects(data.projects, theme)}
+            {renderCustomSections(
+              data.customSections.filter((cs) => !hidden.includes(`custom_${cs.id}`)),
+              theme,
+            )}
           </>
         }
       />
@@ -47,34 +51,35 @@ export default function TemplateRenderer({ data }: { data: ResumeData }) {
   return (
     <SingleColumnLayout theme={theme}>
       <PersonalHeader data={data} theme={theme} variant={data.atsMode ? 'ats' : 'full'} />
-      {data.personal.summary && (
+      {!hidden.includes('personal') && data.personal.summary && (
         data.atsMode ? (
           <section>
             {renderSummary(data.personal.summary, { ...theme, layout: 'single' })}
           </section>
         ) : (
-          data.personal.summary && (
-            <p
-              style={{
-                fontSize: theme.fontSize.body,
-                color: '#333333',
-                marginTop: '-6px',
-                marginBottom: '12px',
-                lineHeight: '1.65',
-              }}
-            >
-              &ldquo;{data.personal.summary}&rdquo;
-            </p>
-          )
+          <p
+            style={{
+              fontSize: theme.fontSize.body,
+              color: '#333333',
+              marginTop: '-6px',
+              marginBottom: '12px',
+              lineHeight: '1.65',
+            }}
+          >
+            &ldquo;{data.personal.summary}&rdquo;
+          </p>
         )
       )}
-      {renderExperience(data.experience, theme)}
-      {renderEducation(data.education, theme)}
-      {renderSkills(data.skills, theme)}
-      {renderProjects(data.projects, theme)}
-      {renderCertifications(data.certifications, theme)}
-      {renderLanguages(data.languages, theme)}
-      {renderCustomSections(data.customSections, theme)}
+      {!hidden.includes('experience') && renderExperience(data.experience, theme)}
+      {!hidden.includes('education') && renderEducation(data.education, theme)}
+      {!hidden.includes('skills') && renderSkills(data.skills, theme)}
+      {!hidden.includes('projects') && renderProjects(data.projects, theme)}
+      {!hidden.includes('certifications') && renderCertifications(data.certifications, theme)}
+      {!hidden.includes('languages') && renderLanguages(data.languages, theme)}
+      {renderCustomSections(
+        data.customSections.filter((cs) => !hidden.includes(`custom_${cs.id}`)),
+        theme,
+      )}
     </SingleColumnLayout>
   )
 }

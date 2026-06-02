@@ -1,8 +1,9 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useRef } from 'react'
 import { Sparkles, Loader2, X } from 'lucide-react'
 import { Input, Button, IconButton } from '../UI'
 import SortableList from '../SortableList'
 import SectionEntryList from './SectionEntryList'
+import BulletFormatToolbar from './BulletFormatToolbar'
 import type { FieldConfig } from './SectionEntryList'
 import { useAi } from '../../hooks/useAi'
 import { aiImproveBullet, aiSuggestBullets } from '../../api/ai'
@@ -113,28 +114,33 @@ function BulletRow({ bullet, expId, idx }: { bullet: string; expId: number; idx:
   const exp = useResumeStore((s) => s.data.experience.find((e) => e.id === expId))
   const { run, isLoading } = useAi()
   const key = `b_${expId}_${idx}`
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   return (
-    <div className="flex gap-1.5 items-start">
-      <textarea
-        value={bullet}
-        onChange={(e) => updateBullet(expId, idx, e.target.value)}
-        placeholder="Achieved X by doing Y, resulting in Z…"
-        rows={2}
-        className="flex-1 bg-white border border-warm-border-strong rounded-lg px-2.5 py-1.5 text-body text-ink resize-y placeholder:text-ink-muted/60 transition-all duration-200 focus:border-terracotta focus:ring-2 focus:ring-terracotta-dim focus:outline-none"
-      />
-      <div className="flex flex-col gap-1 flex-shrink-0">
-        <IconButton
-          onClick={() => run(key, () => aiImproveBullet(bullet, exp?.role || '', exp?.company || ''), (v) => updateBullet(expId, idx, v as string))}
-          disabled={isLoading(key) || !bullet.trim()}
-          title="AI improve this bullet"
-          variant="ghost" size="sm"
-        >
-          {isLoading(key) ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
-        </IconButton>
-        <IconButton onClick={() => removeBullet(expId, idx)} title="Remove bullet" variant="danger" size="sm">
-          <X size={10} />
-        </IconButton>
+    <div>
+      <BulletFormatToolbar textareaRef={textareaRef as React.RefObject<HTMLTextAreaElement | null>} onUpdate={(v) => updateBullet(expId, idx, v)} />
+      <div className="flex gap-1.5 items-start">
+        <textarea
+          ref={textareaRef}
+          value={bullet}
+          onChange={(e) => updateBullet(expId, idx, e.target.value)}
+          placeholder="Achieved X by doing Y, resulting in Z…"
+          rows={2}
+          className="flex-1 bg-white border border-warm-border-strong rounded-lg px-2.5 py-1.5 text-body text-ink resize-y placeholder:text-ink-muted/60 transition-all duration-200 focus:border-terracotta focus:ring-2 focus:ring-terracotta-dim focus:outline-none"
+        />
+        <div className="flex flex-col gap-1 flex-shrink-0">
+          <IconButton
+            onClick={() => run(key, () => aiImproveBullet(bullet, exp?.role || '', exp?.company || ''), (v) => updateBullet(expId, idx, v as string))}
+            disabled={isLoading(key) || !bullet.trim()}
+            title="AI improve this bullet"
+            variant="ghost" size="sm"
+          >
+            {isLoading(key) ? <Loader2 size={10} className="animate-spin" /> : <Sparkles size={10} />}
+          </IconButton>
+          <IconButton onClick={() => removeBullet(expId, idx)} title="Remove bullet" variant="danger" size="sm">
+            <X size={10} />
+          </IconButton>
+        </div>
       </div>
     </div>
   )

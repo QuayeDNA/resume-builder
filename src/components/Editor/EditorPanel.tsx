@@ -1,4 +1,4 @@
-import { Undo2, Redo2 } from 'lucide-react'
+import { Undo2, Redo2, Eye, EyeOff } from 'lucide-react'
 import useResumeStore from '../../store/useResumeStore'
 import Card from '../UI/Card'
 import PersonalSection       from './PersonalSection'
@@ -42,7 +42,9 @@ export default function EditorPanel() {
   const activeSection = useResumeStore((s) => s.activeSection)
   const data = useResumeStore((s) => s.data)
   const addCustomSection = useResumeStore((s) => s.addCustomSection)
+  const toggleSectionVisibility = useResumeStore((s) => s.toggleSectionVisibility)
   const sectionOrder = data.sectionOrder || BUILTIN_SECTION_IDS
+  const hiddenSections = data.hiddenSections || []
 
   if (SPECIAL_VIEWS[activeSection]) {
     const view = SPECIAL_VIEWS[activeSection]
@@ -101,15 +103,26 @@ export default function EditorPanel() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
-        {sectionOrder.map((section, index) => (
-          <div
-            key={section}
-            className="animate-fade-up"
-            style={{ animationDelay: `${index * 60}ms` }}
-          >
-            <SectionRenderer section={section} />
-          </div>
-        ))}
+        {sectionOrder.map((section, index) => {
+          const hidden = hiddenSections.includes(section)
+          return (
+            <div
+              key={section}
+              className={`animate-fade-up relative group ${hidden ? 'opacity-50' : ''}`}
+              style={{ animationDelay: `${index * 60}ms` }}
+            >
+              <button
+                onClick={() => toggleSectionVisibility(section)}
+                className="absolute top-2 right-2 z-10 flex h-6 w-6 items-center justify-center rounded-md bg-paper-warm/80 text-ink-muted opacity-0 group-hover:opacity-100 hover:bg-paper-deep hover:text-ink transition-all duration-150"
+                title={hidden ? 'Show in preview' : 'Hide from preview'}
+                aria-label={hidden ? 'Show in preview' : 'Hide from preview'}
+              >
+                {hidden ? <EyeOff size={12} /> : <Eye size={12} />}
+              </button>
+              <SectionRenderer section={section} />
+            </div>
+          )
+        })}
 
         <div className="animate-fade-up">
           <Card title="ATS Checker">

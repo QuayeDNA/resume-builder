@@ -1,6 +1,8 @@
 import type { TemplateTheme } from '../theme'
+import { renderBulletText } from '../../utils/bulletFormatting'
 
 export default function Bullet({ text, theme }: { text: string; theme: TemplateTheme }) {
+  const html = renderBulletText(text)
   switch (theme.bullet) {
     case 'dot':
       return (
@@ -26,19 +28,19 @@ export default function Bullet({ text, theme }: { text: string; theme: TemplateT
               display: 'inline-block',
             }}
           />
-          <span style={{ flex: 1 }}>{text}</span>
+          <span style={{ flex: 1 }} dangerouslySetInnerHTML={{ __html: html }} />
         </div>
       )
     case 'dash':
       return (
         <div style={{ marginTop: '3px', color: theme.colors.text, fontSize: theme.fontSize.body }}>
-          - {text}
+          - <span dangerouslySetInnerHTML={{ __html: html }} />
         </div>
       )
     case 'plain':
       return (
         <div style={{ marginTop: '3px', color: theme.colors.text, fontSize: theme.fontSize.body }}>
-          {text}
+          <span dangerouslySetInnerHTML={{ __html: html }} />
         </div>
       )
   }

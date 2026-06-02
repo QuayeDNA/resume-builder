@@ -55,12 +55,13 @@ The app is a functional single-page React/Vite resume builder with a warm tactil
 | Task | Status |
 |------|--------|
 | 2.1 Drag-and-Drop Reordering | ✅ Entries, bullets, nav sections |
-| 2.2 Undo/Redo System | ⏳ Pending |
-| 2.3 Rich Text for Bullets | ⏳ Pending |
-| 2.4 Section Visibility Toggle | ⏳ Pending |
+| 2.2 Undo/Redo System | ✅ Undo/redo stack + keyboard shortcuts + UI buttons |
+| 2.3 Rich Text for Bullets | ✅ Bold/Italic markdown, renderBulletText(), dangerouslySetInnerHTML, B/I toolbar |
+| 2.4 Section Visibility Toggle | ✅ hiddenSections, toggleSectionVisibility, filtered in TemplateRenderer, eye toggle UI |
 | 2.5 Custom Sections | ✅ CustomSectionEntry + dynamic sidebar |
-| 2.6 Enhanced Auto-Save | ⏳ Pending |
-| 2.7 Keyboard Shortcuts | ⏳ Pending |
+| 2.6 Enhanced Auto-Save | ✅ Debounced auto-save with localStorage |
+| 2.7 Keyboard Shortcuts | ✅ Ctrl+Z / Ctrl+Shift+Z undo/redo |
+| 2.8 Comprehensive ATS Enhancement | ✅ 50+ action verbs, bullet quality analysis, category scoring (Contact/Experience/Content/Skills/Education/Extras), keyword density extraction, actionable suggestions with Fix buttons, auto-check on data change (debounced 2s), expandable score breakdown, keyword chips |
 
 ---
 

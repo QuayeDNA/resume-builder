@@ -68,6 +68,7 @@ export const DEFAULT_RESUME: ResumeData = {
   sectionOrder: [...BUILTIN_SECTION_IDS],
   template: 'modern',
   atsMode: false,
+  hiddenSections: [],
 }
 
 export const DEFAULT_COVER_LETTER: CoverLetterData = {

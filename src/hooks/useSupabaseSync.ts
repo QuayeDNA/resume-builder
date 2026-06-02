@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useAuth } from './useAuth'
-import useResumeStore from '../store/useResumeStore'
+import useResumeStore, { migrateData } from '../store/useResumeStore'
 import { fetchResume, upsertResume } from '../lib/api/resumes'
 
 const SYNC_DEBOUNCE = 2000
@@ -23,7 +23,7 @@ export function useSupabaseSync() {
         const localSaved = store.savedAt ?? 0
 
         if (remoteUpdated > localSaved && localSaved > 0) {
-          useResumeStore.setState({ data: remote.data, cl: remote.cl ?? store.cl })
+          useResumeStore.setState({ data: migrateData(remote.data), cl: remote.cl ?? store.cl })
         }
       }
     })

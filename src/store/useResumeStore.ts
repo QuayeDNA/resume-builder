@@ -67,6 +67,7 @@ interface ResumeStore {
   reorderLanguage: (from: number, to: number) => void
   setTemplate: (templateKey: string) => void
   setAtsMode: (atsMode: boolean) => void
+  toggleSectionVisibility: (sectionId: string) => void
   updateCoverLetter: <K extends keyof CoverLetterData>(field: K, value: CoverLetterData[K]) => void
   setActiveView: (view: ActiveView) => void
   setActiveSection: (section: string) => void
@@ -90,13 +91,18 @@ interface ResumeStore {
 
 const MAX_HISTORY = 50
 
+/* ─── Data migration: merge stored data with defaults to fill missing fields ─── */
+export function migrateData(data: ResumeData): ResumeData {
+  return { ...DEFAULT_RESUME, ...data, hiddenSections: data.hiddenSections ?? [] }
+}
+
 const stored: StoredData = loadResumeFromStorage()
 
 let isUndoingOrRedoing = false
 let isPushingHistory = false
 
 const useResumeStore = create<ResumeStore>((set, get) => ({
-  data: stored?.data ?? DEFAULT_RESUME,
+  data: stored?.data ? migrateData(stored.data) : DEFAULT_RESUME,
   cl: stored?.cl ?? DEFAULT_COVER_LETTER,
   slots: loadSlotsFromStorage(),
   activeView: 'resume',
@@ -311,6 +317,20 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
   setAtsMode: (atsMode) =>
     set((s) => ({ data: { ...s.data, atsMode } })),
 
+  toggleSectionVisibility: (sectionId) =>
+    set((s) => {
+      const hidden = s.data.hiddenSections || []
+      const isHidden = hidden.includes(sectionId)
+      return {
+        data: {
+          ...s.data,
+          hiddenSections: isHidden
+            ? hidden.filter((id) => id !== sectionId)
+            : [...hidden, sectionId],
+        },
+      }
+    }),
+
   updateCoverLetter: (field, value) =>
     set((s) => ({ cl: { ...s.cl, [field]: value } })),
 
@@ -331,7 +351,7 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
   },
 
   loadFromSlot: (slot) => {
-    set({ data: slot.data, cl: slot.cl })
+    set({ data: migrateData(slot.data), cl: slot.cl })
   },
 
   deleteSlot: (id) => {
@@ -351,7 +371,7 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
   },
 
   loadFromJSON: (parsed) => {
-    if (parsed.data) set({ data: parsed.data })
+    if (parsed.data) set({ data: migrateData(parsed.data) })
     if (parsed.cl) set({ cl: parsed.cl })
   },
 

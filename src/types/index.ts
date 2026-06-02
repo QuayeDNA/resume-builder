@@ -67,6 +67,7 @@ export interface ResumeData {
   sectionOrder: string[]
   template: string
   atsMode: boolean
+  hiddenSections: string[]
 }
 
 export interface CoverLetterData {
@@ -89,6 +90,24 @@ export interface AtsResult {
   feedback: string[]
   verbCount: number
   metricCount: number
+  categoryScores: AtsCategoryScore[]
+  suggestions: AtsSuggestion[]
+  keywordDensity: Record<string, number>
+}
+
+export interface AtsCategoryScore {
+  category: string
+  label: string
+  score: number
+  maxScore: number
+  feedback: string[]
+}
+
+export interface AtsSuggestion {
+  section: string
+  field: string
+  message: string
+  action: 'add' | 'improve' | 'restructure'
 }
 
 export type ActiveView = 'resume' | 'cover'
