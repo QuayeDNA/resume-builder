@@ -23,7 +23,7 @@ function NavButton({ id, icon: Icon, label, isActive, onClick }: {
       key={id}
       onClick={onClick}
       aria-label={label}
-      className={`group relative flex w-20 flex-col items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-3 transition-all duration-200 ease-out-expo ${
+      className={`group relative flex w-16 flex-col items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-3 transition-all duration-200 ease-out-expo ${
         isActive
           ? 'border-terracotta/50 bg-terracotta-dim text-terracotta shadow-soft'
           : 'border-transparent bg-transparent text-ink-muted hover:border-terracotta/30 hover:bg-terracotta-dim/60 hover:text-terracotta'
@@ -55,7 +55,7 @@ export default function SideNav() {
   }
 
   return (
-    <nav className="hidden h-full min-h-0 w-28 shrink-0 flex-col items-center justify-start gap-2 overflow-y-auto border-r border-warm-border bg-paper px-0 py-4 lg:flex">
+    <nav className="hidden h-full min-h-0 w-24 shrink-0 flex-col items-center justify-start gap-2 overflow-y-auto border-r border-warm-border bg-paper px-0 py-4 lg:flex">
       {/* Logo */}
       <div className="mb-2 flex h-12 w-12 items-center justify-center rounded-2xl border border-terracotta/40 bg-terracotta-dim font-display text-xl font-bold tracking-tight text-terracotta shadow-soft transition-all duration-200 hover:scale-105 hover:shadow-card">
         R

@@ -26,18 +26,20 @@ export default function TemplateRenderer({ data }: { data: ResumeData }) {
         theme={theme}
         sidebar={
           <>
-            <PersonalHeader data={data} theme={theme} variant="sidebar" />
-            {!hidden.includes('skills') && renderSkills(data.skills, theme)}
-            {!hidden.includes('languages') && renderLanguages(data.languages, theme)}
-            {!hidden.includes('certifications') && renderCertifications(data.certifications, theme)}
+            <div data-section-id="personal">
+              <PersonalHeader data={data} theme={theme} variant="sidebar" />
+            </div>
+            {!hidden.includes('skills') && <div data-section-id="skills">{renderSkills(data.skills, theme)}</div>}
+            {!hidden.includes('languages') && <div data-section-id="languages">{renderLanguages(data.languages, theme)}</div>}
+            {!hidden.includes('certifications') && <div data-section-id="certifications">{renderCertifications(data.certifications, theme)}</div>}
           </>
         }
         main={
           <>
-            {!hidden.includes('personal') && data.personal.summary && renderSummary(data.personal.summary, theme)}
-            {!hidden.includes('experience') && renderExperience(data.experience, theme)}
-            {!hidden.includes('education') && renderEducation(data.education, theme)}
-            {!hidden.includes('projects') && renderProjects(data.projects, theme)}
+            {!hidden.includes('personal') && data.personal.summary && <div data-section-id="summary">{renderSummary(data.personal.summary, theme)}</div>}
+            {!hidden.includes('experience') && <div data-section-id="experience">{renderExperience(data.experience, theme)}</div>}
+            {!hidden.includes('education') && <div data-section-id="education">{renderEducation(data.education, theme)}</div>}
+            {!hidden.includes('projects') && <div data-section-id="projects">{renderProjects(data.projects, theme)}</div>}
             {renderCustomSections(
               data.customSections.filter((cs) => !hidden.includes(`custom_${cs.id}`)),
               theme,
@@ -50,36 +52,42 @@ export default function TemplateRenderer({ data }: { data: ResumeData }) {
 
   return (
     <SingleColumnLayout theme={theme}>
-      <PersonalHeader data={data} theme={theme} variant={data.atsMode ? 'ats' : 'full'} />
+      <div data-section-id="personal">
+        <PersonalHeader data={data} theme={theme} variant={data.atsMode ? 'ats' : 'full'} />
+      </div>
       {!hidden.includes('personal') && data.personal.summary && (
-        data.atsMode ? (
-          <section>
-            {renderSummary(data.personal.summary, { ...theme, layout: 'single' })}
-          </section>
-        ) : (
-          <p
-            style={{
-              fontSize: theme.fontSize.body,
-              color: '#333333',
-              marginTop: '-6px',
-              marginBottom: '12px',
-              lineHeight: '1.65',
-            }}
-          >
-            &ldquo;{data.personal.summary}&rdquo;
-          </p>
-        )
+        <div data-section-id="summary">
+          {data.atsMode ? (
+            <section>
+              {renderSummary(data.personal.summary, { ...theme, layout: 'single' })}
+            </section>
+          ) : (
+            <p
+              style={{
+                fontSize: theme.fontSize.body,
+                color: '#333333',
+                marginTop: '-6px',
+                marginBottom: '12px',
+                lineHeight: '1.65',
+              }}
+            >
+              &ldquo;{data.personal.summary}&rdquo;
+            </p>
+          )}
+        </div>
       )}
-      {!hidden.includes('experience') && renderExperience(data.experience, theme)}
-      {!hidden.includes('education') && renderEducation(data.education, theme)}
-      {!hidden.includes('skills') && renderSkills(data.skills, theme)}
-      {!hidden.includes('projects') && renderProjects(data.projects, theme)}
-      {!hidden.includes('certifications') && renderCertifications(data.certifications, theme)}
-      {!hidden.includes('languages') && renderLanguages(data.languages, theme)}
-      {renderCustomSections(
-        data.customSections.filter((cs) => !hidden.includes(`custom_${cs.id}`)),
-        theme,
-      )}
+      {!hidden.includes('experience') && <div data-section-id="experience">{renderExperience(data.experience, theme)}</div>}
+      {!hidden.includes('education') && <div data-section-id="education">{renderEducation(data.education, theme)}</div>}
+      {!hidden.includes('skills') && <div data-section-id="skills">{renderSkills(data.skills, theme)}</div>}
+      {!hidden.includes('projects') && <div data-section-id="projects">{renderProjects(data.projects, theme)}</div>}
+      {!hidden.includes('certifications') && <div data-section-id="certifications">{renderCertifications(data.certifications, theme)}</div>}
+      {!hidden.includes('languages') && <div data-section-id="languages">{renderLanguages(data.languages, theme)}</div>}
+      <div data-section-id="custom">
+        {renderCustomSections(
+          data.customSections.filter((cs) => !hidden.includes(`custom_${cs.id}`)),
+          theme,
+        )}
+      </div>
     </SingleColumnLayout>
   )
 }

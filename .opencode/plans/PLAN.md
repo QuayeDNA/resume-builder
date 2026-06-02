@@ -291,12 +291,12 @@ All 3 template renderers (SingleColumn, TwoColumn, ATS) must be **page-aware**:
 ### Implementation Order
 
 1. ✅ Create `PageContainer` component — A4 box, header/footer, overflow hidden
-2. ✅ Create `PageComposer` — off-DOM measurement, page stacking via translateY clipping
+2. ✅ Rewrite `PageComposer` — section-aware page packing: measure each `[data-section-id]` element's height independently, pack sections into pages at section boundaries (never mid-section). Multi-column layout detection falls back to height-based estimation.
 3. ✅ Integrate into `PreviewPanel` — PageComposer wraps templates, zoom applies to page stack
-4. ⬜ Add visual page break indicators (dashed lines + page labels) — page numbers + 24px gap serve this purpose for now
+4. ✅ Add visual page break indicators (dashed lines + page labels) between pages
 5. ✅ Update `exportToPdf` — captures all `[data-page-container]` elements, serializes each page
-6. ⬜ Test edge cases: 1-page resume, 3-page resume, section larger than one page
-7. ⬜ Polish: transition animations between pages on zoom change
+6. ✅ Test edge cases: 1-page resume, 3-page resume, section larger than one page
+7. ✅ Polish: transition animations between pages on zoom change (existing CSS handles zoom transitions)
 
 ### Why Not CSS `@page`?
 

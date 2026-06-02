@@ -156,20 +156,6 @@ export default function PersonalHeader({ data, theme, variant }: Props) {
           {p.linkedin && <div>in {p.linkedin}</div>}
         </div>
       </div>
-
-      {p.summary && (
-        <p
-          style={{
-            fontSize: theme.fontSize.body,
-            color: '#333333',
-            marginTop: '10px',
-            marginBottom: '0',
-            lineHeight: '1.65',
-          }}
-        >
-          &ldquo;{p.summary}&rdquo;
-        </p>
-      )}
     </div>
   )
 }
