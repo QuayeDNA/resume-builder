@@ -1,21 +1,29 @@
 import { useEffect, useState, useRef, useMemo } from 'react'
-import { Activity, RefreshCw, ChevronDown, ChevronUp } from 'lucide-react'
+import { Activity, RefreshCw, ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
 import { calculateAtsScore, getScoreColor, getScoreLabel } from '../../utils/ats'
-import { Button } from '../UI'
+import { Button, AiButton } from '../UI'
 import useResumeStore from '../../store/useResumeStore'
 import type { AtsResult } from '../../types'
 import { cn } from '../../utils/classNames'
+import { aiAtsSuggestions } from '../../api/ai'
+import type { AtsAiResult } from '../../api/ai'
+import { useAi } from '../../hooks/useAi'
 
 export default function AtsChecker() {
   const data = useResumeStore((s) => s.data)
   const setActiveSection = useResumeStore((s) => s.setActiveSection)
   const [result, setResult] = useState<AtsResult | null>(null)
   const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
+  const [aiResult, setAiResult] = useState<AtsAiResult | null>(null)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const { run: runAi, isLoading } = useAi()
 
   const scoreColor = result ? getScoreColor(result.score) : '#4ade80'
 
   const run = () => setResult(calculateAtsScore(data))
+
+  const handleAiSuggest = () =>
+    runAi('atsai', () => aiAtsSuggestions(data), (v) => setAiResult(v as AtsAiResult))
 
   useEffect(() => {
     if (timerRef.current) clearTimeout(timerRef.current)
@@ -151,6 +159,65 @@ export default function AtsChecker() {
                   </span>
                 ))}
               </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* AI-powered suggestions */}
+      <div className="pt-2 border-t border-warm-border">
+        <AiButton onClick={handleAiSuggest} loading={isLoading('atsai')} size="sm" showProvider>
+          AI Suggestions
+        </AiButton>
+      </div>
+
+      {aiResult && (
+        <div className="bg-paper-deep/40 border border-warm-border rounded-xl p-3 animate-fade-up space-y-3">
+          {aiResult.strengths.length > 0 && (
+            <div>
+              <p className="text-label text-green-600 font-semibold mb-1">Strengths</p>
+              <ul className="space-y-1">
+                {aiResult.strengths.map((s, i) => (
+                  <li key={i} className="text-caption text-ink-soft flex items-start gap-1.5">
+                    <span className="text-green-400">✓</span> {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {aiResult.suggestions.length > 0 && (
+            <div>
+              <p className="text-label text-amber-600 font-semibold mb-1">Suggestions</p>
+              <div className="space-y-1.5">
+                {aiResult.suggestions.map((s, i) => (
+                  <div key={i} className="flex items-start gap-2">
+                    <span className={`shrink-0 text-caption font-bold ${s.impact === 'high' ? 'text-red-500' : s.impact === 'medium' ? 'text-amber-500' : 'text-blue-500'}`}>
+                      {s.impact === 'high' ? '!!' : s.impact === 'medium' ? '!' : '·'}
+                    </span>
+                    <p className="text-caption text-ink-soft flex-1">{s.message}</p>
+                    <button
+                      onClick={() => handleGoToSection(s.section)}
+                      className="shrink-0 text-caption font-medium text-terracotta hover:text-ink transition-colors"
+                    >
+                      Fix
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {aiResult.quickWins.length > 0 && (
+            <div>
+              <p className="text-label text-blue-600 font-semibold mb-1">Quick Wins</p>
+              <ul className="space-y-1">
+                {aiResult.quickWins.map((q, i) => (
+                  <li key={i} className="text-caption text-ink-soft flex items-start gap-1.5">
+                    <Sparkles size={10} className="text-blue-400 mt-0.5 shrink-0" /> {q}
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </div>

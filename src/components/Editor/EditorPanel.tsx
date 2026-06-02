@@ -23,6 +23,7 @@ import CustomizationPanel    from './CustomizationPanel'
 import SavedSection          from './SavedSection'
 import CustomSectionEditor  from './CustomSectionEditor'
 import AtsChecker           from './AtsChecker'
+import JobMatchPanel        from './JobMatchPanel'
 import { GenericSection, ENTRY_SECTIONS } from './sectionConfigs'
 import { BUILTIN_SECTION_IDS } from '../../types'
 
@@ -36,6 +37,7 @@ const SPECIAL_VIEWS: Record<string, { label: string; render: () => JSX.Element }
   templates:   { label: 'Templates',     render: () => <DesignSection /> },
   customize:   { label: 'Customize',     render: () => <CustomizationPanel /> },
   saved:       { label: 'Saved Resumes', render: () => <SavedSection /> },
+  jobmatch:    { label: 'Job Match',     render: () => <JobMatchPanel /> },
 }
 
 function SectionRenderer({ section }: { section: string }) {

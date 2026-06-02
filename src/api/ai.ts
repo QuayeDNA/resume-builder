@@ -1,12 +1,15 @@
 import { callFreeAI, getConfiguredProvider, getLastProvider } from './freeAI'
-import type { ExperienceEntry } from '../types'
+import type { ExperienceEntry, ResumeData } from '../types'
 import {
   formatImprovesSummaryPrompt,
   formatImproveBulletPrompt,
   formatSuggestBulletsPrompt,
   formatSuggestSkillsPrompt,
   formatGenerateCoverLetterPrompt,
+  formatAnalyzeJobMatchPrompt,
+  formatAtsSuggestionsPrompt,
 } from './prompts'
+import type { JobMatchResult } from './prompts'
 
 export async function callAI(userPrompt: string, systemPrompt = '', maxTokens = 1000): Promise<string> {
   return callFreeAI(userPrompt, systemPrompt, maxTokens)
@@ -63,4 +66,55 @@ export async function aiGenerateCoverLetter({
     name, title, summary, skills, experience, role, company, tone,
   })
   return callAI(userPrompt, systemPrompt, maxTokens)
+}
+
+export type AtsAiResult = {
+  suggestions: { section: string; message: string; impact: 'high' | 'medium' | 'low' }[]
+  strengths: string[]
+  quickWins: string[]
+}
+
+export async function aiAtsSuggestions(data: ResumeData): Promise<AtsAiResult> {
+  const { userPrompt, systemPrompt, maxTokens } = formatAtsSuggestionsPrompt({
+    summary: data.personal.summary,
+    skills: data.skills,
+    experience: data.experience.map((e) => ({ role: e.role, company: e.company, bullets: e.bullets })),
+    education: data.education.map((e) => ({ degree: e.degree, school: e.school })),
+  })
+  const raw = await callAI(userPrompt, systemPrompt, maxTokens)
+  try {
+    const cleaned = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
+    return JSON.parse(cleaned) as AtsAiResult
+  } catch {
+    return { suggestions: [], strengths: [], quickWins: [] }
+  }
+}
+
+export async function aiAnalyzeJobMatch(data: ResumeData, jobDescription: string): Promise<JobMatchResult> {
+  const { userPrompt, systemPrompt, maxTokens } = formatAnalyzeJobMatchPrompt({
+    resumeName: data.personal.name,
+    resumeTitle: data.personal.title,
+    resumeSummary: data.personal.summary,
+    resumeSkills: data.skills,
+    resumeExperience: data.experience.map((e) => ({ role: e.role, company: e.company, bullets: e.bullets })),
+    resumeEducation: data.education.map((e) => ({ degree: e.degree, school: e.school })),
+    jobDescription,
+  })
+  const raw = await callAI(userPrompt, systemPrompt, maxTokens)
+  try {
+    const cleaned = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
+    return JSON.parse(cleaned) as JobMatchResult
+  } catch {
+    return {
+      matchScore: 0,
+      matchedKeywords: [],
+      missingKeywords: [],
+      matchingSkills: [],
+      suggestedSkills: [],
+      bulletSuggestions: [],
+      overallFeedback: 'Could not parse AI response. Please try again.',
+      strongPoints: [],
+      weakPoints: [],
+    }
+  }
 }
