@@ -17,7 +17,17 @@ export default function TemplateRenderer({ data }: { data: ResumeData }) {
   const def = TEMPLATES[data.template]
   if (!def) return null
 
-  const theme = data.atsMode ? mergeWithATS(def.theme) : def.theme
+  const baseTheme = data.atsMode ? mergeWithATS(def.theme) : def.theme
+  const overrides = data.themeOverrides
+  const theme = overrides
+    ? {
+        ...baseTheme,
+        colors: { ...baseTheme.colors, ...(overrides.colors || {}) },
+        fonts: { ...baseTheme.fonts, ...(overrides.fonts || {}) },
+        fontSize: { ...baseTheme.fontSize, ...(overrides.fontSize || {}) },
+        spacing: { ...baseTheme.spacing, ...(overrides.spacing || {}) },
+      }
+    : baseTheme
   const hidden = data.hiddenSections || []
 
   if (theme.layout === 'two-col') {
@@ -53,7 +63,7 @@ export default function TemplateRenderer({ data }: { data: ResumeData }) {
   return (
     <SingleColumnLayout theme={theme}>
       <div data-section-id="personal">
-        <PersonalHeader data={data} theme={theme} variant={data.atsMode ? 'ats' : 'full'} />
+        <PersonalHeader data={data} theme={theme} variant={data.atsMode ? 'ats' : theme.headerStyle || 'default'} />
       </div>
       {!hidden.includes('personal') && data.personal.summary && (
         <div data-section-id="summary">

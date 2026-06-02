@@ -1,4 +1,4 @@
-import { FileText, Palette, Mail, Save, Settings, FileDown, User } from 'lucide-react'
+import { FileText, Palette, Mail, Save, Settings, FileDown, Sliders, User } from 'lucide-react'
 import { exportToPdf } from '../../utils/pdf'
 import useResumeStore from '../../store/useResumeStore'
 import type { LucideIcon } from 'lucide-react'
@@ -7,6 +7,7 @@ const NAV_ITEMS: { id: string; icon: LucideIcon; label: string }[] = [
   { id: 'editor',       icon: FileText,   label: 'Editor' },
   { id: 'templates',    icon: Palette,    label: 'Templates' },
   { id: 'coverletter',  icon: Mail,       label: 'Cover' },
+  { id: 'customize',    icon: Sliders,    label: 'Customize' },
   { id: 'saved',        icon: Save,       label: 'Saved' },
   { id: 'settings',     icon: Settings,   label: 'Settings' },
 ]

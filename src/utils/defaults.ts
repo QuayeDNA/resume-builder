@@ -69,6 +69,7 @@ export const DEFAULT_RESUME: ResumeData = {
   template: 'modern',
   atsMode: false,
   hiddenSections: [],
+  themeOverrides: {},
 }
 
 export const DEFAULT_COVER_LETTER: CoverLetterData = {

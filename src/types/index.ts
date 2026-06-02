@@ -1,3 +1,5 @@
+import type { TemplateTheme } from '../Templates/theme'
+
 export interface PersonalInfo {
   name: string
   title: string
@@ -81,6 +83,7 @@ export interface ResumeData {
   template: string
   atsMode: boolean
   hiddenSections: string[]
+  themeOverrides: Partial<TemplateTheme>
 }
 
 export interface CoverLetterData {

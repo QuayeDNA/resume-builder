@@ -45,7 +45,7 @@ export default function SectionTitle({ label, theme, sidebar }: Props) {
           >
             {label}
           </h2>
-          <div style={{ height: '1.5px', marginTop: '4px', background: theme.colors.accent }} />
+          <div style={{ height: '2.5px', marginTop: '5px', background: theme.colors.accent, borderRadius: '2px' }} />
         </div>
       )
     case 'border-bottom':
@@ -58,10 +58,10 @@ export default function SectionTitle({ label, theme, sidebar }: Props) {
             textTransform: 'uppercase',
             letterSpacing: '1.6px',
             marginTop: '16px',
-            marginBottom: '10px',
-            color: theme.colors.accent,
-            borderBottom: `2px solid ${theme.colors.accent}`,
+            marginBottom: '6px',
             paddingBottom: '4px',
+            color: theme.colors.accent,
+            borderBottom: `1px solid ${theme.colors.textMuted}66`,
           }}
         >
           {label}
@@ -69,21 +69,21 @@ export default function SectionTitle({ label, theme, sidebar }: Props) {
       )
     case 'accent-bar':
       return (
-        <div style={{ marginTop: '14px', marginBottom: '8px' }}>
+        <div style={{ marginTop: '14px', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ width: '4px', height: '18px', borderRadius: '2px', background: theme.colors.accent, flexShrink: 0 }} />
           <h2
             style={{
               fontFamily: theme.fonts.heading,
               fontSize: theme.fontSize.sectionHeading,
               fontWeight: '700',
-              letterSpacing: '0.6px',
               textTransform: 'uppercase',
+              letterSpacing: '1.2px',
               color: theme.colors.accent,
               margin: '0',
             }}
           >
             {label}
           </h2>
-          <div style={{ marginTop: '3px', height: '1px', background: theme.colors.textMuted }} />
         </div>
       )
   }

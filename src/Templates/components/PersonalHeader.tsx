@@ -1,13 +1,15 @@
 import type { ResumeData } from '../../types'
-import type { TemplateTheme } from '../theme'
+import type { TemplateTheme, HeaderStyle } from '../theme'
 
-type Props = {
-  data: ResumeData
-  theme: TemplateTheme
-  variant: 'full' | 'sidebar' | 'ats'
-}
+const contactFields = (p: ResumeData['personal']) => [
+  p.email && `✉ ${p.email}`,
+  p.phone && `✆ ${p.phone}`,
+  p.location && `⌖ ${p.location}`,
+  p.website && `🌐 ${p.website}`,
+  p.linkedin && `in ${p.linkedin}`,
+].filter(Boolean) as string[]
 
-export default function PersonalHeader({ data, theme, variant }: Props) {
+export default function PersonalHeader({ data, theme, variant }: { data: ResumeData; theme: TemplateTheme; variant: HeaderStyle | 'sidebar' | 'ats' }) {
   const p = data.personal
 
   if (variant === 'sidebar') {
@@ -47,11 +49,9 @@ export default function PersonalHeader({ data, theme, variant }: Props) {
             lineHeight: '1.7',
           }}
         >
-          {p.email && <div style={{ wordBreak: 'break-word', marginBottom: '3px' }}>✉ {p.email}</div>}
-          {p.phone && <div style={{ marginBottom: '3px' }}>✆ {p.phone}</div>}
-          {p.location && <div style={{ marginBottom: '3px' }}>⌖ {p.location}</div>}
-          {p.website && <div style={{ wordBreak: 'break-word', marginBottom: '3px' }}>🌐 {p.website}</div>}
-          {p.linkedin && <div style={{ wordBreak: 'break-word' }}>in {p.linkedin}</div>}
+          {contactFields(p).map((line, i) => (
+            <div key={i} style={{ wordBreak: 'break-word', marginBottom: i < contactFields(p).length - 1 ? '3px' : '0' }}>{line}</div>
+          ))}
         </div>
       </>
     )
@@ -86,9 +86,85 @@ export default function PersonalHeader({ data, theme, variant }: Props) {
           </div>
         )}
         <div style={{ fontSize: '9.5px', color: '#2f2f2f' }}>
-          {[p.email, p.phone, p.location, p.website, p.linkedin].filter(Boolean).join(' | ')}
+          {contactFields(p).join(' | ')}
         </div>
       </header>
+    )
+  }
+
+  if (variant === 'centered') {
+    return (
+      <div style={{ marginBottom: '22px', paddingBottom: '16px', borderBottom: `2px solid ${theme.colors.accent}`, textAlign: 'center' }}>
+        <h1
+          style={{
+            fontFamily: theme.fonts.name,
+            fontSize: theme.fontSize.name,
+            fontWeight: '700',
+            margin: '0 0 2px 0',
+            letterSpacing: '-0.3px',
+            color: theme.colors.accent,
+          }}
+        >
+          {p.name || 'Your Name'}
+        </h1>
+        {p.title && (
+          <div
+            style={{
+              fontSize: theme.fontSize.title,
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '1.2px',
+              color: theme.colors.secondary,
+              marginBottom: '10px',
+            }}
+          >
+            {p.title}
+          </div>
+        )}
+        <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: '0 14px', fontSize: theme.fontSize.small, color: theme.colors.textMuted }}>
+          {contactFields(p).map((line, i) => (
+            <span key={i}>{line}{i < contactFields(p).length - 1 ? ' ·' : ''}</span>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  if (variant === 'stacked') {
+    return (
+      <div style={{ marginBottom: '20px', paddingBottom: '14px', borderBottom: `2px solid ${theme.colors.accent}` }}>
+        <h1
+          style={{
+            fontFamily: theme.fonts.name,
+            fontSize: theme.fontSize.name,
+            fontWeight: '700',
+            margin: '0 0 2px 0',
+            letterSpacing: '-0.3px',
+            color: theme.colors.accent,
+          }}
+        >
+          {p.name || 'Your Name'}
+        </h1>
+        {p.title && (
+          <div
+            style={{
+              fontSize: theme.fontSize.title,
+              fontWeight: '600',
+              textTransform: 'uppercase',
+              letterSpacing: '1.2px',
+              color: theme.colors.secondary,
+              marginBottom: '8px',
+            }}
+          >
+            {p.title}
+          </div>
+        )}
+        <div style={{ display: 'flex', flexWrap: 'wrap', columnGap: '16px', fontSize: theme.fontSize.small, color: theme.colors.textMuted }}>
+          {contactFields(p).map((line, i) => (
+            <span key={i}>{line}</span>
+          ))}
+        </div>
+      </div>
     )
   }
 
@@ -149,11 +225,9 @@ export default function PersonalHeader({ data, theme, variant }: Props) {
             flexShrink: 0,
           }}
         >
-          {p.email && <div>✉ {p.email}</div>}
-          {p.phone && <div>✆ {p.phone}</div>}
-          {p.location && <div>⌖ {p.location}</div>}
-          {p.website && <div>🌐 {p.website}</div>}
-          {p.linkedin && <div>in {p.linkedin}</div>}
+          {contactFields(p).map((line, i) => (
+            <div key={i}>{line}</div>
+          ))}
         </div>
       </div>
     </div>

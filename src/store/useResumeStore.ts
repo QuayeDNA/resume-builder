@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { DEFAULT_RESUME, DEFAULT_COVER_LETTER } from '../utils/defaults'
 import { loadResumeFromStorage, saveResumeToStorage, loadSlotsFromStorage, saveSlotsToStorage } from '../utils/storage'
+import type { TemplateTheme } from '../Templates/theme'
 import type {
   ResumeData,
   CoverLetterData,
@@ -68,6 +69,8 @@ interface ResumeStore {
   setTemplate: (templateKey: string) => void
   setAtsMode: (atsMode: boolean) => void
   toggleSectionVisibility: (sectionId: string) => void
+  updateThemeOverride: <K extends keyof TemplateTheme>(key: K, value: Partial<TemplateTheme[K]>) => void
+  resetThemeOverrides: () => void
   updateCoverLetter: <K extends keyof CoverLetterData>(field: K, value: CoverLetterData[K]) => void
   setActiveView: (view: ActiveView) => void
   setActiveSection: (section: string) => void
@@ -318,7 +321,7 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
     }),
 
   setTemplate: (templateKey) =>
-    set((s) => ({ data: { ...s.data, template: templateKey } })),
+    set((s) => ({ data: { ...s.data, template: templateKey, themeOverrides: {} } })),
 
   setAtsMode: (atsMode) =>
     set((s) => ({ data: { ...s.data, atsMode } })),
@@ -336,6 +339,20 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
         },
       }
     }),
+
+  updateThemeOverride: (key, value) =>
+    set((s) => ({
+      data: {
+        ...s.data,
+        themeOverrides: {
+          ...(s.data.themeOverrides || {}),
+          [key]: value,
+        },
+      },
+    })),
+
+  resetThemeOverrides: () =>
+    set((s) => ({ data: { ...s.data, themeOverrides: {} } })),
 
   updateCoverLetter: (field, value) =>
     set((s) => ({ cl: { ...s.cl, [field]: value } })),

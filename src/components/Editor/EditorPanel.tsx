@@ -19,6 +19,7 @@ import PersonalSection       from './PersonalSection'
 import SkillsSection         from './SkillsSection'
 import CoverLetterSection    from './CoverLetterSection'
 import DesignSection         from './DesignSection'
+import CustomizationPanel    from './CustomizationPanel'
 import SavedSection          from './SavedSection'
 import CustomSectionEditor  from './CustomSectionEditor'
 import AtsChecker           from './AtsChecker'
@@ -33,6 +34,7 @@ const BUILTIN_SECTION_KEYS: Record<string, () => JSX.Element> = {
 const SPECIAL_VIEWS: Record<string, { label: string; render: () => JSX.Element }> = {
   coverletter: { label: 'Cover Letter', render: () => <CoverLetterSection /> },
   templates:   { label: 'Templates',     render: () => <DesignSection /> },
+  customize:   { label: 'Customize',     render: () => <CustomizationPanel /> },
   saved:       { label: 'Saved Resumes', render: () => <SavedSection /> },
 }
 

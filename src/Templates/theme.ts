@@ -2,6 +2,8 @@ export type LayoutType = 'single' | 'two-col'
 export type SectionTitleStyle = 'underline' | 'border-bottom' | 'accent-bar'
 export type BulletStyle = 'dot' | 'dash' | 'plain'
 export type SkillDisplay = 'badge' | 'pill' | 'comma-list'
+export type HeaderStyle = 'default' | 'centered' | 'stacked'
+export type ExperienceStyle = 'default' | 'timeline' | 'compact' | 'cards'
 
 export type TemplateTheme = {
   layout: LayoutType
@@ -28,6 +30,8 @@ export type TemplateTheme = {
   sectionTitle: SectionTitleStyle
   bullet: BulletStyle
   skillDisplay: SkillDisplay
+  headerStyle: HeaderStyle
+  experienceStyle: ExperienceStyle
   spacing: {
     pagePadding: string
     sidebarPadding: string
@@ -52,6 +56,8 @@ export function mergeWithATS(theme: TemplateTheme): TemplateTheme {
     sectionTitle: 'accent-bar',
     bullet: 'dash',
     skillDisplay: 'comma-list',
+    headerStyle: 'default',
+    experienceStyle: 'default',
     colors: {
       ...theme.colors,
       accent: '#000000',

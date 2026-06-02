@@ -3,56 +3,13 @@ import { Card } from '../UI'
 import { TEMPLATES } from '../../Templates'
 import type { TemplateDefinition, TemplateCategory } from '../../Templates'
 import useResumeStore from '../../store/useResumeStore'
+import TemplateThumbnail from './TemplateThumbnail'
 
 const CATEGORIES: { key: 'all' | TemplateCategory; label: string }[] = [
   { key: 'all', label: 'All' },
   { key: 'design', label: 'Design' },
   { key: 'minimal', label: 'Minimal' },
 ]
-
-function LayoutPreview({ template }: { template: TemplateDefinition }) {
-  const { layout, colors } = template.theme
-
-  if (layout === 'two-col') {
-    return (
-      <div style={{ width: '100%', height: '100%', display: 'flex', overflow: 'hidden' }}>
-        <div style={{ width: '35%', height: '100%', background: colors.accent }}>
-          <div style={{ padding: '6px 3px' }}>
-            <div style={{ height: '4px', width: '70%', background: 'rgba(255,255,255,0.2)', borderRadius: '1px', marginBottom: '4px' }} />
-            <div style={{ height: '2px', width: '50%', background: 'rgba(255,255,255,0.15)', borderRadius: '1px', marginBottom: '6px' }} />
-            <div style={{ height: '2px', width: '90%', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '2px' }} />
-            <div style={{ height: '2px', width: '90%', background: 'rgba(255,255,255,0.1)', borderRadius: '1px', marginBottom: '2px' }} />
-            <div style={{ height: '2px', width: '60%', background: 'rgba(255,255,255,0.1)', borderRadius: '1px' }} />
-          </div>
-        </div>
-        <div style={{ flex: 1, height: '100%', background: '#f5f3f0', padding: '6px' }}>
-          <div style={{ height: '3px', width: '80%', background: colors.secondary + '40', borderRadius: '1px', marginBottom: '4px' }} />
-          <div style={{ height: '2px', width: '100%', background: '#ddd', borderRadius: '1px', marginBottom: '4px' }} />
-          <div style={{ height: '2px', width: '100%', background: '#ddd', borderRadius: '1px', marginBottom: '4px' }} />
-          <div style={{ height: '2px', width: '60%', background: '#ddd', borderRadius: '1px' }} />
-        </div>
-      </div>
-    )
-  }
-
-  return (
-    <div style={{ width: '100%', height: '100%', background: '#ffffff', overflow: 'hidden', padding: '8px 6px' }}>
-      <div style={{ height: '6px', width: '60%', background: colors.accent, borderRadius: '1px', marginBottom: '4px' }} />
-      <div style={{ height: '2px', width: '90%', background: colors.secondary + '50', borderRadius: '1px', marginBottom: '8px' }} />
-      <div style={{ height: '2px', width: '100%', background: '#eee', borderRadius: '1px', marginBottom: '3px' }} />
-      <div style={{ height: '6px', width: '40%', background: colors.accent + '30', borderRadius: '1px', marginTop: '6px', marginBottom: '4px' }} />
-      <div style={{ height: '2px', width: '100%', background: '#eee', borderRadius: '1px', marginBottom: '3px' }} />
-      <div style={{ height: '2px', width: '100%', background: '#eee', borderRadius: '1px', marginBottom: '3px' }} />
-      <div style={{ height: '2px', width: '70%', background: '#eee', borderRadius: '1px', marginBottom: '3px' }} />
-      <div style={{ height: '6px', width: '30%', background: colors.accent + '30', borderRadius: '1px', marginTop: '6px', marginBottom: '4px' }} />
-      <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
-        {[1, 2, 3, 4].map((i) => (
-          <div key={i} style={{ height: '4px', width: '12px', background: colors.accent + '20', borderRadius: '2px' }} />
-        ))}
-      </div>
-    </div>
-  )
-}
 
 function TemplateCard({ template, isSelected, onClick }: {
   template: TemplateDefinition
@@ -62,14 +19,14 @@ function TemplateCard({ template, isSelected, onClick }: {
   return (
     <button
       onClick={onClick}
-      className={`flex flex-col items-stretch gap-2 rounded-xl border-2 p-0 overflow-hidden transition-all duration-200 ${
+      className={`group flex flex-col items-stretch gap-2 rounded-xl border-2 p-0 overflow-hidden transition-all duration-200 ${
         isSelected
           ? 'border-terracotta bg-terracotta-dim shadow-soft'
           : 'border-warm-border-strong bg-paper hover:border-terracotta/40 hover:shadow-soft'
       }`}
     >
-      <div className="h-24 w-full overflow-hidden bg-white border-b border-warm-border">
-        <LayoutPreview template={template} />
+      <div className="h-36 w-full overflow-hidden bg-white border-b border-warm-border">
+        <TemplateThumbnail template={template} />
       </div>
       <div className="px-2.5 pb-2.5 pt-0.5">
         <div className="flex items-center justify-between">
