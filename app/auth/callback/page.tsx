@@ -3,27 +3,51 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { supabase } from '../../../src/lib/supabase'
+import type { Session } from '@supabase/supabase-js'
+
+function parseHash(hash: string): Record<string, string> {
+  const params: Record<string, string> = {}
+  const search = hash.replace(/^#/, '')
+  for (const part of search.split('&')) {
+    const [key, value] = part.split('=')
+    if (key && value) params[decodeURIComponent(key)] = decodeURIComponent(value)
+  }
+  return params
+}
 
 export default function AuthCallback() {
   const router = useRouter()
 
   useEffect(() => {
     const handleCallback = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      const hashParams = parseHash(window.location.hash)
 
-      if (session) {
-        router.replace('/builder')
-      } else {
-        const hash = window.location.hash
-        if (hash && hash.includes('access_token')) {
-          // Wait briefly for the client to process the hash fragment
-          await new Promise((r) => setTimeout(r, 500))
-          const { data: { session: retrySession } } = await supabase.auth.getSession()
-          if (retrySession) {
+      if (hashParams.access_token && hashParams.refresh_token) {
+        const { data: { user } } = await supabase.auth.getUser(hashParams.access_token)
+        if (user) {
+          const session = {
+            access_token: hashParams.access_token,
+            refresh_token: hashParams.refresh_token,
+            expires_in: Number(hashParams.expires_in) || 3600,
+            expires_at: Number(hashParams.expires_at) || undefined,
+            token_type: 'bearer' as const,
+            user,
+          } as Session
+
+          const { error } = await supabase.auth.setSession(session)
+
+          if (!error) {
+            window.location.hash = ''
             router.replace('/builder')
             return
           }
         }
+      }
+
+      const { data: { session } } = await supabase.auth.getSession()
+      if (session) {
+        router.replace('/builder')
+      } else {
         router.replace('/login')
       }
     }

@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { supabase } from '../lib/supabase'
-import { fetchProfile } from '../lib/api/profiles'
+import { fetchProfile, updateProfile, upsertProfile } from '../lib/api/profiles'
 import type { User, Session } from '@supabase/supabase-js'
 import type { DbProfile } from '../lib/api/profiles'
 
@@ -57,7 +57,31 @@ const useAuthStore = create<AuthState>((set, get) => ({
   loadProfile: async () => {
     const { user } = get()
     if (!user) return
-    const profile = await fetchProfile(user.id)
+
+    const meta = user.user_metadata || {}
+    const oauthName = meta.full_name || meta.name || null
+    const oauthAvatar = meta.avatar_url || meta.picture || null
+
+    let profile = await fetchProfile(user.id)
+
+    if (!profile) {
+      profile = await upsertProfile(
+        user.id,
+        user.email || '',
+        oauthName,
+        oauthAvatar,
+      )
+    } else if (!profile.avatar_url && oauthAvatar) {
+      await updateProfile(user.id, {
+        name: profile.name || oauthName,
+        avatar_url: oauthAvatar,
+      })
+      profile = await fetchProfile(user.id)
+    } else if (!profile.name && oauthName) {
+      await updateProfile(user.id, { name: oauthName })
+      profile = await fetchProfile(user.id)
+    }
+
     if (profile) {
       const tier = (['pro', 'lifetime'] as Tier[]).includes(profile.subscription_tier as Tier)
         ? (profile.subscription_tier as Tier)
