@@ -12,7 +12,7 @@ import type {
   ProjectEntry,
   CertificationEntry,
   LanguageEntry,
-  CustomSectionEntry,
+  CustomSection,
 } from '../types'
 
 type HistoryEntry = { data: ResumeData; cl: CoverLetterData }
@@ -80,12 +80,18 @@ interface ResumeStore {
 
   addCustomSection: () => void
   removeCustomSection: (id: number) => void
-  updateCustomSection: (id: number, field: 'name' | 'description', value: string) => void
-  addCustomBullet: (id: number) => void
-  removeCustomBullet: (id: number, idx: number) => void
-  updateCustomBullet: (id: number, idx: number, value: string) => void
-  appendCustomBullets: (id: number, bullets: string[]) => void
-  reorderCustomBullets: (id: number, from: number, to: number) => void
+  updateCustomSectionName: (id: number, name: string) => void
+  updateCustomSectionEntryLabel: (id: number, entryLabel: string) => void
+  addCustomField: (sectionId: number, field: { key: string; label: string; type: 'text' | 'textarea' }) => void
+  removeCustomField: (sectionId: number, key: string) => void
+  updateCustomField: (sectionId: number, key: string, updates: { label?: string; type?: 'text' | 'textarea' }) => void
+  addCustomEntry: (sectionId: number) => void
+  removeCustomEntry: (sectionId: number, entryId: number) => void
+  updateCustomEntryValue: (sectionId: number, entryId: number, fieldKey: string, value: string) => void
+  addCustomBullet: (sectionId: number, entryId: number) => void
+  removeCustomBullet: (sectionId: number, entryId: number, idx: number) => void
+  updateCustomBullet: (sectionId: number, entryId: number, idx: number, value: string) => void
+  reorderCustomEntries: (sectionId: number, from: number, to: number) => void
   reorderNavSection: (from: number, to: number) => void
 }
 
@@ -381,7 +387,19 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
     set((s) => ({
       data: {
         ...s.data,
-        customSections: [...s.data.customSections, { id, name: '', description: '', bullets: [''] }],
+        customSections: [
+          ...s.data.customSections,
+          {
+            id,
+            name: 'New Section',
+            entryLabel: 'Item',
+            fields: [
+              { key: 'title', label: 'Title', type: 'text' },
+              { key: 'description', label: 'Description', type: 'textarea' },
+            ],
+            entries: [],
+          },
+        ],
         sectionOrder: [...s.data.sectionOrder, sectionId],
       },
     }))
@@ -399,64 +417,163 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
     }))
   },
 
-  updateCustomSection: (id, field, value) =>
+  updateCustomSectionName: (id, name) =>
     set((s) => ({
       data: {
         ...s.data,
-        customSections: s.data.customSections.map((c) => (c.id === id ? { ...c, [field]: value } : c)),
+        customSections: s.data.customSections.map((c) => (c.id === id ? { ...c, name } : c)),
       },
     })),
 
-  addCustomBullet: (id) =>
+  updateCustomSectionEntryLabel: (id, entryLabel) =>
     set((s) => ({
       data: {
         ...s.data,
-        customSections: s.data.customSections.map((c) =>
-          c.id === id ? { ...c, bullets: [...c.bullets, ''] } : c,
-        ),
+        customSections: s.data.customSections.map((c) => (c.id === id ? { ...c, entryLabel } : c)),
       },
     })),
 
-  removeCustomBullet: (id, idx) =>
-    set((s) => ({
-      data: {
-        ...s.data,
-        customSections: s.data.customSections.map((c) =>
-          c.id === id ? { ...c, bullets: c.bullets.filter((_, i) => i !== idx) } : c,
-        ),
-      },
-    })),
-
-  updateCustomBullet: (id, idx, value) =>
+  addCustomField: (sectionId, field) =>
     set((s) => ({
       data: {
         ...s.data,
         customSections: s.data.customSections.map((c) =>
-          c.id === id ? { ...c, bullets: c.bullets.map((b, i) => (i === idx ? value : b)) } : c,
+          c.id === sectionId ? { ...c, fields: [...c.fields, field] } : c,
         ),
       },
     })),
 
-  appendCustomBullets: (id, bullets) =>
+  removeCustomField: (sectionId, key) =>
     set((s) => ({
       data: {
         ...s.data,
         customSections: s.data.customSections.map((c) =>
-          c.id === id ? { ...c, bullets: [...c.bullets, ...bullets] } : c,
+          c.id === sectionId
+            ? { ...c, fields: c.fields.filter((f) => f.key !== key), entries: c.entries.map((e) => {
+                const { [key]: _, ...rest } = e.values
+                return { ...e, values: rest }
+              })}
+            : c,
         ),
       },
     })),
 
-  reorderCustomBullets: (id, from, to) =>
+  updateCustomField: (sectionId, key, updates) =>
+    set((s) => ({
+      data: {
+        ...s.data,
+        customSections: s.data.customSections.map((c) =>
+          c.id === sectionId
+            ? { ...c, fields: c.fields.map((f) => (f.key === key ? { ...f, ...updates } : f)) }
+            : c,
+        ),
+      },
+    })),
+
+  addCustomEntry: (sectionId) =>
+    set((s) => ({
+      data: {
+        ...s.data,
+        customSections: s.data.customSections.map((c) =>
+          c.id === sectionId
+            ? { ...c, entries: [...c.entries, { id: Date.now(), values: {}, bullets: [] }] }
+            : c,
+        ),
+      },
+    })),
+
+  removeCustomEntry: (sectionId, entryId) =>
+    set((s) => ({
+      data: {
+        ...s.data,
+        customSections: s.data.customSections.map((c) =>
+          c.id === sectionId
+            ? { ...c, entries: c.entries.filter((e) => e.id !== entryId) }
+            : c,
+        ),
+      },
+    })),
+
+  updateCustomEntryValue: (sectionId, entryId, fieldKey, value) =>
+    set((s) => ({
+      data: {
+        ...s.data,
+        customSections: s.data.customSections.map((c) =>
+          c.id === sectionId
+            ? {
+                ...c,
+                entries: c.entries.map((e) =>
+                  e.id === entryId ? { ...e, values: { ...e.values, [fieldKey]: value } } : e,
+                ),
+              }
+            : c,
+        ),
+      },
+    })),
+
+  addCustomBullet: (sectionId, entryId) =>
+    set((s) => ({
+      data: {
+        ...s.data,
+        customSections: s.data.customSections.map((c) =>
+          c.id === sectionId
+            ? {
+                ...c,
+                entries: c.entries.map((e) =>
+                  e.id === entryId ? { ...e, bullets: [...e.bullets, ''] } : e,
+                ),
+              }
+            : c,
+        ),
+      },
+    })),
+
+  removeCustomBullet: (sectionId, entryId, idx) =>
+    set((s) => ({
+      data: {
+        ...s.data,
+        customSections: s.data.customSections.map((c) =>
+          c.id === sectionId
+            ? {
+                ...c,
+                entries: c.entries.map((e) =>
+                  e.id === entryId ? { ...e, bullets: e.bullets.filter((_, i) => i !== idx) } : e,
+                ),
+              }
+            : c,
+        ),
+      },
+    })),
+
+  updateCustomBullet: (sectionId, entryId, idx, value) =>
+    set((s) => ({
+      data: {
+        ...s.data,
+        customSections: s.data.customSections.map((c) =>
+          c.id === sectionId
+            ? {
+                ...c,
+                entries: c.entries.map((e) =>
+                  e.id === entryId
+                    ? { ...e, bullets: e.bullets.map((b, i) => (i === idx ? value : b)) }
+                    : e,
+                ),
+              }
+            : c,
+        ),
+      },
+    })),
+
+  reorderCustomEntries: (sectionId, from, to) =>
     set((s) => ({
       data: {
         ...s.data,
         customSections: s.data.customSections.map((c) => {
-          if (c.id !== id) return c
-          const arr = [...c.bullets]
+          if (c.id !== sectionId) return c
+          const arr = [...c.entries]
           const [moved] = arr.splice(from, 1)
           arr.splice(to, 0, moved)
-          return { ...c, bullets: arr }
+          return { ...c, entries: arr }
         }),
       },
     })),

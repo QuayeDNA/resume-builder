@@ -5,6 +5,7 @@ import {
   useSensor,
   useSensors,
   type DragEndEvent,
+  type DragOverEvent,
 } from '@dnd-kit/core'
 import {
   SortableContext,
@@ -13,12 +14,12 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { GripVertical } from 'lucide-react'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 
 function DragHandle() {
   return (
     <div className="flex cursor-grab touch-none items-center text-ink-muted hover:text-ink active:cursor-grabbing">
-      <GripVertical size={12} />
+      <GripVertical size={14} />
     </div>
   )
 }
@@ -26,9 +27,10 @@ function DragHandle() {
 type SortableItemProps = {
   id: number | string
   children: ReactNode
+  isOver: boolean
 }
 
-function SortableItem({ id, children }: SortableItemProps) {
+function SortableItem({ id, children, isOver }: SortableItemProps) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id })
 
   const style = {
@@ -42,11 +44,15 @@ function SortableItem({ id, children }: SortableItemProps) {
   return (
     <div ref={setNodeRef} style={style} className="group">
       <div className="flex items-start gap-1.5">
-        <div className="mt-1.5 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100" {...attributes} {...listeners}>
+        <div className="mt-1 flex-shrink-0 opacity-0 transition-opacity group-hover:opacity-100" {...attributes} {...listeners}>
           <DragHandle />
         </div>
         <div className="min-w-0 flex-1">{children}</div>
       </div>
+      {/* Drop placeholder — visible when another item is dragged over this position */}
+      {isOver && !isDragging && (
+        <div className="h-0.5 rounded-full bg-terracotta/50 my-1 transition-all duration-200" />
+      )}
     </div>
   )
 }
@@ -65,7 +71,14 @@ export default function SortableList<T>({ items, getId, onReorder, children }: S
 
   const ids = items.map(getId)
 
+  const [overId, setOverId] = useState<number | string | null>(null)
+
+  const handleDragOver = (event: DragOverEvent) => {
+    setOverId(event.over?.id ?? null)
+  }
+
   const handleDragEnd = (event: DragEndEvent) => {
+    setOverId(null)
     const { active, over } = event
     if (!over || active.id === over.id) return
     const from = ids.indexOf(active.id as never)
@@ -76,10 +89,10 @@ export default function SortableList<T>({ items, getId, onReorder, children }: S
   if (items.length === 0) return null
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
       <SortableContext items={ids as unknown as string[]} strategy={verticalListSortingStrategy}>
         {items.map((item, i) => (
-          <SortableItem key={getId(item, i)} id={getId(item, i)}>
+          <SortableItem key={getId(item, i)} id={getId(item, i)} isOver={overId === getId(item, i)}>
             {children(item, i)}
           </SortableItem>
         ))}

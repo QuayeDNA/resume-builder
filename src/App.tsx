@@ -1,15 +1,16 @@
-import { useEffect, useState } from 'react'
-import { Menu, X, FileText, Eye, FileDown, User, Briefcase, GraduationCap, Wrench, FolderOpen, Award, Languages, Palette, Mail, Save, Settings } from 'lucide-react'
+import { useCallback, useEffect, useState } from 'react'
+import { Menu, FileText, Eye, FileDown } from 'lucide-react'
 import { useAutoSave } from './hooks/useAutoSave'
 import { useSupabaseSync } from './hooks/useSupabaseSync'
 import SideNav from './components/Editor/SideNav'
 import EditorPanel from './components/Editor/EditorPanel'
 import PreviewPanel from './components/Preview/PreviewPanel'
 import SplashScreen from './components/SplashScreen'
+import BottomSheetNav from './components/Mobile/BottomSheetNav'
 import useResumeStore from './store/useResumeStore'
 import { exportToPdf } from './utils/pdf'
-import { BUILTIN_SECTION_IDS, TOOL_SECTION_IDS } from './types'
-import type { LucideIcon } from 'lucide-react'
+
+let splashCheckDone = false
 
 const MOBILE_TABS = [
   { id: 'edit' as const, label: 'Edit', icon: FileText },
@@ -17,33 +18,6 @@ const MOBILE_TABS = [
 ] as const
 
 type MobileTabId = 'edit' | 'preview'
-
-const BUILTIN_ICONS: Record<string, LucideIcon> = {
-  personal:       User,
-  experience:     Briefcase,
-  education:      GraduationCap,
-  skills:         Wrench,
-  projects:       FolderOpen,
-  certifications: Award,
-  languages:      Languages,
-}
-
-const TOOL_ITEMS: { id: string; icon: LucideIcon; label: string }[] = [
-  { id: 'templates',    icon: Palette, label: 'Templates' },
-  { id: 'coverletter',  icon: Mail,    label: 'Cover' },
-  { id: 'saved',        icon: Save,    label: 'Saved' },
-  { id: 'settings',     icon: Settings,label: 'Settings' },
-]
-
-const SECTION_LABELS: Record<string, string> = {
-  personal:       'Personal Info',
-  experience:     'Experience',
-  education:      'Education',
-  skills:         'Skills',
-  projects:       'Projects',
-  certifications: 'Certifications',
-  languages:      'Languages',
-}
 
 function MobileHeader({ onMenuToggle, mobileView, onViewChange }: {
   onMenuToggle: () => void
@@ -96,116 +70,6 @@ function MobileHeader({ onMenuToggle, mobileView, onViewChange }: {
   )
 }
 
-function BottomSheetNav({ open, onClose }: { open: boolean; onClose: () => void }) {
-  const activeSection = useResumeStore((s) => s.activeSection)
-  const setActiveSection = useResumeStore((s) => s.setActiveSection)
-  const data = useResumeStore((s) => s.data)
-  const [mounted, setMounted] = useState(open)
-  const [closing, setClosing] = useState(false)
-
-  useEffect(() => {
-    if (open) {
-      setMounted(true)
-      requestAnimationFrame(() => setClosing(false))
-      return
-    }
-
-    if (mounted) {
-      setClosing(true)
-      const timer = window.setTimeout(() => {
-        setMounted(false)
-        setClosing(false)
-      }, 300)
-      return () => window.clearTimeout(timer)
-    }
-  }, [open, mounted])
-
-  if (!mounted) return null
-
-  const sectionOrder = data.sectionOrder || BUILTIN_SECTION_IDS
-
-  const handleClick = (id: string) => {
-    setActiveSection(id)
-    onClose()
-  }
-
-  return (
-    <div className="fixed inset-0 z-40 lg:hidden">
-      <button
-        type="button"
-        aria-label="Close navigation"
-        className={`absolute inset-0 bg-ink/40 backdrop-blur-sm transition-opacity duration-300 ${closing ? 'opacity-0' : 'opacity-100'}`}
-        onClick={onClose}
-      />
-
-      <div
-        className={`absolute bottom-0 left-0 right-0 max-h-[70vh] overflow-y-auto rounded-t-2xl bg-paper border-t border-warm-border shadow-elevated transition-transform duration-300 ease-out-expo ${
-          closing ? 'translate-y-full' : 'translate-y-0'
-        }`}
-      >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-warm-border">
-          <span className="text-subheading text-ink font-medium">Navigate</span>
-          <button
-            onClick={onClose}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-paper-deep text-ink-muted hover:text-ink transition-colors"
-            aria-label="Close"
-          >
-            <X size={14} />
-          </button>
-        </div>
-
-        <div className="p-3">
-          {/* Sections */}
-          <p className="text-label text-ink-muted uppercase mb-1.5 px-2">Sections</p>
-          <div className="space-y-0.5 mb-3">
-            {sectionOrder.map((id) => {
-              const isCustom = id.startsWith('custom_')
-              const cs = isCustom ? data.customSections.find((c) => `custom_${c.id}` === id) : null
-              const Icon = isCustom ? FileText : (BUILTIN_ICONS[id] || FileText)
-              const label = isCustom
-                ? (cs?.name?.trim() || 'Custom Section')
-                : (SECTION_LABELS[id] || id)
-              return (
-                <button
-                  key={id}
-                  onClick={() => handleClick(id)}
-                  className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-body transition-all duration-150 ${
-                    activeSection === id
-                      ? 'bg-terracotta-dim text-terracotta font-medium'
-                      : 'text-ink-soft hover:bg-paper-deep hover:text-ink'
-                  }`}
-                >
-                  <Icon size={16} strokeWidth={activeSection === id ? 2 : 1.5} />
-                  {label}
-                </button>
-              )
-            })}
-          </div>
-
-          {/* Tools */}
-          <p className="text-label text-ink-muted uppercase mb-1.5 px-2">Tools</p>
-          <div className="space-y-0.5">
-            {TOOL_ITEMS.map(({ id, icon: Icon, label }) => (
-              <button
-                key={id}
-                onClick={() => handleClick(id)}
-                className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-body transition-all duration-150 ${
-                  activeSection === id
-                    ? 'bg-terracotta-dim text-terracotta font-medium'
-                    : 'text-ink-soft hover:bg-paper-deep hover:text-ink'
-                }`}
-              >
-                <Icon size={16} strokeWidth={activeSection === id ? 2 : 1.5} />
-                {label}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 export default function App() {
   useAutoSave()
   useSupabaseSync()
@@ -214,6 +78,8 @@ export default function App() {
   const [mobileView, setMobileView] = useState<MobileTabId>('edit')
 
   useEffect(() => {
+    if (splashCheckDone) return
+    splashCheckDone = true
     const splashShown = sessionStorage.getItem('resume-builder:splash-shown')
     if (splashShown) {
       setShowSplash(false)
@@ -221,6 +87,8 @@ export default function App() {
       sessionStorage.setItem('resume-builder:splash-shown', 'true')
     }
   }, [])
+
+  const handleSplashDismiss = useCallback(() => setShowSplash(false), [])
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -239,7 +107,7 @@ export default function App() {
 
   return (
     <>
-      {showSplash && <SplashScreen onDismiss={() => setShowSplash(false)} />}
+      {showSplash && <SplashScreen onDismiss={handleSplashDismiss} />}
 
       {/* Grain overlay */}
       <div className="grain-overlay" />

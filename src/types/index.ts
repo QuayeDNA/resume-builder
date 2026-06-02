@@ -48,11 +48,24 @@ export interface LanguageEntry {
   proficiency: string
 }
 
+export interface CustomField {
+  key: string
+  label: string
+  type: 'text' | 'textarea'
+}
+
 export interface CustomSectionEntry {
   id: number
-  name: string
-  description: string
+  values: Record<string, string>
   bullets: string[]
+}
+
+export interface CustomSection {
+  id: number
+  name: string
+  entryLabel: string
+  fields: CustomField[]
+  entries: CustomSectionEntry[]
 }
 
 export interface ResumeData {
@@ -63,7 +76,7 @@ export interface ResumeData {
   projects: ProjectEntry[]
   certifications: CertificationEntry[]
   languages: LanguageEntry[]
-  customSections: CustomSectionEntry[]
+  customSections: CustomSection[]
   sectionOrder: string[]
   template: string
   atsMode: boolean

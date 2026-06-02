@@ -24,8 +24,8 @@
   }
 
   ::selection {
-    background: var(--color-terracotta-dim);
-    color: var(--color-terracotta);
+    background: rgba(199, 107, 74, 0.25);
+    color: #2a2520;
   }
 
   ::-webkit-scrollbar {
