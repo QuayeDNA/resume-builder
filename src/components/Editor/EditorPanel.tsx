@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react'
 import { Undo2, Redo2, Eye, EyeOff, Activity } from 'lucide-react'
 import {
   DndContext,
@@ -71,7 +72,7 @@ function DraggableSection({ section, hidden, children }: { section: string; hidd
 
   return (
     <DragHandleContext.Provider value={{ attributes, listeners, setActivatorNodeRef }}>
-      <div ref={setNodeRef} style={style} className={`animate-fade-up relative group ${hidden ? 'opacity-50' : ''}`}>
+      <div ref={setNodeRef} id={`editor-section-${section}`} style={style} className={`animate-fade-up relative group ${hidden ? 'opacity-50' : ''}`}>
         <div className="flex-1 min-w-0">{children}</div>
         <div className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
           <IconButton
@@ -96,6 +97,16 @@ export default function EditorPanel() {
   const reorderNavSection = useResumeStore((s) => s.reorderNavSection)
   const sectionOrder = data.sectionOrder || BUILTIN_SECTION_IDS
   const hiddenSections = data.hiddenSections || []
+  const scrollContainerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const isRegularSection = !SPECIAL_VIEWS[activeSection] && activeSection !== 'settings'
+    if (!isRegularSection || !scrollContainerRef.current) return
+    const el = document.getElementById(`editor-section-${activeSection}`)
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }, [activeSection])
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -176,7 +187,7 @@ export default function EditorPanel() {
         <p className="text-caption text-ink-muted mt-0.5">Build your resume section by section</p>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto px-3 py-3 space-y-3">
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <SortableContext items={sectionOrder} strategy={verticalListSortingStrategy}>
             {sectionOrder.map((section, index) => {

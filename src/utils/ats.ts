@@ -29,16 +29,24 @@ const COMMON_INDUSTRY_KEYWORDS = [
 ]
 
 export function calculateAtsScore(data: ResumeData): AtsResult {
-  const { personal, experience, education, skills, certifications, languages } = data
+  const { personal, experience, education, skills, certifications, languages, customSections } = data
   const categoryScores: AtsCategoryScore[] = []
   const suggestions: AtsSuggestion[] = []
   const feedback: string[] = []
+
+  const customText = (customSections || []).flatMap((cs) =>
+    cs.entries.flatMap((e) => [
+      ...Object.values(e.values).filter(Boolean),
+      ...e.bullets,
+    ])
+  )
 
   const allText = [
     personal.summary,
     ...experience.flatMap((e) => [e.role, e.company, ...e.bullets]),
     ...skills,
     ...education.map((e) => `${e.school} ${e.degree} ${e.gpa}`),
+    ...customText,
   ].join(' ').toLowerCase()
 
   const metrics = allText.match(/\d+[%+k$mx]?/g) || []
@@ -181,13 +189,26 @@ export function calculateAtsScore(data: ResumeData): AtsResult {
 export function getScoreColor(score: number): string {
   if (score >= 75) return '#4ade80'
   if (score >= 50) return '#fbbf24'
-  if (score >= 30) return '#fb923c'
-  return '#f87171'
+  return '#d05c5c'
 }
 
 export function getScoreLabel(score: number): string {
   if (score >= 75) return 'Excellent'
   if (score >= 50) return 'Good'
-  if (score >= 30) return 'Needs Work'
-  return 'Poor'
+  return 'Needs Work'
+}
+
+export function getScoreVariant(score: number): 'success' | 'warning' | 'error' {
+  if (score >= 75) return 'success'
+  if (score >= 50) return 'warning'
+  return 'error'
+}
+
+export function hashResumeData(data: ResumeData): string {
+  let hash = 0
+  for (const char of JSON.stringify(data)) {
+    hash = ((hash << 5) - hash) + char.charCodeAt(0)
+    hash |= 0
+  }
+  return hash.toString(36)
 }

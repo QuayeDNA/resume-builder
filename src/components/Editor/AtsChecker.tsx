@@ -1,38 +1,117 @@
-import { useEffect, useState, useRef, useMemo } from 'react'
-import { Activity, RefreshCw, ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
-import { calculateAtsScore, getScoreColor, getScoreLabel } from '../../utils/ats'
-import { Button, AiButton } from '../UI'
-import { Skeleton } from '../../design/components'
+import { useEffect, useState, useMemo, useCallback } from 'react'
+import { Activity, RefreshCw, ChevronDown, ChevronUp, AlertTriangle, CheckCircle, Target, ArrowRight, FileText, Zap } from 'lucide-react'
+import { calculateAtsScore, getScoreColor, getScoreLabel, getScoreVariant, hashResumeData } from '../../utils/ats'
+import { Button } from '../UI'
+import { Skeleton, Surface, Badge, Hint } from '../../design/components'
 import useResumeStore from '../../store/useResumeStore'
 import type { AtsResult } from '../../types'
 import { cn } from '../../utils/classNames'
-import { aiAtsSuggestions } from '../../api/ai'
-import type { AtsAiResult } from '../../api/ai'
-import { useAi } from '../../hooks/useAi'
+import { aiCalculateAtsScore } from '../../api/ai'
+
+const CATEGORY_TO_SECTION: Record<string, string> = {
+  contact: 'personal',
+  content: 'personal',
+  experience: 'experience',
+  skills: 'skills',
+  education: 'education',
+  extras: 'certifications',
+}
+
+const VARIANT_TEXT: Record<string, string> = {
+  success: 'text-success',
+  warning: 'text-warning',
+  error: 'text-error',
+}
+
+const VARIANT_BG: Record<string, string> = {
+  success: 'bg-success',
+  warning: 'bg-warning',
+  error: 'bg-error',
+}
+
+type AtsState = 'idle' | 'loading' | 'loaded' | 'error'
 
 export default function AtsChecker() {
   const data = useResumeStore((s) => s.data)
-  const setActiveSection = useResumeStore((s) => s.setActiveSection)
-  const [result, setResult] = useState<AtsResult | null>(null)
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
-  const [aiResult, setAiResult] = useState<AtsAiResult | null>(null)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const { run: runAi, isLoading } = useAi()
+  const atsCachedResult = useResumeStore((s) => s.atsCachedResult)
+  const atsCachedHash = useResumeStore((s) => s.atsCachedHash)
+  const atsCachedType = useResumeStore((s) => s.atsCachedType)
+  const setAtsCache = useResumeStore((s) => s.setAtsCache)
+  const setAtsDialogOpen = useResumeStore((s) => s.setAtsDialogOpen)
 
+  const currentHash = useMemo(() => hashResumeData(data), [data])
+  const hasValidCache = atsCachedHash === currentHash && atsCachedResult
+
+  const [state, setState] = useState<AtsState>(hasValidCache ? 'loaded' : 'idle')
+  const [result, setResult] = useState<AtsResult | null>(hasValidCache ? atsCachedResult : null)
+  const [error, setError] = useState<string | null>(null)
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null)
+  const [analysisType, setAnalysisType] = useState<'ai' | 'basic' | null>(hasValidCache ? atsCachedType : null)
+  const [refreshLoading, setRefreshLoading] = useState(false)
+
+  const variant = result ? getScoreVariant(result.score) : 'success'
   const scoreColor = result ? getScoreColor(result.score) : '#4ade80'
 
-  const run = () => setResult(calculateAtsScore(data))
-
-  const handleAiSuggest = () =>
-    runAi<AtsAiResult>('atsai', () => aiAtsSuggestions(data), (v) => setAiResult(v))
+  const runAiAnalysis = useCallback(async () => {
+    setState('loading')
+    setError(null)
+    try {
+      const r = await aiCalculateAtsScore(data)
+      const h = hashResumeData(data)
+      setResult(r)
+      setAnalysisType('ai')
+      setAtsCache(r, h, 'ai')
+      setState('loaded')
+    } catch {
+      try {
+        const r = calculateAtsScore(data)
+        const h = hashResumeData(data)
+        setResult(r)
+        setAnalysisType('basic')
+        setAtsCache(r, h, 'basic')
+        setState('loaded')
+      } catch (e2) {
+        setError(e2 instanceof Error ? e2.message : 'Analysis failed')
+        setState('error')
+      }
+    }
+  }, [data, setAtsCache])
 
   useEffect(() => {
-    if (timerRef.current) clearTimeout(timerRef.current)
-    timerRef.current = setTimeout(run, 2000)
-    return () => {
-      if (timerRef.current) clearTimeout(timerRef.current)
+    if (hasValidCache) return
+    runAiAnalysis()
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  const handleGoToSection = useCallback((sectionId?: string) => {
+    if (sectionId) {
+      setAtsDialogOpen(false)
+      useResumeStore.getState().setActiveSection(sectionId === 'summary' ? 'personal' : sectionId)
     }
-  }, [data])
+  }, [setAtsDialogOpen])
+
+  const handleRefresh = useCallback(async () => {
+    if (state !== 'loaded' || refreshLoading) return
+    setRefreshLoading(true)
+    const h = hashResumeData(data)
+
+    if (analysisType === 'ai') {
+      const r = calculateAtsScore(data)
+      setResult(r)
+      setAnalysisType('basic')
+      setAtsCache(r, h, 'basic')
+    } else {
+      try {
+        const r = await aiCalculateAtsScore(data)
+        setResult(r)
+        setAnalysisType('ai')
+        setAtsCache(r, h, 'ai')
+      } catch {
+        /* keep current result */
+      }
+    }
+
+    setRefreshLoading(false)
+  }, [data, state, analysisType, refreshLoading, setAtsCache])
 
   const topSuggestions = useMemo(() => {
     if (!result) return []
@@ -46,182 +125,247 @@ export default function AtsChecker() {
       .slice(0, 10)
   }, [result])
 
-  const handleGoToSection = (sectionId: string) => {
-    setActiveSection(sectionId)
+  const scoreRing = (score: number) => {
+    const size = 56
+    const stroke = 4
+    const r = (size - stroke) / 2
+    const circumference = 2 * Math.PI * r
+    const offset = circumference - (score / 100) * circumference
+    return (
+      <svg width={size} height={size} className="shrink-0" aria-hidden="true">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="currentColor" strokeWidth={stroke} className="text-warm-border-strong" />
+        <circle
+          cx={size / 2} cy={size / 2} r={r}
+          fill="none" stroke={scoreColor} strokeWidth={stroke}
+          strokeDasharray={circumference} strokeDashoffset={offset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          className="transition-all duration-700"
+        />
+        <text x="50%" y="50%" textAnchor="middle" dominantBaseline="central" className="text-sm font-bold fill-current">
+          {score}
+        </text>
+      </svg>
+    )
+  }
+
+  /* ── Idle ── */
+  if (state === 'idle') {
+    return (
+      <div className="flex flex-col items-center justify-center py-10 space-y-3">
+        <Activity size={28} className="text-sage animate-pulse" />
+        <p className="text-body text-ink-muted">Analyzing with AI…</p>
+      </div>
+    )
+  }
+
+  /* ── Error ── */
+  if (state === 'error') {
+    return (
+      <div className="flex flex-col items-center justify-center py-8 space-y-4">
+        <AlertTriangle size={28} className="text-error" />
+        <p className="text-body text-ink-soft text-center max-w-[240px]">{error || 'Analysis failed.'}</p>
+        <Button onClick={runAiAnalysis} variant="primary" size="sm">Retry</Button>
+      </div>
+    )
+  }
+
+  /* ── Loading (first run, no result yet) ── */
+  if (state === 'loading' && !result) {
+    return (
+      <div className="space-y-4 py-2">
+        <div className="flex items-center gap-3">
+          <div className="w-14 h-14 rounded-full bg-paper-deep animate-pulse shrink-0" />
+          <div className="space-y-2 flex-1">
+            <div className="h-4 w-28 bg-paper-deep rounded animate-pulse" />
+            <div className="h-3 w-20 bg-paper-deep rounded animate-pulse" />
+          </div>
+        </div>
+        <Skeleton lines={5} />
+        <p className="text-caption text-ink-muted text-center">AI is analyzing your resume for role-specific feedback…</p>
+      </div>
+    )
   }
 
   return (
-    <div className="mt-3 space-y-3">
-      <Button onClick={run} variant="ghost" size="full" icon={<RefreshCw size={12} />}>
-        Refresh ATS Score
-      </Button>
+    <div className="space-y-5">
+      {/* ── Status badges ── */}
+      <div className="flex items-center gap-2">
+        {analysisType === 'ai' && (
+          <div className="flex items-center gap-1.5 text-caption text-sage">
+            <Zap size={12} />
+            AI-powered
+          </div>
+        )}
+        {analysisType === 'basic' && (
+          <div className="flex items-center gap-1.5 text-caption text-ink-muted">
+            <AlertTriangle size={10} />
+            Basic analysis
+          </div>
+        )}
+        {refreshLoading && (
+          <span className="text-caption text-ink-muted animate-pulse">Refreshing…</span>
+        )}
+      </div>
 
+      {/* ── Score header ── */}
+      <div className="flex items-center gap-4">
+        {result && scoreRing(result.score)}
+        <div className="flex-1 min-w-0">
+          <p className={cn('text-subheading font-display font-semibold', VARIANT_TEXT[variant])}>
+            {result ? getScoreLabel(result.score) : '-'}
+          </p>
+          <p className="text-caption text-ink-muted">ATS Compatibility Score</p>
+        </div>
+        <Button
+          onClick={handleRefresh}
+          variant="ghost"
+          size="sm"
+          icon={<RefreshCw size={12} className={refreshLoading ? 'animate-spin' : ''} />}
+          className="shrink-0"
+          disabled={refreshLoading}
+        >
+          {analysisType === 'ai' ? 'Basic Check' : 'AI Analysis'}
+        </Button>
+      </div>
+
+      {/* ── Progress bar ── */}
       {result && (
-        <div className="bg-paper-deep/40 border border-warm-border rounded-xl p-3 animate-fade-up space-y-3">
-          {/* ─── Overall Score ─── */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Activity size={14} style={{ color: scoreColor }} />
-              <span className="text-body font-bold" style={{ color: scoreColor }}>
-                {getScoreLabel(result.score)}
-              </span>
-              <span className="text-caption text-ink-muted">ATS Score</span>
-            </div>
-            <span className="font-mono font-bold" style={{ color: scoreColor, fontSize: '18px' }}>
-              {result.score}%
-            </span>
-          </div>
+        <div className="h-2 bg-warm-border-strong rounded-full overflow-hidden">
+          <div
+            className={cn('h-full rounded-full transition-all duration-700 ease-out', VARIANT_BG[variant])}
+            style={{ width: `${result.score}%` }}
+          />
+        </div>
+      )}
 
-          <div className="h-2 bg-warm-border-strong rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700 ease-out"
-              style={{ width: `${result.score}%`, background: scoreColor }}
-            />
-          </div>
+      {/* ── Verb & Metric counts ── */}
+      {result && (
+        <div className="flex gap-4 text-caption text-ink-muted">
+          <span>Action verbs <span className="text-ink font-medium">{result.verbCount}</span></span>
+          <span>Metrics <span className="text-ink font-medium">{result.metricCount}</span></span>
+        </div>
+      )}
 
-          {/* ─── Category Scores ─── */}
-          <div className="space-y-1.5">
-            <p className="text-label text-ink-muted">Score Breakdown</p>
+      {/* ── Category breakdown ── */}
+      {result && result.categoryScores.length > 0 && (
+        <section>
+          <h3 className="text-label font-semibold text-ink mb-2 flex items-center gap-1.5">
+            <Target size={14} className="text-sage" />
+            Category Breakdown
+          </h3>
+          <div className="space-y-1">
             {result.categoryScores.map((cat) => {
               const pct = cat.maxScore > 0 ? Math.round((cat.score / cat.maxScore) * 100) : 0
               const isOpen = expandedCategory === cat.category
+              const catVariant = getScoreVariant(pct)
               return (
-                <div key={cat.category}>
+                <div key={cat.category} className="rounded-lg border border-warm-border bg-paper-warm/40 overflow-hidden">
                   <button
                     onClick={() => setExpandedCategory(isOpen ? null : cat.category)}
-                    className="flex w-full items-center justify-between py-1 text-caption text-ink-soft hover:text-ink transition-colors"
+                    className="w-full flex items-center gap-3 px-3 py-2 hover:bg-paper-deep/30 transition-colors text-left"
                   >
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <div className="flex-1">{cat.label}</div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-mono font-medium" style={{ color: getScoreColor(pct) }}>
-                          {cat.score}/{cat.maxScore}
-                        </span>
-                        <div className="w-16 h-1.5 bg-warm-border-strong rounded-full overflow-hidden">
-                          <div
-                            className="h-full rounded-full transition-all duration-500"
-                            style={{ width: `${pct}%`, background: getScoreColor(pct) }}
-                          />
-                        </div>
-                      </div>
+                    <span className="flex-1 text-body text-ink font-medium min-w-0 truncate">{cat.label}</span>
+                    <span className={cn('text-label font-semibold shrink-0', VARIANT_TEXT[catVariant])}>
+                      {cat.score}/{cat.maxScore}
+                    </span>
+                    <div className="w-16 h-1.5 bg-warm-border-strong rounded-full overflow-hidden shrink-0">
+                      <div
+                        className={cn('h-full rounded-full transition-all duration-500', VARIANT_BG[catVariant])}
+                        style={{ width: `${pct}%` }}
+                      />
                     </div>
-                    {isOpen ? <ChevronUp size={12} className="ml-1 shrink-0" /> : <ChevronDown size={12} className="ml-1 shrink-0" />}
+                    {isOpen
+                      ? <ChevronUp size={12} className="text-ink-muted shrink-0" />
+                      : <ChevronDown size={12} className="text-ink-muted shrink-0" />
+                    }
                   </button>
                   {isOpen && (
-                    <div className="pl-2 pb-1 space-y-0.5 animate-fade-in">
-                      {cat.feedback.map((f, i) => (
-                        <p key={i} className={cn('text-caption', f.includes('complete') || f.includes('strong') || f.includes('well') ? 'text-sage' : 'text-ink-muted')}>
-                          → {f}
-                        </p>
-                      ))}
+                    <div className="px-3 pb-2.5 space-y-1.5 border-t border-warm-border pt-2">
+                      {cat.feedback.length === 0 ? (
+                        <Hint variant="success">No issues — this category looks good!</Hint>
+                      ) : (
+                        cat.feedback.map((f, i) => {
+                          const isPositive = f.includes('complete') || f.includes('strong') || f.includes('well') || f.includes('optimized') || f.includes('listed') || f.includes('good')
+                          return (
+                            <div key={i} className="flex items-start gap-2 pl-1">
+                              <span className={cn('text-caption mt-0.5 shrink-0', isPositive ? 'text-success' : 'text-ink-muted')}>
+                                {isPositive ? '✓' : '→'}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <Hint variant={isPositive ? 'success' : 'default'}>{f}</Hint>
+                              </div>
+                              {!isPositive && CATEGORY_TO_SECTION[cat.category] && (
+                                <Button
+                                  onClick={() => handleGoToSection(CATEGORY_TO_SECTION[cat.category])}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="shrink-0 mt-0.5"
+                                >
+                                  Fix
+                                </Button>
+                              )}
+                            </div>
+                          )
+                        })
+                      )}
                     </div>
                   )}
                 </div>
               )
             })}
           </div>
+        </section>
+      )}
 
-          {/* ─── Verb & Metric Counts ─── */}
-          <div className="flex gap-3 pt-2 border-t border-warm-border text-caption text-ink-muted">
-            <span>Action verbs: <span className="text-ink font-medium">{result.verbCount}</span></span>
-            <span>Metrics: <span className="text-ink font-medium">{result.metricCount}</span></span>
-          </div>
-
-          {/* ─── Suggestions with Fix Buttons ─── */}
-          {topSuggestions.length > 0 && (
-            <div className="pt-2 border-t border-warm-border space-y-1.5">
-              <p className="text-label text-ink-muted">Suggestions</p>
-              {topSuggestions.map((s, i) => (
-                <div key={i} className="flex items-start gap-2">
-                  <p className="text-caption text-ink-soft flex-1">{s.message}</p>
-                  <Button onClick={() => handleGoToSection(s.section)} variant="ghost" size="sm">
+      {/* ── Suggestions with Fix buttons ── */}
+      {topSuggestions.length > 0 && (
+        <section>
+          <h3 className="text-label font-semibold text-ink mb-2 flex items-center gap-1.5">
+            <FileText size={14} className="text-terracotta" />
+            Top Suggestions
+          </h3>
+          <div className="space-y-2">
+            {topSuggestions.map((s, i) => (
+              <div key={i} className="flex items-start gap-3 bg-paper-deep/30 rounded-lg px-3 py-2.5 border border-warm-border">
+                <span className="text-caption text-ink-muted font-mono mt-0.5 shrink-0">{i + 1}.</span>
+                <p className="flex-1 text-body text-ink-soft leading-snug">{s.message}</p>
+                <div className="flex items-center gap-2 shrink-0 mt-0.5">
+                  <Badge variant="brand" className="text-[10px]">{s.section}</Badge>
+                  <Button onClick={() => handleGoToSection(s.section)} variant="ghost" size="sm" icon={<ArrowRight size={10} />}>
                     Fix
                   </Button>
                 </div>
-              ))}
-            </div>
-          )}
-
-          {/* ─── Keyword Density ─── */}
-          {topKeywords.length > 0 && (
-            <div className="pt-2 border-t border-warm-border space-y-1.5">
-              <p className="text-label text-ink-muted">Top Keywords by Density</p>
-              <div className="flex flex-wrap gap-1.5">
-                {topKeywords.map(([kw, density]) => (
-                  <span
-                    key={kw}
-                    className="inline-flex items-center gap-1 rounded-full bg-warm-border/50 px-2 py-0.5 text-caption text-ink-soft"
-                  >
-                    {kw}
-                    <span className="font-mono text-ink-muted" style={{ fontSize: '9px' }}>{density}%</span>
-                  </span>
-                ))}
               </div>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        </section>
       )}
 
-      {/* AI-powered suggestions */}
-      <div className="pt-2 border-t border-warm-border">
-        <AiButton onClick={handleAiSuggest} loading={isLoading('atsai')} size="sm" showProvider>
-          AI Suggestions
-        </AiButton>
-      </div>
-
-      {isLoading('atsai') && (
-        <div className="space-y-3 animate-fade-in">
-          <Skeleton lines={4} />
-        </div>
+      {/* ── Keyword density ── */}
+      {topKeywords.length > 0 && (
+        <section>
+          <h3 className="text-label font-semibold text-ink mb-2 flex items-center gap-1.5">
+            <AlertTriangle size={14} className="text-warning" />
+            Top Keywords by Density
+          </h3>
+          <div className="flex flex-wrap gap-1.5">
+            {topKeywords.map(([kw, density]) => (
+              <Badge key={kw} variant="default">
+                {kw}
+                <span className="font-mono opacity-60 ml-1">{density}%</span>
+              </Badge>
+            ))}
+          </div>
+        </section>
       )}
 
-      {aiResult && (
-        <div className="bg-paper-deep/40 border border-warm-border rounded-xl p-3 animate-fade-up space-y-3">
-          {aiResult.strengths.length > 0 && (
-            <div>
-              <p className="text-label text-green-600 font-semibold mb-1">Strengths</p>
-              <ul className="space-y-1">
-                {aiResult.strengths.map((s, i) => (
-                  <li key={i} className="text-caption text-ink-soft flex items-start gap-1.5">
-                    <span className="text-green-400">✓</span> {s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {aiResult.suggestions.length > 0 && (
-            <div>
-              <p className="text-label text-amber-600 font-semibold mb-1">Suggestions</p>
-              <div className="space-y-1.5">
-                {aiResult.suggestions.map((s, i) => (
-                  <div key={i} className="flex items-start gap-2">
-                    <span className={`shrink-0 text-caption font-bold ${s.impact === 'high' ? 'text-red-500' : s.impact === 'medium' ? 'text-amber-500' : 'text-blue-500'}`}>
-                      {s.impact === 'high' ? '!!' : s.impact === 'medium' ? '!' : '·'}
-                    </span>
-                    <p className="text-caption text-ink-soft flex-1">{s.message}</p>
-                    <Button onClick={() => handleGoToSection(s.section)} variant="ghost" size="sm">
-                      Fix
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {aiResult.quickWins.length > 0 && (
-            <div>
-              <p className="text-label text-blue-600 font-semibold mb-1">Quick Wins</p>
-              <ul className="space-y-1">
-                {aiResult.quickWins.map((q, i) => (
-                  <li key={i} className="text-caption text-ink-soft flex items-start gap-1.5">
-                    <Sparkles size={10} className="text-blue-400 mt-0.5 shrink-0" /> {q}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
+      {/* ── Empty state (loaded, no issues) ── */}
+      {state === 'loaded' && result && result.suggestions.length === 0 && result.categoryScores.every((c) => c.feedback.every((f) => !f.toLowerCase().includes('missing') && !f.toLowerCase().includes('add') && !f.toLowerCase().includes('consider'))) && (
+        <Surface variant="success" className="text-center py-6">
+          <CheckCircle size={24} className="text-success mx-auto mb-2" />
+          <p className="text-body text-ink-soft">Your resume looks great! No issues found.</p>
+        </Surface>
       )}
     </div>
   )

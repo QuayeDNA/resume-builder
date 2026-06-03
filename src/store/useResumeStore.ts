@@ -14,6 +14,7 @@ import type {
   CertificationEntry,
   LanguageEntry,
   CustomSection,
+  AtsResult,
 } from '../types'
 
 type HistoryEntry = { data: ResumeData; cl: CoverLetterData }
@@ -100,6 +101,10 @@ interface ResumeStore {
   setExportDialogOpen: (open: boolean) => void
   atsDialogOpen: boolean
   setAtsDialogOpen: (open: boolean) => void
+  atsCachedResult: AtsResult | null
+  atsCachedHash: string | null
+  atsCachedType: 'ai' | 'basic' | null
+  setAtsCache: (result: AtsResult, hash: string, type: 'ai' | 'basic') => void
 }
 
 const MAX_HISTORY = 50
@@ -127,6 +132,10 @@ const useResumeStore = create<ResumeStore>((set, get) => ({
   setExportDialogOpen: (open) => set({ exportDialogOpen: open }),
   atsDialogOpen: false,
   setAtsDialogOpen: (open) => set({ atsDialogOpen: open }),
+  atsCachedResult: null,
+  atsCachedHash: null,
+  atsCachedType: null,
+  setAtsCache: (result, hash, type) => set({ atsCachedResult: result, atsCachedHash: hash, atsCachedType: type }),
 
   undo: () => {
     const { undoStack, redoStack, data, cl } = get()

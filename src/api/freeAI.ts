@@ -15,10 +15,10 @@ export function getConfiguredProvider(): string | null {
   return null
 }
 
-export async function callFreeAI(userPrompt: string, systemPrompt = '', maxTokens = 1000): Promise<string> {
+export async function callFreeAI(userPrompt: string, systemPrompt = '', maxTokens = 1000, temperature = 0.7): Promise<string> {
   const providers = [
-    { name: 'Groq', fn: () => callGroq(userPrompt, systemPrompt, maxTokens) },
-    { name: 'Zephyr', fn: () => callHuggingFace(userPrompt, systemPrompt, maxTokens) },
+    { name: 'Groq', fn: () => callGroq(userPrompt, systemPrompt, maxTokens, temperature) },
+    { name: 'Zephyr', fn: () => callHuggingFace(userPrompt, systemPrompt, maxTokens, temperature) },
   ]
 
   let lastError: Error | null = null
@@ -38,7 +38,7 @@ export async function callFreeAI(userPrompt: string, systemPrompt = '', maxToken
   throw new Error(lastError?.message || 'Both Groq and Zephyr failed. Check your tokens and try again.')
 }
 
-async function callGroq(userPrompt: string, systemPrompt: string, maxTokens: number): Promise<string> {
+async function callGroq(userPrompt: string, systemPrompt: string, maxTokens: number, temperature: number): Promise<string> {
   if (!GROQ_KEY) {
     throw new Error('Groq token missing. Set NEXT_PUBLIC_GROQ_API_KEY in .env.local')
   }
@@ -72,7 +72,7 @@ async function callGroq(userPrompt: string, systemPrompt: string, maxTokens: num
   return data.choices?.[0]?.message?.content || ''
 }
 
-async function callHuggingFace(userPrompt: string, systemPrompt: string, maxTokens: number): Promise<string> {
+async function callHuggingFace(userPrompt: string, systemPrompt: string, maxTokens: number, temperature: number): Promise<string> {
   if (!HF_TOKEN) {
     throw new Error('Hugging Face token missing. Set NEXT_PUBLIC_HF_TOKEN in .env.local')
   }
@@ -93,7 +93,7 @@ async function callHuggingFace(userPrompt: string, systemPrompt: string, maxToke
         inputs: prompt,
         parameters: {
           max_new_tokens: Math.min(maxTokens, 512),
-          temperature: 0.7,
+          temperature,
           return_full_text: false,
         },
       }),

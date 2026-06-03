@@ -1,5 +1,5 @@
 import { callFreeAI, getConfiguredProvider, getLastProvider } from './freeAI'
-import type { ExperienceEntry, ResumeData } from '../types'
+import type { ExperienceEntry, ResumeData, AtsResult } from '../types'
 import {
   formatImprovesSummaryPrompt,
   formatImproveBulletPrompt,
@@ -7,12 +7,12 @@ import {
   formatSuggestSkillsPrompt,
   formatGenerateCoverLetterPrompt,
   formatAnalyzeJobMatchPrompt,
+  formatAtsScorePrompt,
   formatAtsSuggestionsPrompt,
 } from './prompts'
 import type { JobMatchResult } from './prompts'
-
-export async function callAI(userPrompt: string, systemPrompt = '', maxTokens = 1000): Promise<string> {
-  return callFreeAI(userPrompt, systemPrompt, maxTokens)
+export async function callAI(userPrompt: string, systemPrompt = '', maxTokens = 1000, temperature = 0.7): Promise<string> {
+  return callFreeAI(userPrompt, systemPrompt, maxTokens, temperature)
 }
 
 export function getActiveProvider(): string | null {
@@ -72,6 +72,43 @@ export type AtsAiResult = {
   suggestions: { section: string; message: string; impact: 'high' | 'medium' | 'low' }[]
   strengths: string[]
   quickWins: string[]
+}
+
+export async function aiCalculateAtsScore(data: ResumeData): Promise<AtsResult> {
+  const { userPrompt, systemPrompt, maxTokens } = formatAtsScorePrompt({
+    name: data.personal.name,
+    title: data.personal.title,
+    summary: data.personal.summary,
+    skills: data.skills,
+    experience: data.experience.map((e) => ({ role: e.role, company: e.company, bullets: e.bullets })),
+    education: data.education.map((e) => ({ degree: e.degree, school: e.school })),
+    certifications: data.certifications.map((c) => c.name),
+    languages: (data.languages || []).map((l) => ({ language: l.language, proficiency: l.proficiency })),
+    customSections: (data.customSections || []).map((cs) => ({
+      name: cs.name,
+      entries: cs.entries.map((e) => ({
+        values: e.values,
+        bullets: e.bullets,
+      })),
+    })),
+  })
+  const raw = await callAI(userPrompt, systemPrompt, maxTokens, 0)
+  const cleaned = raw.replace(/```json\s*/gi, '').replace(/```\s*/g, '').trim()
+
+  try {
+    const parsed = JSON.parse(cleaned)
+    return {
+      score: parsed.score ?? 0,
+      feedback: parsed.feedback ?? [],
+      verbCount: parsed.verbCount ?? 0,
+      metricCount: parsed.metricCount ?? 0,
+      categoryScores: parsed.categoryScores ?? [],
+      suggestions: parsed.suggestions ?? [],
+      keywordDensity: parsed.keywordDensity ?? {},
+    } as AtsResult
+  } catch {
+    throw new Error('Failed to analyze resume with AI. Please try again.')
+  }
 }
 
 export async function aiAtsSuggestions(data: ResumeData): Promise<AtsAiResult> {

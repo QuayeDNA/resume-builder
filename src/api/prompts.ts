@@ -158,6 +158,135 @@ export type JobMatchResult = {
   weakPoints: string[]
 }
 
+const ATS_SCORE_SYSTEM = `You are an expert ATS (Applicant Tracking System) resume analyst. Your job is to analyze a resume and return a structured, role-aware assessment.
+
+IDENTIFY the candidate's target role from their experience, title, and summary.
+PROVIDE role-specific analysis — do NOT suggest generic technical keywords unless they are genuinely relevant to the candidate's field.
+SCORE each category fairly based on the content provided.
+SUGGESTIONS must be actionable, specific, and tied to a real gap in the resume.
+
+Return ONLY valid JSON — no markdown, no code fences, no preamble.`
+
+export function formatAtsScorePrompt(data: {
+  name: string
+  title: string
+  summary: string
+  skills: string[]
+  experience: { role: string; company: string; bullets: string[] }[]
+  education: { degree: string; school: string }[]
+  certifications: string[]
+  languages: { language: string; proficiency: string }[]
+  customSections: { name: string; entries: { values: Record<string, string>; bullets: string[] }[] }[]
+}) {
+  const expText = data.experience.map((e) =>
+    `- ${e.role} at ${e.company}\n  ${e.bullets.map((b) => `  • ${b}`).join('\n')}`
+  ).join('\n')
+  const eduText = data.education.map((e) => `- ${e.degree}, ${e.school}`).join('\n')
+  const langText = data.languages.map((l) => `${l.language} (${l.proficiency})`).join(', ')
+  const customText = data.customSections.map((cs) =>
+    `[${cs.name}]\n${cs.entries.map((e) =>
+      `${Object.values(e.values).filter(Boolean).join(', ')}${e.bullets.length ? '\n' + e.bullets.map((b) => `  • ${b}`).join('\n') : ''}`
+    ).join('\n')}`
+  ).join('\n\n')
+
+  return {
+    userPrompt: `Analyze this resume for ATS compatibility and return a structured JSON assessment.
+
+RESUME:
+Name: ${data.name || 'N/A'}
+Current Title: ${data.title || 'N/A'}
+Summary: "${data.summary || 'N/A'}"
+Skills: ${data.skills.join(', ') || 'N/A'}
+Experience:
+${expText || 'N/A'}
+Education:
+${eduText || 'N/A'}
+Certifications: ${data.certifications.join(', ') || 'N/A'}
+Languages: ${langText || 'N/A'}
+${customText ? `Custom Sections:\n${customText}` : ''}
+
+First, identify the candidate's target role from their experience and title.
+Then provide a role-aware ATS assessment.
+
+Return JSON with this exact structure:
+{
+  "score": <integer 0-100 overall ATS score>,
+  "feedback": ["2-3 sentence overall assessment of the resume's ATS readiness"],
+  "verbCount": <count of action verbs found>,
+  "metricCount": <count of quantified metrics found>,
+  "categoryScores": [
+    {
+      "category": "contact",
+      "label": "Contact Info",
+      "score": <0-17>,
+      "maxScore": 17,
+      "feedback": ["specific feedback on contact section"]
+    },
+    {
+      "category": "content",
+      "label": "Summary & Content",
+      "score": <0-18>,
+      "maxScore": 18,
+      "feedback": ["feedback on summary quality and content"]
+    },
+    {
+      "category": "experience",
+      "label": "Experience Quality",
+      "score": <0-30>,
+      "maxScore": 30,
+      "feedback": ["feedback on bullet quality, action verbs, metrics"]
+    },
+    {
+      "category": "skills",
+      "label": "Skills & Keywords",
+      "score": <0-15>,
+      "maxScore": 15,
+      "feedback": ["feedback on skill relevance and keyword coverage"]
+    },
+    {
+      "category": "education",
+      "label": "Education",
+      "score": <0-10>,
+      "maxScore": 10,
+      "feedback": ["feedback on education section"]
+    },
+    {
+      "category": "extras",
+      "label": "Certifications & Languages",
+      "score": <0-10>,
+      "maxScore": 10,
+      "feedback": ["feedback on extras"]
+    }
+  ],
+  "suggestions": [
+    {
+      "section": "experience",
+      "field": "",
+      "message": "Add a bullet showing the impact of your design system on development velocity",
+      "action": "improve"
+    }
+  ],
+  "keywordDensity": {
+    "relevant keyword 1": 3.5,
+    "relevant keyword 2": 2.1
+  }
+}
+
+CRITICAL RULES:
+1. Suggestions MUST be specific to the candidate's actual role and industry — a Product Designer should get design-specific suggestions, not generic tech keywords
+2. Score honestly — if contact info is missing, score low; if bullets lack metrics, score low
+3. The "feedback" arrays in categoryScores should have 1-3 items each
+4. "suggestions" should have 2-6 items, each with a section, message, and action
+5. keywordDensity should only include keywords genuinely relevant to the candidate's field
+6. verbCount counts distinct action verbs used in experience bullets
+7. metricCount counts quantified achievements (numbers, %, $) in experience bullets
+
+Return ONLY valid JSON — no markdown, no code fences, no preamble.`,
+    systemPrompt: ATS_SCORE_SYSTEM,
+    maxTokens: 2000,
+  }
+}
+
 export function formatAtsSuggestionsPrompt(data: {
   summary: string
   skills: string[]
