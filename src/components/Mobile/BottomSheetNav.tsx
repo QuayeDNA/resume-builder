@@ -33,6 +33,7 @@ const SECTION_LABELS: Record<string, string> = {
 export default function BottomSheetNav({ open, onClose }: { open: boolean; onClose: () => void }) {
   const activeSection = useResumeStore((s) => s.activeSection)
   const setActiveSection = useResumeStore((s) => s.setActiveSection)
+  const setActiveView = useResumeStore((s) => s.setActiveView)
   const data = useResumeStore((s) => s.data)
   const [mounted, setMounted] = useState(open)
   const [closing, setClosing] = useState(false)
@@ -98,6 +99,11 @@ export default function BottomSheetNav({ open, onClose }: { open: boolean; onClo
 
   const handleClick = (id: string) => {
     setActiveSection(id)
+    if (id === 'coverletter') {
+      setActiveView('cover')
+    } else if (id !== 'saved') {
+      setActiveView('resume')
+    }
     onClose()
   }
 

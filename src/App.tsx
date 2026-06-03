@@ -30,43 +30,45 @@ function MobileHeader({ onMenuToggle, mobileView, onViewChange }: {
   const handleExport = () => setExportDialogOpen(true)
 
   return (
-    <header className="fixed left-0 right-0 top-0 z-30 border-b border-warm-border bg-paper-warm/95 backdrop-blur-md md:hidden">
-      <div className="flex h-14 items-center justify-between gap-3 px-4">
-        <div className="flex min-w-0 items-center gap-2">
+    <header className="fixed left-0 right-0 top-0 z-30 px-4 pt-3 md:hidden">
+      <div className="rounded-[var(--radius-card)] border border-warm-border bg-paper-warm/95 backdrop-blur-md shadow-soft">
+        <div className="flex h-14 items-center justify-between gap-3 px-4">
+          <div className="flex min-w-0 items-center gap-2">
+            <button
+              onClick={onMenuToggle}
+              className="flex h-9 w-9 items-center justify-center rounded-xl border border-warm-border bg-paper-deep/60 text-ink-muted transition-colors hover:bg-paper-deep hover:text-ink"
+              aria-label="Open navigation"
+            >
+              <Menu size={16} />
+            </button>
+            <span className="truncate font-display text-base font-bold tracking-tight text-terracotta">Resume Builder</span>
+          </div>
+
           <button
-            onClick={onMenuToggle}
-            className="flex h-9 w-9 items-center justify-center rounded-xl border border-warm-border bg-paper-deep/60 text-ink-muted transition-colors hover:bg-paper-deep hover:text-ink"
-            aria-label="Open navigation"
+            onClick={handleExport}
+            className="inline-flex items-center gap-1.5 rounded-full border border-sage/30 bg-sage-dim px-3 py-2 text-caption font-medium text-sage transition-all hover:bg-sage/20"
           >
-            <Menu size={16} />
+            <FileDown size={12} />
+            <span>Export</span>
           </button>
-          <span className="truncate font-display text-base font-bold tracking-tight text-terracotta">Resume Builder</span>
         </div>
 
-        <button
-          onClick={handleExport}
-          className="inline-flex items-center gap-1.5 rounded-full border border-sage/30 bg-sage-dim px-3 py-2 text-caption font-medium text-sage transition-all hover:bg-sage/20"
-        >
-          <FileDown size={12} />
-          <span>Export</span>
-        </button>
-      </div>
-
-      <div className="flex border-t border-warm-border bg-paper-warm/80">
-        {MOBILE_TABS.map((view) => (
-          <button
-            key={view.id}
-            onClick={() => onViewChange(view.id)}
-            className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-2 py-2 text-caption font-medium transition-all duration-150 ${
-              mobileView === view.id
-                ? 'border-terracotta text-terracotta'
-                : 'border-transparent text-ink-muted hover:text-ink'
-            }`}
-          >
-            <view.icon size={12} />
-            {view.label}
-          </button>
-        ))}
+        <div className="flex border-t border-warm-border">
+          {MOBILE_TABS.map((view) => (
+            <button
+              key={view.id}
+              onClick={() => onViewChange(view.id)}
+              className={`flex flex-1 items-center justify-center gap-1.5 border-b-2 px-2 py-2 text-caption font-medium transition-all duration-150 ${
+                mobileView === view.id
+                  ? 'border-terracotta text-terracotta'
+                  : 'border-transparent text-ink-muted hover:text-ink'
+              }`}
+            >
+              <view.icon size={12} />
+              {view.label}
+            </button>
+          ))}
+        </div>
       </div>
     </header>
   )
@@ -139,7 +141,7 @@ export default function App() {
         </div>
 
         {/* Mobile: single panel, tab-switched */}
-        <div className="flex min-h-0 h-[calc(100dvh)] flex-col overflow-hidden pt-24 md:hidden">
+        <div className="flex min-h-0 h-[calc(100dvh)] flex-col overflow-hidden pt-28 md:hidden">
           {mobileView === 'edit' ? <EditorPanel /> : <PreviewPanel />}
         </div>
 

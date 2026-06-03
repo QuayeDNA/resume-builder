@@ -50,12 +50,18 @@ type SideNavProps = {
 export default function SideNav({ onProfileClick }: SideNavProps) {
   const activeSection = useResumeStore((s) => s.activeSection)
   const setActiveSection = useResumeStore((s) => s.setActiveSection)
+  const setActiveView = useResumeStore((s) => s.setActiveView)
   const savedAt = useResumeStore((s) => s.savedAt)
 
   const { user } = useAuthStore()
 
   const handleNavClick = (id: string) => {
     setActiveSection(id)
+    if (id === 'coverletter') {
+      setActiveView('cover')
+    } else if (id !== 'saved' && id !== 'jobmatch') {
+      setActiveView('resume')
+    }
   }
 
   return (
