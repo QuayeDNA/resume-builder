@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Undo2, Redo2, Eye, EyeOff, Activity } from 'lucide-react'
 import {
   DndContext,
@@ -56,6 +56,40 @@ function SectionRenderer({ section }: { section: string }) {
     if (cs) return <CustomSectionEditor section={cs} />
   }
   return null
+}
+
+function AtsButton() {
+  const [textVisible, setTextVisible] = useState(true)
+  const [hovered, setHovered] = useState(false)
+
+  useEffect(() => {
+    const t = setTimeout(() => setTextVisible(false), 3000)
+    return () => clearTimeout(t)
+  }, [])
+
+  const show = hovered || textVisible
+
+  return (
+    <button
+      onClick={() => useResumeStore.getState().setAtsDialogOpen(true)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="flex items-center gap-1.5 rounded-full border border-sage/20 bg-sage-dim/40 px-2.5 py-1.5 text-[11px] font-medium text-sage transition-all duration-300 hover:bg-sage/20"
+      aria-label="ATS Checker"
+    >
+      <Activity size={14} />
+      <span
+        className="overflow-hidden whitespace-nowrap transition-all duration-500"
+        style={{
+          maxWidth: show ? '60px' : '0px',
+          opacity: show ? 1 : 0,
+          marginRight: show ? '0' : '-4px',
+        }}
+      >
+        Check
+      </span>
+    </button>
+  )
 }
 
 function DraggableSection({ section, hidden, children }: { section: string; hidden: boolean; children: React.ReactNode }) {
@@ -155,15 +189,7 @@ export default function EditorPanel() {
         <div className="flex items-center justify-between">
           <h2 className="text-heading text-ink font-display font-semibold">Editor</h2>
           <div className="flex gap-1">
-            <IconButton
-              onClick={() => useResumeStore.getState().setAtsDialogOpen(true)}
-              variant="ghost"
-              size="sm"
-              aria-label="ATS Checker"
-              title="ATS Checker"
-            >
-              <Activity size={14} />
-            </IconButton>
+            <AtsButton />
             <IconButton
               onClick={() => useResumeStore.getState().undo()}
               variant="ghost"

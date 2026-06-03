@@ -1,4 +1,6 @@
-import { Card, Input, TextArea, AiButton } from '../UI'
+import { Card, Input, AiButton } from '../UI'
+import { Field } from '../../design/components/Field'
+import RichTextEditor from './RichTextEditor'
 import { useAi } from '../../hooks/useAi'
 import { aiImproveSummary } from '../../api/ai'
 import useResumeStore from '../../store/useResumeStore'
@@ -30,13 +32,14 @@ export default function PersonalSection() {
 
       <Input label="LinkedIn" value={personal.linkedin} onChange={(v) => updatePersonal('linkedin', v)} placeholder="linkedin.com/in/you" />
 
-      <TextArea
-        label="Professional Summary"
-        value={personal.summary}
-        onChange={(v) => updatePersonal('summary', v)}
-        placeholder="Write a compelling 2–3 sentence summary…"
-        rows={8}
-      />
+      <Field label="Professional Summary">
+        <RichTextEditor
+          value={personal.summary}
+          onChange={(v) => updatePersonal('summary', v)}
+          placeholder="Write a compelling 2–3 sentence summary…"
+          minHeight={160}
+        />
+      </Field>
 
       <AiButton
         onClick={handleImproveSummary}

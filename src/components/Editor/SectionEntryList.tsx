@@ -1,12 +1,14 @@
 import type { ReactNode } from 'react'
 import { Card, EntryCard, Input, TextArea, Select, Button } from '../UI'
+import { Field } from '../../design/components/Field'
 import { EmptyState } from '../../design/components'
+import RichTextEditor from './RichTextEditor'
 import SortableList from '../SortableList'
 
 export type FieldConfig = {
   key: string
   label: string
-  type?: 'input' | 'textarea' | 'select'
+  type?: 'input' | 'textarea' | 'select' | 'richtext'
   placeholder?: string
   options?: readonly { value: string; label: string }[] | readonly string[]
 }
@@ -32,6 +34,12 @@ function FieldInput({ field, value, onChange }: {
 }) {
   const common = { value, onChange, placeholder: field.placeholder }
   switch (field.type) {
+    case 'richtext':
+      return (
+        <Field label={field.label}>
+          <RichTextEditor {...common} minHeight={120} />
+        </Field>
+      )
     case 'textarea':
       return <TextArea label={field.label} rows={6} {...common} />
     case 'select':

@@ -50,7 +50,7 @@ export const ENTRY_SECTIONS: Record<string, EntrySection> = {
     fields: [
       { key: 'name',        label: 'Project Name', placeholder: 'My Awesome Project' },
       { key: 'url',         label: 'URL / GitHub', placeholder: 'github.com/you/project' },
-      { key: 'description', label: 'Description',  type: 'textarea', placeholder: 'What did you build and what was the impact?' },
+      { key: 'description', label: 'Description',  type: 'richtext', placeholder: 'What did you build and what was the impact?' },
     ],
     onAdd:      () => useResumeStore.getState().addProject(),
     onRemove:   (id) => useResumeStore.getState().removeProject(id),
