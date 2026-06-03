@@ -1,10 +1,10 @@
 import { FileDown, FileText, FileSignature, Monitor, Sun, Moon, Smartphone, ScrollText, Printer, Crosshair } from 'lucide-react'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { TemplateRenderer, CoverLetterRenderer } from '../../Templates'
 import useResumeStore from '../../store/useResumeStore'
 import PageComposer from './PageComposer'
 import ZoomControls, { ZOOM_FIT } from './ZoomControls'
-import { PAGE_WIDTH } from '../../Templates/theme'
+import { PAGE_WIDTH, PAGE_HEIGHT } from '../../Templates/theme'
 import '../../design/textures/desk.css'
 
 type BgMode = 'desk' | 'paper' | 'dark'
@@ -32,9 +32,15 @@ export default function PreviewPanel() {
   const [zoom, setZoom] = useState<number>(ZOOM_FIT)
   const [bgMode, setBgMode] = useState<BgMode>(() => getStoredBg())
   const [previewMode, setPreviewMode] = useState<PreviewMode>('page')
+  const [panX, setPanX] = useState(0)
+  const [panY, setPanY] = useState(0)
   const scrollRef = useRef<HTMLDivElement>(null)
   const panning = useRef(false)
-  const panStart = useRef({ x: 0, y: 0, scrollLeft: 0, scrollTop: 0 })
+  const panStart = useRef({ x: 0, y: 0, px: 0, py: 0 })
+  const [fitScale, setFitScale] = useState(1)
+
+  // Compute effective zoom — always a number
+  const effectiveZoom = zoom === ZOOM_FIT ? fitScale : zoom
 
   const handleBgChange = useCallback((mode: BgMode) => {
     setBgMode(mode)
@@ -47,54 +53,65 @@ export default function PreviewPanel() {
   const handleFocusPage = useCallback(() => {
     const el = scrollRef.current
     if (!el) return
-    const containerWidth = el.clientWidth
-    const containerHeight = el.clientHeight
-    const target = el.querySelector<HTMLElement>('[data-page-container]') || el.querySelector<HTMLElement>('.bg-white.shadow-card')
-    if (target) {
-      el.scrollTo({
-        left: target.offsetLeft + target.offsetWidth / 2 - containerWidth / 2,
-        top: target.offsetTop + target.offsetHeight / 2 - containerHeight / 2,
-        behavior: 'smooth',
-      })
-    } else {
-      el.scrollTo({ top: 0, left: 0, behavior: 'smooth' })
-    }
-  }, [])
+    const w = PAGE_WIDTH * effectiveZoom
+    const h = PAGE_HEIGHT * effectiveZoom
+    // Disable transition briefly, set target, then re-enable on next frame
+    // so the transition always fires from the current position
+    panning.current = false
+    setPanX((el.clientWidth - w) / 2)
+    setPanY((el.clientHeight - h) / 2)
+  }, [effectiveZoom])
 
-  const handlePanStart = useCallback((e: React.MouseEvent) => {
+  const handlePanStart = useCallback((e: React.PointerEvent) => {
     if (e.button !== 0) return
     const el = scrollRef.current
     if (!el) return
+    el.setPointerCapture(e.pointerId)
     panning.current = true
-    panStart.current = {
-      x: e.clientX,
-      y: e.clientY,
-      scrollLeft: el.scrollLeft,
-      scrollTop: el.scrollTop,
-    }
+    panStart.current = { x: e.clientX, y: e.clientY, px: panX, py: panY }
     el.style.cursor = 'grabbing'
     el.style.userSelect = 'none'
-  }, [])
+  }, [panX, panY])
 
-  const handlePanMove = useCallback((e: React.MouseEvent) => {
+  const handlePanMove = useCallback((e: React.PointerEvent) => {
     if (!panning.current) return
-    const el = scrollRef.current
-    if (!el) return
     e.preventDefault()
     const dx = e.clientX - panStart.current.x
     const dy = e.clientY - panStart.current.y
-    el.scrollLeft = panStart.current.scrollLeft - dx
-    el.scrollTop = panStart.current.scrollTop - dy
+    setPanX(panStart.current.px + dx)
+    setPanY(panStart.current.py + dy)
   }, [])
 
-  const handlePanEnd = useCallback(() => {
+  const handlePanEnd = useCallback((e: React.PointerEvent) => {
     if (!panning.current) return
     panning.current = false
     const el = scrollRef.current
     if (el) {
+      try { el.releasePointerCapture(e.pointerId) } catch { /* already released */ }
       el.style.cursor = ''
       el.style.userSelect = ''
     }
+  }, [])
+
+  const handleWheel = useCallback((e: React.WheelEvent) => {
+    if (e.shiftKey) {
+      setPanX(p => p - e.deltaY)
+    } else {
+      setPanY(p => p - e.deltaY)
+    }
+  }, [])
+
+  // Recalculate fit zoom when container resizes
+  useLayoutEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    const updateFit = () => {
+      setFitScale(Math.min(1, (el.clientWidth - 48) / PAGE_WIDTH))
+    }
+    updateFit()
+    const ro = new ResizeObserver(updateFit)
+    ro.observe(el)
+    return () => ro.disconnect()
   }, [])
 
   const resumeContent = useMemo(() => {
@@ -105,30 +122,30 @@ export default function PreviewPanel() {
   return (
     <section aria-label="Preview" className="relative flex min-h-0 w-full min-w-0 flex-1 flex-col overflow-hidden bg-paper">
       {/* ── Toolbar: view toggle, preview mode, bg, zoom ── */}
-      <div className="flex flex-col gap-1.5 border-b border-warm-border bg-paper-warm px-3 py-2">
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-1 sm:gap-1.5 border-b border-warm-border bg-paper-warm px-2 sm:px-3 py-1.5 sm:py-2">
+        <div className="flex items-center gap-1.5 sm:gap-2">
           <div className="flex gap-0.5 rounded-lg border border-warm-border bg-paper p-0.5 shadow-soft">
             <button
               onClick={() => setActiveView('resume')}
-              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-caption font-medium transition-all duration-150 ${
+              className={`inline-flex items-center gap-1 rounded-md px-1.5 sm:px-2.5 py-1 text-caption font-medium transition-all duration-150 ${
                 activeView === 'resume'
                   ? 'bg-terracotta text-white shadow-sm'
                   : 'text-ink-muted hover:text-ink'
               }`}
             >
               <FileText size={12} />
-              Resume
+              <span className="hidden sm:inline">Resume</span>
             </button>
             <button
               onClick={() => setActiveView('cover')}
-              className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 text-caption font-medium transition-all duration-150 ${
+              className={`inline-flex items-center gap-1 rounded-md px-1.5 sm:px-2.5 py-1 text-caption font-medium transition-all duration-150 ${
                 activeView === 'cover'
                   ? 'bg-terracotta text-white shadow-sm'
                   : 'text-ink-muted hover:text-ink'
               }`}
             >
               <FileSignature size={12} />
-              Cover
+              <span className="hidden sm:inline">Cover</span>
             </button>
           </div>
 
@@ -136,14 +153,15 @@ export default function PreviewPanel() {
 
           <button
             onClick={handleExport}
-            className="inline-flex items-center gap-2 rounded-full bg-sage px-4 py-1.5 text-caption font-semibold text-white shadow-soft transition-all duration-200 hover:bg-sage/90 hover:shadow-card active:scale-95"
+            className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full bg-sage px-2.5 sm:px-4 py-1 sm:py-1.5 text-caption font-semibold text-white shadow-soft transition-all duration-200 hover:bg-sage/90 hover:shadow-card active:scale-95"
           >
             <FileDown size={14} />
-            Export PDF
+            <span className="hidden sm:inline">Export</span>
+            <span className="sm:hidden" aria-label="Export PDF">PDF</span>
           </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
           <div className="flex gap-0.5 rounded-lg border border-warm-border bg-paper p-0.5 shadow-soft">
             {([
               { mode: 'page' as PreviewMode, icon: FileText, label: 'Page' },
@@ -155,7 +173,7 @@ export default function PreviewPanel() {
                 onClick={() => setPreviewMode(mode)}
                 aria-label={`${label} preview`}
                 aria-pressed={previewMode === mode}
-                className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-caption font-medium transition-all duration-150 ${
+                className={`inline-flex items-center gap-1 rounded-md px-1.5 sm:px-2 py-1 text-caption font-medium transition-all duration-150 ${
                   previewMode === mode
                     ? 'bg-terracotta text-white shadow-sm'
                     : 'text-ink-muted hover:text-ink'
@@ -195,64 +213,47 @@ export default function PreviewPanel() {
         </div>
       </div>
 
-      {/* ── Preview area (drag to pan) ── */}
+      {/* ── Preview area (drag to pan, no scroll bounds) ── */}
       <div
         ref={scrollRef}
-        onMouseDown={handlePanStart}
-        onMouseMove={handlePanMove}
-        onMouseUp={handlePanEnd}
-        onMouseLeave={handlePanEnd}
-        className={`relative flex-1 overflow-auto cursor-grab ${
+        onPointerDown={handlePanStart}
+        onPointerMove={handlePanMove}
+        onPointerUp={handlePanEnd}
+        onPointerLeave={handlePanEnd}
+        onWheel={handleWheel}
+        className={`relative flex-1 overflow-hidden cursor-grab touch-none ${
           bgMode === 'desk' ? 'desk-surface' : bgMode === 'paper' ? 'bg-white' : 'bg-[#1a1816]'
         }`}
       >
-        {/* Large virtual canvas for free panning */}
-        <div className="relative flex items-center justify-center" style={{ minWidth: '200vw', minHeight: '200vh' }}>
-          <div className="flex flex-col items-center">
-            {previewMode === 'mobile' ? (
-              <div className="flex justify-center py-4">
-                <div
-                  className="overflow-hidden rounded-[32px] border-[3px] border-ink/10 bg-white shadow-card"
-                  style={{ width: 375 }}
-                >
-                  <div className="flex items-center justify-center border-b border-ink/5 py-2 text-[9px] font-medium text-ink-muted">
-                    <Smartphone size={10} className="mr-1.5" />
-                    Mobile Preview
-                  </div>
-                  <div className="overflow-y-auto" style={{ height: 667 }}>
-                    {resumeContent}
-                  </div>
-                </div>
+        <div
+          style={{
+            transform: previewMode === 'mobile'
+              ? `translate(${panX}px, ${panY}px)`
+              : `translate(${panX}px, ${panY}px) scale(${effectiveZoom})`,
+            transformOrigin: '0 0',
+            transition: panning.current ? 'none' : 'transform 0.4s cubic-bezier(0.22, 1, 0.36, 1)',
+            width: previewMode === 'mobile' ? undefined : PAGE_WIDTH,
+          }}
+        >
+          {previewMode === 'mobile' ? (
+            <div className="rounded-[32px] border-[3px] border-ink/10 bg-white shadow-card" style={{ width: 375 }}>
+              <div className="flex items-center justify-center border-b border-ink/5 py-2 text-[9px] font-medium text-ink-muted">
+                <Smartphone size={10} className="mr-1.5" />
+                Mobile Preview
               </div>
-            ) : previewMode === 'scroll' ? (
-              <div
-                className="mx-auto transition-transform duration-300 ease-out-expo origin-top"
-                style={{
-                  width: PAGE_WIDTH,
-                  transform: zoom === ZOOM_FIT ? 'none' : `scale(${zoom})`,
-                  transformOrigin: 'top center',
-                }}
-              >
-                <div className="bg-white shadow-card" style={{ width: PAGE_WIDTH }}>
-                  {resumeContent}
-                </div>
+              <div className="overflow-y-auto" style={{ height: 667 }}>
+                {resumeContent}
               </div>
-            ) : (
-              <div
-                className="transition-transform duration-300 ease-out-expo origin-top"
-                style={{
-                  transform: zoom === ZOOM_FIT ? 'none' : `scale(${zoom})`,
-                  transformOrigin: 'top center',
-                  margin: '0 auto',
-                  width: zoom === ZOOM_FIT ? 'fit-content' : undefined,
-                }}
-              >
-                <PageComposer key={`${activeView}-${data.template}`}>
-                  {resumeContent}
-                </PageComposer>
-              </div>
-            )}
-          </div>
+            </div>
+          ) : previewMode === 'scroll' ? (
+            <div className="bg-white shadow-card" style={{ width: PAGE_WIDTH }}>
+              {resumeContent}
+            </div>
+          ) : (
+            <PageComposer key={`${activeView}-${data.template}`}>
+              {resumeContent}
+            </PageComposer>
+          )}
         </div>
       </div>
 
